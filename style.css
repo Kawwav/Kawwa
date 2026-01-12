@@ -1,0 +1,288 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* ÍCONES SOCIAIS */
+.social-icons {
+  position: absolute;
+  right: 25px;
+  display: flex;
+  gap: 15px;
+  z-index: 10;
+}
+
+.header-icons {
+  top: 25px;
+}
+
+.footer-icons {
+  bottom: 25px;
+  position: absolute;
+}
+
+/* ESTILO DOS ÍCONES */
+.social-icons a {
+  width: 42px;
+  height: 42px;
+  background: #1f1f1f;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.3s ease, background 0.3s ease, box-shadow 0.3s ease;
+}
+
+.social-icons img {
+  width: 22px;
+  height: 22px;
+}
+
+/* HOVER ANIMADO */
+.social-icons a:hover {
+  transform: translateY(-5px) scale(1.1);
+  background: #9e9e9e;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+}
+
+/* ÍCONES SOCIAIS */
+.social-icons {
+  position: absolute;
+  right: 25px;
+  display: flex;
+  gap: 15px;
+  z-index: 10;
+}
+
+.header-icons {
+  top: 25px;
+}
+
+.footer-icons {
+  bottom: 25px;
+  position: absolute;
+}
+
+/* ESTILO DOS ÍCONES */
+.social-icons a {
+  width: 42px;
+  height: 42px;
+  background: #1f1f1f;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.3s ease, background 0.3s ease, box-shadow 0.3s ease;
+}
+
+.social-icons img {
+  width: 22px;
+  height: 22px;
+}
+
+/* HOVER ANIMADO */
+.social-icons a:hover {
+  transform: translateY(-5px) scale(1.1);
+  background: #9e9e9e;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+}
+
+
+body {
+     position: relative;
+  z-index: 0;
+  background: #121212;
+  color: #e0e0e0;
+  line-height: 1.6;
+}
+
+/* HERO */
+.hero {
+  padding: 100px 20px;
+  text-align: center;
+    position: relative;
+  background: linear-gradient(135deg, #1a1a1a, #2a2a2a);
+}
+
+.hero h1 {
+  font-size: 2.8rem;
+  margin-bottom: 15px;
+}
+
+.hero p {
+  color: #bdbdbd;
+  max-width: 600px;
+  margin: 0 auto 30px;
+}
+
+/* BOTÃO */
+.btn {
+  display: inline-block;
+  padding: 14px 35px;
+  background: #9e9e9e;
+  color: #111;
+  text-decoration: none;
+  font-weight: bold;
+  border-radius: 6px;
+  transition: transform 0.3s, background 0.3s;
+}
+
+.btn:hover {
+  background: #bdbdbd;
+  transform: translateY(-3px);
+}
+
+/* SEÇÕES */
+.section {
+  padding: 70px 20px;
+  max-width: 1100px;
+  margin: auto;
+  text-align: center;
+}
+
+.section h2 {
+  font-size: 2.2rem;
+  margin-bottom: 25px;
+}
+
+.section p {
+  max-width: 800px;
+  margin: auto;
+  color: #bdbdbd;
+}
+
+/* GRID */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 25px;
+  margin-top: 50px;
+}
+
+/* CARDS */
+.card {
+  background: #1f1f1f;
+  padding: 30px;
+  border-radius: 12px;
+  transition: transform 0.3s;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+}
+
+.card h3 {
+  margin-bottom: 10px;
+  color: #e0e0e0;
+}
+
+/* PROJETOS */
+.projeto {
+  background: #1f1f1f;
+  border-radius: 12px;
+  overflow: hidden;
+  transition: transform 0.3s;
+}
+
+.projeto:hover {
+  transform: scale(1.02);
+}
+
+.projeto img {
+  width: 100%;
+  height: 220px;
+  object-fit: cover;
+}
+
+.projeto div {
+  padding: 20px;
+}
+
+/* WEB DESIGNERS – ajuste somente das imagens */
+.designers {
+  align-items: stretch;
+}
+
+.designer-card img {
+  width: 100%;
+  height: 220px;
+  object-fit: cover;
+  border-radius: 10px;
+  display: block;
+}
+
+
+/* CONTATO */
+.contato p {
+  margin-bottom: 25px;
+}
+
+/* FOOTER */
+footer {
+  background: #0a0a0a;
+  padding: 20px;
+  text-align: center;
+  font-size: 0.9rem;
+  color: #888;
+  position: relative;
+}
+
+/* ANIMAÇÃO */
+.fade-in {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 1s ease, transform 1s ease;
+}
+
+.fade-in.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+#particles {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -2;
+  pointer-events: none;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 25px;
+}
+
+/* CARD INTERATIVO */
+.designer-card {
+  background: #1f1f1f;
+  padding: 20px;
+  border-radius: 12px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  cursor: pointer;
+}
+
+/* HOVER */
+.designer-card:hover {
+  transform: translateY(-6px) scale(1.02);
+  box-shadow: 0 12px 25px rgba(0, 0, 0, 0.4);
+}
+
+/* HOVER NA IMAGEM */
+.designer-card img {
+  transition: transform 0.4s ease;
+}
+
+.designer-card:hover img {
+  transform: scale(1.05);
+}
+
