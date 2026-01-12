@@ -4,8 +4,6 @@
   box-sizing: border-box;
   font-family: Arial, Helvetica, sans-serif;
 }
-
-/* ÍCONES SOCIAIS */
 .social-icons {
   position: absolute;
   right: 25px;
@@ -23,7 +21,6 @@
   position: absolute;
 }
 
-/* ESTILO DOS ÍCONES */
 .social-icons a {
   width: 42px;
   height: 42px;
@@ -40,14 +37,12 @@
   height: 22px;
 }
 
-/* HOVER ANIMADO */
 .social-icons a:hover {
   transform: translateY(-5px) scale(1.1);
   background: #9e9e9e;
   box-shadow: 0 10px 25px rgba(0,0,0,0.4);
 }
 
-/* ÍCONES SOCIAIS */
 .social-icons {
   position: absolute;
   right: 25px;
@@ -65,7 +60,7 @@
   position: absolute;
 }
 
-/* ESTILO DOS ÍCONES */
+/* ÍCONES */
 .social-icons a {
   width: 42px;
   height: 42px;
@@ -82,7 +77,7 @@
   height: 22px;
 }
 
-/* HOVER ANIMADO */
+/* HOVER */
 .social-icons a:hover {
   transform: translateY(-5px) scale(1.1);
   background: #9e9e9e;
@@ -200,7 +195,7 @@ body {
   padding: 20px;
 }
 
-/* WEB DESIGNERS – ajuste somente das imagens */
+/* WEB DESIGNER*/
 .designers {
   align-items: stretch;
 }
@@ -262,7 +257,6 @@ a {
   gap: 25px;
 }
 
-/* CARD INTERATIVO */
 .designer-card {
   background: #1f1f1f;
   padding: 20px;
@@ -271,13 +265,11 @@ a {
   cursor: pointer;
 }
 
-/* HOVER */
 .designer-card:hover {
   transform: translateY(-6px) scale(1.02);
   box-shadow: 0 12px 25px rgba(0, 0, 0, 0.4);
 }
 
-/* HOVER NA IMAGEM */
 .designer-card img {
   transition: transform 0.4s ease;
 }
@@ -285,4 +277,5 @@ a {
 .designer-card:hover img {
   transform: scale(1.05);
 }
+
 
