@@ -61,3 +61,12 @@ function animateParticles() {
 }
 
 animateParticles();
+
+const btnProjetos = document.querySelector('.btn');
+
+btnProjetos.addEventListener('click', function (e) {
+  e.preventDefault();
+  document.getElementById('projetos-dev').scrollIntoView({
+    behavior: 'smooth'
+  });
+});
