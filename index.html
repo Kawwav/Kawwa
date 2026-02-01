@@ -11,6 +11,7 @@
 </head>
 
 <body>
+    <div id="scroll-progress"></div>
     <canvas id="particles"></canvas>
 
     <!-- HERO -->
@@ -19,7 +20,8 @@
         <p>Web Designer focado em criar interfaces modernas, elegantes e funcionais.</p>
         <a href="#projetos" class="btn">Ver Projetos</a>
         <div class="social-icons header-icons">
-            <a href="https://wa.me/5541988184388?text=Olá!%20Gostaria%20de%20um%20site%20profissional." target="_blank" aria-label="WhatsApp">
+            <a href="https://wa.me/5541988184388?text=Olá!%20Gostaria%20de%20um%20site%20profissional." target="_blank"
+                aria-label="WhatsApp">
                 <img src="./img/whatsapp.png" alt="WhatsApp">
             </a>
 
@@ -109,8 +111,9 @@
                     <img src="./desgin/barbearia.PNG" alt="Designer 3">
                     <h3>Design de barbearia</h3>
                     <p>
-                        Projeto de site para a Barbearia Falcão, apresentando a equipe de profissionais,
-                         os serviços oferecidos, o portfólio de cortes e o ambiente da barbearia por meio de fotos e vídeos.
+                        Projeto de site para a Barbearia, apresentando a equipe de profissionais,
+                        os serviços oferecidos, o portfólio de cortes e o ambiente da barbearia por meio de fotos e
+                        vídeos.
                     </p>
                 </div>
             </a>
@@ -152,13 +155,27 @@
                 </div>
             </a>
 
+            <a href="https://barbearia-cwb.netlify.app/">
+                <div class="projeto">
+                    <img src="./codigo/barbearia.PNG" alt="Projeto em Código">
+                    <div>
+                        <h3>Modelo de Lading Page de Barbearia</h3>
+                        <p>
+                            Apresentação de uma barbearia onde mostra a equipe, o serviços o espaço
+                            o formulario de fotos de cabelos , e as assinaturas
+                        </p>
+                    </div>
+                </div>
+            </a>
+
             <a href="https://souzaindustria.netlify.app/">
                 <div class="projeto">
                     <img src="./codigo/souza.PNG" alt="Projeto em Código">
                     <div>
                         <h3>Site da empresa Souza industrial (em andamento )</h3>
                         <p>
-                            Apresentação institucional da Souza: excelência em soluções de montagem e manutenção industrial
+                            Apresentação institucional da Souza: excelência em soluções de montagem e manutenção
+                            industrial
                         </p>
                     </div>
                 </div>
@@ -173,22 +190,33 @@
     <section class="section contato fade-in">
         <h2>Contato</h2>
         <p>Quer um design profissional para o seu site?</p>
-        <a href="https://wa.me/5541988184388?text=Olá!%20Gostaria%20de%20um%20site%20profissional." target="_blank" class="btn">Falar no WhatsApp</a>
+        <a href="https://wa.me/5541988184388?text=Olá!%20Gostaria%20de%20um%20site%20profissional." target="_blank"
+            class="btn">Falar no WhatsApp</a>
     </section>
 
     <footer>
         © 2026 • Vinicius Santiago • Web Designer
         <div class="social-icons footer-icons">
-            <a href="https://wa.me/5541988184388?text=Olá!%20Gostaria%20de%20um%20site%20profissional." target="_blank" aria-label="WhatsApp">
+            <a href="https://wa.me/5541988184388?text=Olá!%20Gostaria%20de%20um%20site%20profissional." target="_blank"
+                aria-label="WhatsApp">
                 <img src="./img/whatsapp.png" alt="WhatsApp">
             </a>
 
             <a href="https://www.instagram.com/_k.aww.a_/" target="_blank" aria-label="Instagram">
-                 <img src="./img/instagram.png" alt="Instagram">
+                <img src="./img/instagram.png" alt="Instagram">
             </a>
         </div>
     </footer>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.7.0/vanilla-tilt.min.js"></script>
+    <script>
+        VanillaTilt.init(document.querySelectorAll(".designer-card, .projeto"), {
+            max: 15,
+            speed: 400,
+            glare: true,
+            "max-glare": 0.2,
+        });
+    </script>
     <script src="script.js"></script>
 </body>
 

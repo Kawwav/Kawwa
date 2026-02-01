@@ -70,3 +70,67 @@ btnProjetos.addEventListener('click', function (e) {
     behavior: 'smooth'
   });
 });
+
+window.addEventListener('scroll', () => {
+  const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+  const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+  const scrolled = (winScroll / height) * 100;
+  document.getElementById("scroll-progress").style.width = scrolled + "%";
+});
+
+
+const textElement = document.querySelector(".hero p");
+const phrases = [
+  "Web Designer focado em interfaces modernas.",
+  "Especialista em Landing Pages de alta conversão.",
+  "Criando experiências digitais únicas."
+];
+let phraseIndex = 0;
+let charIndex = 0;
+let isDeleting = false;
+
+function type() {
+  const currentPhrase = phrases[phraseIndex];
+  
+  if (isDeleting) {
+    textElement.textContent = currentPhrase.substring(0, charIndex - 1);
+    charIndex--;
+  } else {
+    textElement.textContent = currentPhrase.substring(0, charIndex + 1);
+    charIndex++;
+  }
+
+  let typeSpeed = isDeleting ? 50 : 100;
+
+  if (!isDeleting && charIndex === currentPhrase.length) {
+    isDeleting = true;
+    typeSpeed = 2000; // Pausa no final da frase
+  } else if (isDeleting && charIndex === 0) {
+    isDeleting = false;
+    phraseIndex = (phraseIndex + 1) % phrases.length;
+    typeSpeed = 500;
+  }
+
+  setTimeout(type, typeSpeed);
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    textElement.classList.add("typing-text");
+    type();
+});
+
+const magneticBtns = document.querySelectorAll('.social-icons a');
+
+magneticBtns.forEach(btn => {
+  btn.addEventListener('mousemove', (e) => {
+    const position = btn.getBoundingClientRect();
+    const x = e.pageX - position.left - position.width / 2;
+    const y = e.pageY - position.top - position.height / 2;
+    
+    btn.style.transform = `translate(${x * 0.3}px, ${y * 0.3}px)`;
+  });
+  
+  btn.addEventListener('mouseout', () => {
+    btn.style.transform = `translate(0px, 0px)`;
+  });
+});
