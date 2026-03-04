@@ -8,55 +8,93 @@
     <meta name="description" content="Web Designer especializado em design de sites e landing pages modernas.">
     <link rel="stylesheet" href="style.css">
     <link rel="icon" href="./img/logo.png" type="/x-icon">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
 </head>
 
 <body>
     <div id="scroll-progress"></div>
     <canvas id="particles"></canvas>
 
-    <!-- HERO -->
-    <header class="hero fade-in">
-        <h1>Vinícius Kawasugui Santiago</h1>
-        <p>Web Designer focado em criar interfaces modernas, elegantes e funcionais.</p>
-        <a href="#projetos" class="btn">Ver Projetos</a>
-        <div class="social-icons header-icons">
-            <a href="https://wa.me/5541988184388?text=Olá!%20Gostaria%20de%20um%20site%20profissional." target="_blank"
-                aria-label="WhatsApp">
+    <nav>
+        <a class="nav-logo" href="#">KAWWA / Studio</a>
+        <ul class="nav-links">
+            <li><a href="#sobre">Sobre</a></li>
+            <li><a href="#servicos">Serviços</a></li>
+            <li><a href="#designers">Design</a></li>
+            <li><a href="#projetos-dev">Código</a></li>
+            <li><a href="#contato">Contato</a></li>
+        </ul>
+        <div class="nav-social">
+            <a href="https://wa.me/5541988184388?text=Olá!%20Gostaria%20de%20um%20site%20profissional." target="_blank" aria-label="WhatsApp">
                 <img src="./img/whatsapp.png" alt="WhatsApp">
             </a>
-
             <a href="https://www.instagram.com/_k.aww.a_/" target="_blank" aria-label="Instagram">
                 <img src="./img/instagram.png" alt="Instagram">
             </a>
         </div>
+        <button class="nav-hamburger" id="navHamburger" aria-label="Menu">
+            <span></span><span></span><span></span>
+        </button>
+    </nav>
+
+    <!-- MOBILE MENU -->
+    <div class="mobile-menu" id="mobileMenu">
+        <nav class="mobile-nav">
+            <a href="#sobre" class="mobile-link">Sobre</a>
+            <a href="#servicos" class="mobile-link">Serviços</a>
+            <a href="#designers" class="mobile-link">Design</a>
+            <a href="#projetos-dev" class="mobile-link">Código</a>
+            <a href="#contato" class="mobile-link">Contato</a>
+        </nav>
+        <div class="mobile-social">
+            <a href="https://wa.me/5541988184388?text=Olá!%20Gostaria%20de%20um%20site%20profissional." target="_blank">
+                <img src="./img/whatsapp.png" alt="WhatsApp"> WhatsApp
+            </a>
+            <a href="https://www.instagram.com/_k.aww.a_/" target="_blank">
+                <img src="./img/instagram.png" alt="Instagram"> Instagram
+            </a>
+        </div>
+    </div>
+
+    <!-- HERO -->
+    <header class="hero-new">
+        <p class="hero-eyebrow">Web Designer — Curitiba, Brasil</p>
+        <h1>Vinícius<br><em>Santiago</em></h1>
+        <p class="hero-typing" id="hero-typing-text"></p>
+        <div class="hero-cta">
+            <a href="#designers" class="btn-primary-h">Ver Projetos</a>
+            <a href="https://wa.me/5541988184388?text=Olá!%20Gostaria%20de%20um%20site%20profissional." target="_blank" class="btn-ghost-h">Falar comigo →</a>
+        </div>
+        <div class="hero-scroll-indicator">
+            <div class="scroll-line"></div>
+            <span>Scroll</span>
+        </div>
     </header>
 
-    <!-- SOBRE -->
-    <section class="section fade-in">
-        <h2>Sobre mim</h2>
-        <p>
-            Sou <strong>Web Designer</strong> e atuo no desenvolvimento visual de sites e landing pages,
-            criando layouts modernos, responsivos e focados na melhor experiência do usuário.
-            Meu trabalho é transformar ideias em designs profissionais e bem estruturados.
-        </p>
-    </section>
+    <!-- SOBRE + SERVIÇOS -->
+    <section id="sobre" class="about fade-in">
+        <div>
+            <div class="about-label">Sobre mim</div>
+            <h2>Design com<br>propósito e<br><em style="font-style:italic;color:#9e9e9e">precisão</em></h2>
+            <p>Sou <strong>Web Designer</strong> especializado no desenvolvimento visual de sites e landing pages. Crio layouts modernos, responsivos e focados na experiência do usuário.</p>
+            <p>Meu trabalho é transformar ideias em designs profissionais, estruturados e memoráveis — do Figma ao código.</p>
+        </div>
 
-    <!-- SERVIÇOS -->
-    <section class="section fade-in">
-        <h2>O que eu faço</h2>
-
-        <div class="grid">
-            <div class="card">
+        <div id="servicos" class="about-services">
+            <div class="service-box">
+                <div class="service-box-num">01</div>
                 <h3>Web Design</h3>
                 <p>Criação de layouts modernos e profissionais para sites e landing pages.</p>
             </div>
-
-            <div class="card">
+            <div class="service-box">
+                <div class="service-box-num">02</div>
                 <h3>Landing Pages</h3>
                 <p>Design focado em conversão, clareza e experiência do usuário.</p>
             </div>
-
-            <div class="card">
+            <div class="service-box">
+                <div class="service-box-num">03</div>
                 <h3>UI Design</h3>
                 <p>Interfaces pensadas para usabilidade, estética e identidade visual.</p>
             </div>
@@ -64,182 +102,269 @@
     </section>
 
     <!-- WEB DESIGNERS -->
-    <section class="section fade-in">
-        <h2>Web Designers</h2>
-        <p>Projetos desenvolvidos com foco em design, identidade visual e experiência do usuário.</p>
+    <section id="designers" class="portfolio fade-in">
+        <div class="section-header">
+            <div>
+                <div class="section-label">Projetos — Design</div>
+                <h2 class="section-title">Web Design</h2>
+            </div>
+            <span class="section-count">06 projetos</span>
+        </div>
 
-        <div class="grid designers">
-            <a
-                href="https://www.figma.com/proto/C2CBBMK6sZ3NqDlQER8vXz/Kawa?node-id=40-52&p=f&t=3wMEfPb71WCkETQq-0&scaling=contain&content-scaling=fixed&page-id=0%3A1">
-                <div class="designer-card">
-                    <img src="./desgin/roupa.png" alt="Designer 1">
+        <div class="pgrid-uniform">
+
+            <a class="portfolio-item" href="https://www.figma.com/proto/C2CBBMK6sZ3NqDlQER8vXz/Kawa?node-id=40-52&p=f&t=3wMEfPb71WCkETQq-0&scaling=contain&content-scaling=fixed&page-id=0%3A1" target="_blank">
+                <img src="./desgin/roupa.png" alt="Design de Roupa">
+                <div class="portfolio-overlay">
+                    <div class="portfolio-tag">Fashion / UI</div>
                     <h3>Design de Roupa</h3>
-                    <p>
-                        Projeto de design no Figma com foco em experiència do usuário, tipografia expressiva e
-                        identidade viusal única.
-                    </p>
+                    <p>Projeto no Figma com foco em UX, tipografia expressiva e identidade visual única.</p>
+                </div>
+                <div class="portfolio-arrow">
+                    <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg>
                 </div>
             </a>
 
-            <a
-                href="https://www.figma.com/proto/Zz8UxpaWutVfM0326TpAfZ/SOUZA?node-id=6-11&p=f&t=EeTFp7LF7HeU3kRk-0&scaling=min-zoom&content-scaling=fixed&page-id=0%3A1">
-                <div class="designer-card">
-                    <img src="./desgin/souza.PNG" alt="Designer 2">
+            <a class="portfolio-item" href="https://www.figma.com/proto/Zz8UxpaWutVfM0326TpAfZ/SOUZA?node-id=6-11&p=f&t=EeTFp7LF7HeU3kRk-0&scaling=min-zoom&content-scaling=fixed&page-id=0%3A1" target="_blank">
+                <img src="./desgin/souza.PNG" alt="Design Industrial">
+                <div class="portfolio-overlay">
+                    <div class="portfolio-tag">Institucional</div>
                     <h3>Design Industrial</h3>
-                    <p>
-                        Projeto institucional para apresentar a empresa Souza e seus serviços de mantenção e montagem
-                        industrial.
-                    </p>
+                    <p>Site institucional para apresentar a Souza e seus serviços industriais.</p>
+                </div>
+                <div class="portfolio-arrow">
+                    <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg>
                 </div>
             </a>
 
-            <a
-                href="https://www.figma.com/proto/HIZKSZ2MGeAPpzfIbKKhE3/site-viviart-VER-1.2?node-id=1-2&t=v1Nr5V3hRXI0uXOy-0&scaling=min-zoom&content-scaling=fixed&page-id=0%3A1">
-                <div class="designer-card">
-                    <img src="./desgin/viviart.PNG" alt="Designer 3">
-                    <h3>Design de bolsas de Crochê</h3>
-                    <p>
-                        Projeto de site para bolsas de crochê, combinado estética minimalista, animações e um vizual
-                        totalmente renovado.
-                    </p>
+            <a class="portfolio-item" href="https://www.figma.com/proto/HIZKSZ2MGeAPpzfIbKKhE3/site-viviart-VER-1.2?node-id=1-2&t=v1Nr5V3hRXI0uXOy-0&scaling=min-zoom&content-scaling=fixed&page-id=0%3A1" target="_blank">
+                <img src="./desgin/viviart.PNG" alt="Bolsas de Crochê">
+                <div class="portfolio-overlay">
+                    <div class="portfolio-tag">E-commerce / UI</div>
+                    <h3>Bolsas de Crochê</h3>
+                    <p>Estética minimalista, animações e visual completamente renovado.</p>
+                </div>
+                <div class="portfolio-arrow">
+                    <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg>
                 </div>
             </a>
 
-            <a
-                href="https://www.figma.com/proto/jvZpBRqssemA92rRvezZPT/Untitled?node-id=2-6&p=f&t=MViT0JtzB9yw9EXa-0&scaling=min-zoom&content-scaling=fixed&page-id=0%3A1&starting-point-node-id=2%3A6">
-                <div class="designer-card">
-                    <img src="./desgin/barbearia.PNG" alt="Designer 3">
-                    <h3>Design de barbearia</h3>
-                    <p>
-                        Projeto de site para a Barbearia, apresentando a equipe de profissionais,
-                        os serviços oferecidos, o portfólio de cortes e o ambiente da barbearia por meio de fotos e
-                        vídeos.
-                    </p>
+            <a class="portfolio-item" href="https://www.figma.com/proto/jvZpBRqssemA92rRvezZPT/Untitled?node-id=2-6&p=f&t=MViT0JtzB9yw9EXa-0&scaling=min-zoom&content-scaling=fixed&page-id=0%3A1&starting-point-node-id=2%3A6" target="_blank">
+                <img src="./desgin/barbearia.PNG" alt="Barbearia">
+                <div class="portfolio-overlay">
+                    <div class="portfolio-tag">Serviços / UI</div>
+                    <h3>Barbearia</h3>
+                    <p>Equipe, serviços, portfólio de cortes e ambiente da barbearia.</p>
+                </div>
+                <div class="portfolio-arrow">
+                    <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg>
                 </div>
             </a>
 
-            <a
-                href="https://www.figma.com/proto/8GGxUQWTnV3NflPHdxvDbp/pet-shoop?node-id=4-7&starting-point-node-id=4%3A7">
-                <div class="designer-card">
-                    <img src="./desgin/petshop.PNG" alt="Designer 3">
-                    <h3>UI/UX – Landing Page de um Petshop</h3>
-                    <p>
-                        Desenvolvi uma landing page profissional para petshops, com apresentação do negócio, serviços oferecidos, portfólio de cortes realizados, avaliações de clientes e uma seção dedicada ao curso com valores e atividades. O objetivo é transmitir profissionalismo, gerar confiança e atrair mais clientes.
-                    </p>
+            <a class="portfolio-item" href="https://www.figma.com/proto/8GGxUQWTnV3NflPHdxvDbp/pet-shoop?node-id=4-7&starting-point-node-id=4%3A7" target="_blank">
+                <img src="./desgin/petshop.PNG" alt="Petshop">
+                <div class="portfolio-overlay">
+                    <div class="portfolio-tag">Landing Page</div>
+                    <h3>UI/UX Petshop</h3>
+                    <p>Serviços, portfólio, avaliações e seção de curso com valores e atividades.</p>
+                </div>
+                <div class="portfolio-arrow">
+                    <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg>
                 </div>
             </a>
 
-            <a
-                href="https://www.figma.com/proto/Kz7A1ggBZinhCkml9aFRs6/projeto-academia?node-id=1-3&starting-point-node-id=1%3A3">
-                <div class="designer-card">
-                    <img src="./desgin/academia.PNG" alt="Designer 3">
-                    <h3>UI/UX – Landing Page de uma academia</h3>
-                    <p>
-                        Essa landing page apresenta a academia de forma completa e estratégica. Ela conta com uma seção institucional falando sobre a academia, destaca a equipe de profissionais, incluindo professores atendentes e coordenadores e mostra a estrutura geral do espaço. Também apresenta as modalidades oferecidas, os planos disponíveis e uma área de avaliações de alunos, reforçando a credibilidade e ajudando na decisão de novos clientes.
-                    </p>
+            <a class="portfolio-item" href="https://www.figma.com/proto/Kz7A1ggBZinhCkml9aFRs6/projeto-academia?node-id=1-3&starting-point-node-id=1%3A3" target="_blank">
+                <img src="./desgin/academia.PNG" alt="Academia">
+                <div class="portfolio-overlay">
+                    <div class="portfolio-tag">Landing Page</div>
+                    <h3>UI/UX Academia</h3>
+                    <p>Seção institucional, equipe, modalidades, planos e avaliações de alunos.</p>
+                </div>
+                <div class="portfolio-arrow">
+                    <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg>
                 </div>
             </a>
 
         </div>
     </section>
-
 
     <!-- PROJETOS DE DESENVOLVIMENTO -->
-    <section id="projetos-dev" class="section fade-in">
-        <h2>Projetos de Desenvolvimento</h2>
-        <p>Projetos focados em código, estrutura e funcionamento da aplicação.</p>
+    <section id="projetos-dev" class="portfolio fade-in">
+        <div class="section-header">
+            <div>
+                <div class="section-label">Projetos — Código</div>
+                <h2 class="section-title">Desenvolvimento</h2>
+            </div>
+            <span class="section-count">06 projetos</span>
+        </div>
 
-        <div class="grid projetos">
+        <div class="pgrid-uniform">
 
-            <a href="https://kawwav.github.io/Portif-lio/">
-                <div class="projeto">
-                    <img src="./codigo/porti.PNG" alt="Projeto em Código">
-                    <div>
-                        <h3>Site Portfólio (Código)</h3>
-                        <p>
-                            Desenvolvimento front-end utilizando HTML, CSS e JavaScript,
-                            com animações, responsividade e boas práticas de código.
-                        </p>
-                    </div>
+            <a class="portfolio-item" href="https://kawwav.github.io/Portif-lio/" target="_blank">
+                <img src="./codigo/porti.PNG" alt="Site Portfólio">
+                <div class="portfolio-overlay">
+                    <div class="portfolio-tag">HTML / CSS / JS</div>
+                    <h3>Site Portfólio</h3>
+                    <p>Front-end com animações, responsividade e boas práticas de código.</p>
+                </div>
+                <div class="portfolio-arrow">
+                    <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg>
                 </div>
             </a>
 
-            <a href="https://kawwav.github.io/Viviart-Croch-v1.2/">
-                <div class="projeto">
-                    <img src="./codigo/sitebolsa.PNG" alt="Projeto em Código">
-                    <div>
-                        <h3>Site da Viviart Crochê</h3>
-                        <p>
-                            Aplicação do design desenvolvido no Figma, com implementação em HTML,
-                            CSS e JavaScript, além da utilização do MongoDB.
-                        </p>
-                    </div>
+            <a class="portfolio-item" href="https://kawwav.github.io/Viviart-Croch-v1.2/" target="_blank">
+                <img src="./codigo/sitebolsa.PNG" alt="Viviart Crochê">
+                <div class="portfolio-overlay">
+                    <div class="portfolio-tag">HTML / CSS / MongoDB</div>
+                    <h3>Viviart Crochê</h3>
+                    <p>Design aplicado do Figma com HTML, CSS, JS e MongoDB.</p>
+                </div>
+                <div class="portfolio-arrow">
+                    <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg>
                 </div>
             </a>
 
-            <a href="https://celebrated-churros-7a0fbc.netlify.app/">
-                <div class="projeto">
-                    <img src="./codigo/barbearia.PNG" alt="Projeto em Código">
-                    <div>
-                        <h3>Modelo de Lading Page de Barbearia</h3>
-                        <p>
-                            Apresentação de uma barbearia onde mostra a equipe, o serviços o espaço
-                            o formulario de fotos de cabelos , e as assinaturas
-                        </p>
-                    </div>
+            <a class="portfolio-item" href="https://celebrated-churros-7a0fbc.netlify.app/" target="_blank">
+                <img src="./codigo/barbearia.PNG" alt="Barbearia">
+                <div class="portfolio-overlay">
+                    <div class="portfolio-tag">Landing Page</div>
+                    <h3>Landing Page Barbearia</h3>
+                    <p>Equipe, serviços, espaço, galeria de cortes e assinaturas.</p>
+                </div>
+                <div class="portfolio-arrow">
+                    <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg>
                 </div>
             </a>
 
-            <a href="https://souzaindustria.netlify.app/">
-                <div class="projeto">
-                    <img src="./codigo/souza.PNG" alt="Projeto em Código">
-                    <div>
-                        <h3>Site da empresa Souza industrial (em andamento )</h3>
-                        <p>
-                            Apresentação institucional da Souza: excelência em soluções de montagem e manutenção
-                            industrial
-                        </p>
-                    </div>
+            <a class="portfolio-item" href="https://souzaindustria.netlify.app/" target="_blank">
+                <img src="./codigo/souza.PNG" alt="Souza Industrial">
+                <div class="portfolio-overlay">
+                    <div class="portfolio-tag">Site Institucional</div>
+                    <h3>Souza Industrial</h3>
+                    <p>Excelência em soluções de montagem e manutenção industrial.</p>
+                </div>
+                <div class="portfolio-arrow">
+                    <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg>
                 </div>
             </a>
 
-            <a href="https://marvelous-boba-77ce43.netlify.app/">
-                <div class="projeto">
-                    <img src="./codigo/igor.PNG" alt="Projeto em Código">
-                    <div>
-                        <h3>Projeto Personal trainer</h3>
-                        <p>
-                            Desenvolvi um site profissional para personal trainer, destacando seus serviços, sua história, resultados reais de alunos antes e depois, e os planos de acompanhamento com valores mensais.
-                        </p>
-                    </div>
+            <a class="portfolio-item" href="https://marvelous-boba-77ce43.netlify.app/" target="_blank">
+                <img src="./codigo/igor.PNG" alt="Personal Trainer">
+                <div class="portfolio-overlay">
+                    <div class="portfolio-tag">Landing Page</div>
+                    <h3>Personal Trainer</h3>
+                    <p>Serviços, história, resultados antes/depois e planos de acompanhamento.</p>
+                </div>
+                <div class="portfolio-arrow">
+                    <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg>
+                </div>
+            </a>
+
+            <a class="portfolio-item" href="https://marvelous-boba-77ce43.netlify.app/" target="_blank">
+                <img src="./codigo/marinho.PNG" alt="Advocacia">
+                <div class="portfolio-overlay">
+                    <div class="portfolio-tag">React / GSAP — Em andamento</div>
+                    <h3>Haeffner Marinho</h3>
+                    <p>Site institucional com React, GSAP, Framer Motion e suporte PT/EN.</p>
+                </div>
+                <div class="portfolio-arrow">
+                    <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg>
                 </div>
             </a>
 
         </div>
     </section>
-
-
 
     <!-- CONTATO -->
-    <section class="section contato fade-in">
-        <h2>Contato</h2>
-        <p>Quer um design profissional para o seu site?</p>
-        <a href="https://wa.me/5541988184388?text=Olá!%20Gostaria%20de%20um%20site%20profissional." target="_blank"
-            class="btn">Falar no WhatsApp</a>
-    </section>
-
-    <footer>
-        © 2026 • Vinicius Santiago • Web Designer
-        <div class="social-icons footer-icons">
-            <a href="https://wa.me/5541988184388?text=Olá!%20Gostaria%20de%20um%20site%20profissional." target="_blank"
-                aria-label="WhatsApp">
-                <img src="./img/whatsapp.png" alt="WhatsApp">
-            </a>
-
-            <a href="https://www.instagram.com/_k.aww.a_/" target="_blank" aria-label="Instagram">
-                <img src="./img/instagram.png" alt="Instagram">
+    <section id="contato" class="contact fade-in">
+        <div class="contact-inner">
+            <div class="contact-label">
+                <span class="contact-line"></span>
+                Vamos trabalhar juntos
+                <span class="contact-line"></span>
+            </div>
+            <h2 class="contact-title">Tem um projeto<br><em>em mente?</em></h2>
+            <p class="contact-desc">Seja um site, landing page ou identidade visual — vamos criar algo que realmente funcione para o seu negócio.</p>
+            <a href="https://wa.me/5541988184388?text=Olá!%20Gostaria%20de%20um%20site%20profissional." target="_blank" class="btn-primary-h contact-btn">
+                Falar no WhatsApp →
             </a>
         </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="footer-grande">
+
+        <!-- Marquee ticker -->
+        <div class="footer-ticker">
+            <div class="footer-ticker-track">
+                <span>Web Design</span><span class="ticker-dot">·</span>
+                <span>Landing Pages</span><span class="ticker-dot">·</span>
+                <span>UI Design</span><span class="ticker-dot">·</span>
+                <span>Figma</span><span class="ticker-dot">·</span>
+                <span>HTML &amp; CSS</span><span class="ticker-dot">·</span>
+                <span>JavaScript</span><span class="ticker-dot">·</span>
+                <span>Web Design</span><span class="ticker-dot">·</span>
+                <span>Landing Pages</span><span class="ticker-dot">·</span>
+                <span>UI Design</span><span class="ticker-dot">·</span>
+                <span>Figma</span><span class="ticker-dot">·</span>
+                <span>HTML &amp; CSS</span><span class="ticker-dot">·</span>
+                <span>JavaScript</span><span class="ticker-dot">·</span>
+            </div>
+        </div>
+
+        <!-- Logo central grande -->
+        <div class="footer-brand">
+            <span class="footer-brand-vs">Kawwa</span>
+            <span class="footer-brand-slash">/</span>
+            <span class="footer-brand-studio">Studio</span>
+        </div>
+
+        <!-- Linha divisória com texto -->
+        <div class="footer-mid">
+            <div class="footer-mid-line"></div>
+            <span class="footer-mid-tag">Curitiba, Brasil — 2026</span>
+            <div class="footer-mid-line"></div>
+        </div>
+
+        <!-- Grid de links e social -->
+        <div class="footer-grid">
+            <div class="footer-col">
+                <p class="footer-col-label">Navegação</p>
+                <ul class="footer-nav-list">
+                    <li><a href="#sobre">Sobre</a></li>
+                    <li><a href="#servicos">Serviços</a></li>
+                    <li><a href="#designers">Design</a></li>
+                    <li><a href="#projetos-dev">Código</a></li>
+                    <li><a href="#contato">Contato</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-col footer-col-center">
+                <p class="footer-tagline">"Transformando ideias<br>em experiências digitais<br><em>memoráveis.</em>"</p>
+            </div>
+
+            <div class="footer-col footer-col-right">
+                <p class="footer-col-label">Contato</p>
+                <div class="footer-contact-links">
+                    <a href="https://wa.me/5541988184388?text=Olá!%20Gostaria%20de%20um%20site%20profissional." target="_blank" class="footer-contact-item">
+                        <img src="./img/whatsapp.png" alt="WhatsApp">
+                        <span>WhatsApp</span>
+                        <svg class="footer-arrow-icon" viewBox="0 0 24 24" fill="none" stroke-width="1.5"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg>
+                    </a>
+                    <a href="https://www.instagram.com/_k.aww.a_/" target="_blank" class="footer-contact-item">
+                        <img src="./img/instagram.png" alt="Instagram">
+                        <span>Instagram</span>
+                        <svg class="footer-arrow-icon" viewBox="0 0 24 24" fill="none" stroke-width="1.5"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Rodapé inferior -->
+        <div class="footer-bottom">
+            <span class="footer-copy">© 2026 — Vinicius Santiago. Todos os direitos reservados.</span>
+        </div>
+
     </footer>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.7.0/vanilla-tilt.min.js"></script>
@@ -251,7 +376,45 @@
             "max-glare": 0.2,
         });
     </script>
+    <script>
+
+        const heroTyping = document.getElementById('hero-typing-text');
+        const heroPhrases = [
+            "Web Designer focado em interfaces modernas.",
+            "Especialista em Landing Pages de alta conversão.",
+            "Criando experiências digitais únicas."
+        ];
+        let hPi = 0, hCi = 0, hDel = false;
+        function heroType() {
+            const cur = heroPhrases[hPi];
+            heroTyping.textContent = hDel ? cur.substring(0, hCi - 1) : cur.substring(0, hCi + 1);
+            hDel ? hCi-- : hCi++;
+            let speed = hDel ? 45 : 95;
+            if (!hDel && hCi === cur.length) { hDel = true; speed = 2200; }
+            else if (hDel && hCi === 0) { hDel = false; hPi = (hPi + 1) % heroPhrases.length; speed = 450; }
+            setTimeout(heroType, speed);
+        }
+        heroType();
+    </script>
     <script src="script.js"></script>
+
+    <script>
+        // HAMBURGER MENU
+        const hamburger = document.getElementById('navHamburger');
+        const mobileMenu = document.getElementById('mobileMenu');
+        hamburger.addEventListener('click', () => {
+            hamburger.classList.toggle('open');
+            mobileMenu.classList.toggle('open');
+            document.body.classList.toggle('menu-open');
+        });
+        document.querySelectorAll('.mobile-link').forEach(link => {
+            link.addEventListener('click', () => {
+                hamburger.classList.remove('open');
+                mobileMenu.classList.remove('open');
+                document.body.classList.remove('menu-open');
+            });
+        });
+    </script>
 </body>
 
 
