@@ -20,7 +20,7 @@ a {
 }
 
 #particles {
-  position: fixed;
+  position: absolute;
   top: 0;
   left: 0;
   width: 100%;
@@ -257,7 +257,7 @@ footer {
 }
 
 nav {
-  position: fixed;
+  position: absolute;
   top: 0; left: 0; right: 0;
   z-index: 200;
   padding: 22px 48px;
@@ -1326,6 +1326,7 @@ nav.menu-open {
   align-items: center;
   gap: 6px;
   margin-bottom: 56px;
+  margin-top: 80px;
 }
 .mobile-link {
   font-family: 'Cormorant Garamond', serif;
