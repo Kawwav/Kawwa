@@ -35,7 +35,7 @@ for (let i = 0; i < PARTICLE_COUNT; i++) {
   particles.push({
     x: Math.random() * canvas.width,
     y: Math.random() * canvas.height,
-    r: Math.random() * 2 + 1,
+    r: Math.random() * 1 + 1,
     dx: (Math.random() - 0.5) * 0.6,
     dy: (Math.random() - 0.5) * 0.6
   });
