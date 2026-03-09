@@ -18,7 +18,7 @@
     <canvas id="particles"></canvas>
 
     <nav>
-        <a class="nav-logo" href="#">KAWWA / Studio</a>
+        <a class="nav-logo" href="#" data-text="KAWWA / WEB DESIGN">KAWWA / WEB DESIGN</a>
         <ul class="nav-links">
             <li><a href="#sobre">Sobre</a></li>
             <li><a href="#servicos">Serviços</a></li>
@@ -59,13 +59,44 @@
 
     <!-- HERO -->
     <header class="hero-new">
-        <p class="hero-eyebrow">Web Designer — Curitiba, Brasil</p>
-        <h1>Vinícius<br><em>Santiago</em></h1>
-        <p class="hero-typing" id="hero-typing-text"></p>
-        <div class="hero-cta">
-            <a href="#designers" class="btn-primary-h">Ver Projetos</a>
-            <a href="https://wa.me/5541988184388?text=Olá!%20Gostaria%20de%20um%20site%20profissional." target="_blank" class="btn-ghost-h">Falar comigo →</a>
+
+        <!-- Topo: label + localização -->
+        <div class="hero-top-bar">
+            <span class="hero-prefix">// WEB DESIGNER</span>
+            <span class="hero-location">Curitiba, Brasil</span>
         </div>
+
+        <!-- Nome em marquee ultra-grande -->
+        <div class="hero-name-ticker">
+            <div class="hero-name-track">
+                <span class="hero-name-item">VINÍCIUS</span>
+
+                <span class="hero-name-item hero-name-item--outline">KAWASUGUI</span>
+
+                <span class="hero-name-item">SANTIAGO</span>
+
+               
+            </div>
+        </div>
+
+        <!-- Linha divisória -->
+        <div class="hero-divider"></div>
+
+        <!-- Bloco inferior: descrição + CTA -->
+        <div class="hero-bottom">
+            <div class="hero-bottom-left">
+                <p class="hero-prefix hero-desc-label">// Intro</p>
+                <p class="hero-desc">Designer visual especializado em sites e landing pages do Figma ao código.</p>
+            </div>
+            <div class="hero-bottom-right">
+                <p class="hero-typing" id="hero-typing-text"></p>
+                <div class="hero-cta">
+                    <a href="#designers" class="btn-primary-h">Ver Projetos</a>
+                    <a href="https://wa.me/5541988184388?text=Olá!%20Gostaria%20de%20um%20site%20profissional." target="_blank" class="btn-ghost-h">Falar comigo →</a>
+                </div>
+            </div>
+        </div>
+
         <div class="hero-scroll-indicator">
             <div class="scroll-line"></div>
             <span>Scroll</span>
@@ -315,7 +346,7 @@
         <div class="footer-brand">
             <span class="footer-brand-vs">Kawwa</span>
             <span class="footer-brand-slash">/</span>
-            <span class="footer-brand-studio">Studio</span>
+            <span class="footer-brand-studio">UI/UX</span>
         </div>
 
         <!-- Linha divisória com texto -->
@@ -361,7 +392,7 @@
 
         <!-- Rodapé inferior -->
         <div class="footer-bottom">
-            <span class="footer-copy">© 2026 — Vinicius Santiago. Todos os direitos reservados.</span>
+            <span class="footer-copy">© 2026 — Vinicius Kawasugui Santiago. Todos os direitos reservados.</span>
         </div>
 
     </footer>
@@ -400,16 +431,19 @@
     <script>
         const hamburger = document.getElementById('navHamburger');
         const mobileMenu = document.getElementById('mobileMenu');
+        const navEl = document.querySelector('nav');
         hamburger.addEventListener('click', () => {
             hamburger.classList.toggle('open');
             mobileMenu.classList.toggle('open');
             document.body.classList.toggle('menu-open');
+            navEl.classList.toggle('menu-open');
         });
         document.querySelectorAll('.mobile-link').forEach(link => {
             link.addEventListener('click', () => {
                 hamburger.classList.remove('open');
                 mobileMenu.classList.remove('open');
                 document.body.classList.remove('menu-open');
+                navEl.classList.remove('menu-open');
             });
         });
     </script>
