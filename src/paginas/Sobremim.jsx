@@ -129,7 +129,7 @@ export default function Sobremim({ onClose }) {
                     </div>
                     <div className="sobremim-hero-right">
                         <div className="sobremim-img-wrap">
-                            <img src="/eu2.jpg" alt="Vinícius Kawasugui Santiago" />
+                            <img src="eu2.jpg" alt="Vinícius Kawasugui Santiago" />
                             <div className="sobremim-img-overlay" />
                         </div>
                     </div>

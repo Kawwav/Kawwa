@@ -12,10 +12,12 @@ import Footer from "./componentes/Footer";
 /*npm run build 
 npm run deploy*/
 
-
 function App() {
+
+  const base = import.meta.env.DEV ? "/" : "/Kawwa";
+
   return (
-    <BrowserRouter basename="/Kawwa">
+    <BrowserRouter basename={base}>
       <Routes>
         <Route
           path="/"
@@ -32,7 +34,6 @@ function App() {
         <Route path="/sobre-mim" element={<Sobremim />} />
         <Route path="/designer" element={<Designer />} />
         <Route path="/desenvolvimento" element={<Desenvolvimento />} />
-        
       </Routes>
     </BrowserRouter>
   );

@@ -6,14 +6,14 @@ const PROJECTS = [
     label: "Marinho",
     desc: "Site moderno e responsivo, com design contemporâneo e elegante, desenvolvido para o advogado Armando Haeffner Marinho Neto, de Curitiba",
     type: "Institucional",
-    image: "/desenvolvimento/marinho.PNG",
+    image: "desenvolvimento/marinho.PNG",
     link: "https://haeffnermarinho.adv.br/#/",
   },
   {
     label: "Zero (em construção)",
     desc: "Landing page desenvolvida para a empresa .ZERO, especializada em ações de degustação em mercados, que trabalha com marcas como Ambev, Heinz e Hemmer, e atua em redes como Festval, Condor e Carrefour, entre outras",
     type: "Landing Page",
-    image: "/desenvolvimento/zero.PNG",
+    image: "desenvolvimento/zero.PNG",
     link: "https://kawwav.github.io/Site--Zero/",
   },
 
@@ -21,14 +21,14 @@ const PROJECTS = [
     label: "Site Bolsa (em construção)",
     desc: "Plataforma web com painel dinâmico e integração de dados em tempo real",
     type: "Web App",
-    image: "/desenvolvimento/sitebolsa.PNG",
+    image: "desenvolvimento/sitebolsa.PNG",
     link: "https://kawwav.github.io/Viviart-Croch-v1.2/",
   },
   {
     label: "Souza",
     desc: "Site institucional com foco industrial, desenvolvido para apresentar a empresa Souza e seus serviços de manutenção e montagem industrial",
     type: "Corporativo",
-    image: "/desenvolvimento/souza (1).PNG",
+    image: "desenvolvimento/souza (1).PNG",
     link: "https://souzaindustria.netlify.app/",
   },
 
@@ -36,12 +36,13 @@ const PROJECTS = [
     label: "Souza 1.2 (em construção)",
     desc: "Site institucional com foco industrial, desenvolvido para apresentar a empresa Souza e seus serviços de manutenção e montagem industrial. Com um versão melhorada",
     type: "Corporativo",
-    image: "/desenvolvimento/souza.PNG",
+    image: "desenvolvimento/souza.PNG",
     link: "https://kawwav.github.io/Souza-/",
   }
   
+
 ];
-// ─────────────────────────────────────────────
+
 
 function ProjectRow({ project, index }) {
   const [hovered, setHovered] = useState(false);

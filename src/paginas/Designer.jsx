@@ -7,42 +7,42 @@ const PROJECTS = [
     label: "Designer de Roupa",
     desc: "Projeto no Figma com foco em UX, tipografia expressiva e identidade visual única",
     type: "UI/UX",
-    image: "/designer/roupa.png",
+    image: "designer/roupa.png",
     link: "https://www.figma.com/proto/C2CBBMK6sZ3NqDlQER8vXz/Kawa?node-id=40-52&p=f&t=3wMEfPb71WCkETQq-0&scaling=contain&content-scaling=fixed&page-id=0%3A1",
   },
   {
     label: "Barbearia",
     desc: "Identidade visual e landing page para barbearia urbana com foco em conversão",
     type: "Serviços / UI",
-    image: "/designer/barbearia.PNG",
+    image: "designer/barbearia.PNG",
     link: "https://www.figma.com/proto/jvZpBRqssemA92rRvezZPT/Untitled?node-id=2-6&p=f&t=MViT0JtzB9yw9EXa-0&scaling=min-zoom&content-scaling=fixed&page-id=0%3A1&starting-point-node-id=2%3A6",
   },
   {
     label: "Pet Shop",
     desc: "Design de interface amigável e colorida para clínica veterinária e pet shop",
     type: "UI/UX",
-    image: "/designer/petshop.PNG",
+    image: "designer/petshop.PNG",
     link: "https://www.figma.com/proto/8GGxUQWTnV3NflPHdxvDbp/pet-shoop?node-id=4-7&starting-point-node-id=4%3A7",
   },
   {
     label: "Academia",
     desc: "Página de alta performance para academia com foco em captação de alunos",
     type: "Web Design",
-    image: "/designer/academia.PNG",
+    image: "designer/academia.PNG",
     link: "https://www.figma.com/proto/Kz7A1ggBZinhCkml9aFRs6/projeto-academia?node-id=1-3&starting-point-node-id=1%3A3",
   },
   {
     label: "Souza Industrial",
     desc: "Portfólio digital para empresa industrial com navegação imersiva e animada",
     type: "UI / Motion",
-    image: "/designer/souza.PNG",
+    image: "designer/souza.PNG",
     link: "https://www.figma.com/proto/Zz8UxpaWutVfM0326TpAfZ/SOUZA?node-id=6-11&p=f&t=EeTFp7LF7HeU3kRk-0&scaling=min-zoom&content-scaling=fixed&page-id=0%3A1",
   },
   {
     label: "Vivi Art",
     desc: "Loja virtual para artista plástica com galeria interativa e checkout otimizado",
     type: "E-commerce",
-    image: "/designer/viviart.PNG",
+    image: "designer/viviart.PNG",
     link: "https://www.figma.com/proto/HIZKSZ2MGeAPpzfIbKKhE3/site-viviart-VER-1.2?node-id=1-2&t=v1Nr5V3hRXI0uXOy-0&scaling=min-zoom&content-scaling=fixed&page-id=0%3A1",
   },
 ];
@@ -64,10 +64,13 @@ function ProjectRow({ project, index }) {
     window.open(project.link, "_blank", "noopener,noreferrer");
   };
 
+  // Pega "/" localmente ou "/Kawwa/" no GitHub Pages
+  const baseUrl = import.meta.env.BASE_URL;
+
   return (
     <>
       <div
-        className={`designer-meta__row${hovered ? " is-hovered" : ""}`}
+        className={`desenv-meta__row${hovered ? " is-hovered" : ""}`}
         style={{ "--row-delay": `${index * 0.07}s` }}
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
@@ -77,32 +80,33 @@ function ProjectRow({ project, index }) {
         tabIndex={0}
         onKeyDown={(e) => e.key === "Enter" && handleClick()}
       >
-        {/* Imagem do card — só visível no mobile via CSS */}
-        <div className="row-card-img">
-          <img src={project.image} alt={project.label} />
+        <div className="desenv-card-img">
+          {/* Adicionado o baseUrl aqui */}
+          <img src={`${baseUrl}${project.image}`} alt={project.label} />
         </div>
 
         {/* Campos desktop */}
-        <span className="designer-meta__label">{project.label}</span>
-        <span className="designer-meta__desc">{project.desc}</span>
-        <span className="designer-meta__type">{project.type}</span>
-        <span className="designer-meta__arrow">↗</span>
+        <span className="desenv-meta__label">{project.label}</span>
+        <span className="desenv-meta__desc">{project.desc}</span>
+        <span className="desenv-meta__type">{project.type}</span>
+        <span className="desenv-meta__arrow">↗</span>
 
         {/* Rodapé mobile */}
-        <div className="designer-meta__info-mobile">
-          <div className="designer-meta__info-top">
-            <span className="designer-meta__label">{project.label}</span>
-            <span className="designer-meta__arrow" aria-hidden="true">↗</span>
+        <div className="desenv-meta__info-mobile">
+          <div className="desenv-meta__info-top">
+            <span className="desenv-meta__label">{project.label}</span>
+            <span className="desenv-meta__arrow" aria-hidden="true">↗</span>
           </div>
-          <span className="designer-meta__type">{project.type}</span>
+          <span className="desenv-meta__type">{project.type}</span>
         </div>
       </div>
 
       <div
-        className={"row-cursor-img" + (hovered ? " row-cursor-img--visible" : "")}
+        className={"desenv-cursor-img" + (hovered ? " desenv-cursor-img--visible" : "")}
         style={{ left: mousePos.x, top: mousePos.y }}
       >
-        <img src={project.image} alt={project.label} />
+        {/* Adicionado o baseUrl aqui também */}
+        <img src={`${baseUrl}${project.image}`} alt={project.label} />
       </div>
     </>
   );

@@ -4,20 +4,21 @@ import "./Servicos.css";
 
 const GALLERY_IMAGES = {
   designer: [
-    "/designer/academia.PNG",
-    "/designer/barbearia.PNG",
-    "/designer/petshop.PNG",
-    "/designer/roupa.png",
-    "/designer/souza.PNG",
-    "/designer/viviart.PNG",
+    "designer/academia.PNG",
+    "designer/barbearia.PNG",
+    "designer/petshop.PNG",
+    "designer/roupa.png",
+    "designer/souza.PNG",
+    "designer/viviart.PNG",
   ],
   desenvolvimento: [
-    "/desenvolvimento/marinho.PNG",
-    "/desenvolvimento/zero.PNG",
-    "/desenvolvimento/igor.PNG",
-    "/desenvolvimento/sitebolsa.PNG",
-    "/desenvolvimento/souza (1).PNG",
-    "/desenvolvimento/barbearia (1).PNG",
+    "desenvolvimento/marinho.PNG",
+    "desenvolvimento/zero.PNG",
+    "desenvolvimento/igor.PNG",
+    "desenvolvimento/sitebolsa.PNG",
+    "desenvolvimento/souza (1).PNG",
+    "desenvolvimento/barbearia (1).PNG",
+    "desenvolvimento/souza.PNG"
   ],
 };
 
@@ -40,11 +41,11 @@ const ITEMS = [
   },
 ];
 
-/* ─── Galeria no cursor ─── */
 function CursorGallery({ mousePos, visible, images }) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [prevIndex, setPrevIndex] = useState(null);
   const intervalRef = useRef(null);
+  const baseUrl = import.meta.env.BASE_URL;
 
   useEffect(() => {
     if (!visible) { clearInterval(intervalRef.current); return; }
@@ -67,7 +68,7 @@ function CursorGallery({ mousePos, visible, images }) {
       {images.map((src, i) => (
         <img
           key={src}
-          src={src}
+          src={`${baseUrl}${src}`}
           alt=""
           className={[
             "cursor-gallery__img",
