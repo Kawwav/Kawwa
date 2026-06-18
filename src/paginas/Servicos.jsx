@@ -4,20 +4,20 @@ import "./Servicos.css";
 
 const GALLERY_IMAGES = {
   designer: [
-    "/designer/academia.PNG",
-    "/designer/barbearia.PNG",
-    "/designer/petshop.PNG",
-    "/designer/roupa.png",
-    "/designer/souza.PNG",
-    "/designer/viviart.PNG",
+    "designer/academia.PNG",
+    "designer/barbearia.PNG",
+    "designer/petshop.PNG",
+    "designer/roupa.png",
+    "designer/souza.PNG",
+    "designer/viviart.PNG",
   ],
   desenvolvimento: [
-    "/desenvolvimento/marinho.PNG",
-    "/desenvolvimento/zero.PNG",
-    "/desenvolvimento/igor.PNG",
-    "/desenvolvimento/sitebolsa.PNG",
-    "/desenvolvimento/souza (1).PNG",
-    "/desenvolvimento/barbearia (1).PNG",
+    "desenvolvimento/marinho.PNG",
+    "desenvolvimento/zero.PNG",
+    "desenvolvimento/igor.PNG",
+    "desenvolvimento/sitebolsa.PNG",
+    "desenvolvimento/souza (1).PNG",
+    "desenvolvimento/barbearia (1).PNG",
   ],
 };
 
