@@ -1,0 +1,492 @@
+@import url('https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@300;400&display=swap');
+
+.sobre-section {
+  width: 100%;
+  min-height: 100vh;
+  background: #f5f2eb;
+  display: flex;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+  box-sizing: border-box;
+  padding: 8vw 6vw;
+}
+
+.sobre-section::after {
+  content: '02';
+  position: absolute;
+  top: 48px;
+  right: 48px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 11px;
+  letter-spacing: 0.25em;
+  color: rgba(0, 0, 0, 0.18);
+  text-transform: uppercase;
+}
+
+.sobre-grid {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 3fr 1.2fr;
+  gap: 0 6vw;
+  align-items: flex-start;
+}
+
+.sobre-label {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 0.22em;
+  color: rgba(0, 0, 0, 0.35);
+  text-transform: uppercase;
+  display: block;
+  margin-bottom: 36px;
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+
+.sobre-left-text {
+  font-family: 'DM Sans', sans-serif;
+  font-size: clamp(32px, 4.2vw, 68px);
+  font-weight: 300;
+  color: #111111;
+  line-height: 1.18;
+  letter-spacing: -0.02em;
+  margin: 0;
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.9s ease 0.15s, transform 0.9s ease 0.15s;
+}
+
+.sobre-left-text em {
+  font-style: normal;
+  color: #111111;
+}
+
+.sobre-right {
+  padding-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+  align-items: flex-start;
+}
+
+.sobre-right-text {
+  font-family: 'DM Sans', sans-serif;
+  font-size: clamp(13px, 1.05vw, 16px);
+  font-weight: 400;
+  color: rgba(0, 0, 0, 0.5);
+  line-height: 1.7;
+  letter-spacing: 0em;
+  margin: 0;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.9s ease 0.3s, transform 0.9s ease 0.3s;
+}
+
+.sobre-right-text em {
+  font-style: normal;
+  color: rgba(0, 0, 0, 0.75);
+}
+
+/* ── BOTÃO RETÂNGULO MAGNÉTICO ── */
+
+.sobre-about-btn {
+  width: 100%;
+  height: 120px;
+  border-radius: 20px;
+  border: 2.7px solid #000000;
+  cursor: pointer;
+  padding: 0;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  margin-top: 8px;
+  opacity: 0;
+  transition:
+    opacity 0.9s ease 0.45s,
+    transform 0.45s cubic-bezier(0.23, 1, 0.32, 1),
+    border-color 0.3s ease,
+    background 0.3s ease;
+  will-change: transform;
+}
+
+.sobre-about-btn:hover {
+  border-color: #000000;
+  background: rgba(0, 0, 0, 0.02);
+}
+
+.sobre-btn-label {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #000000;
+  pointer-events: none;
+  transition: transform 0.45s cubic-bezier(0.23, 1, 0.32, 1), color 0.3s ease;
+  will-change: transform;
+}
+
+.sobre-about-btn:hover .sobre-btn-label {
+  color: rgba(0, 0, 0, 0.9);
+}
+
+/* ── MODAL ── */
+
+.sobre-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  pointer-events: none;
+  opacity: 0;
+}
+
+.sobre-modal-overlay.open {
+  pointer-events: all;
+  opacity: 1;
+}
+
+.sobre-modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0);
+  transition: background 1s ease;
+}
+
+.sobre-modal-overlay.open .sobre-modal-backdrop {
+  background: rgba(0, 0, 0, 0.75);
+}
+
+.sobre-modal-card {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  overflow-x: hidden;
+  border-radius: 20px;
+  background: #0a0a0a;
+  transition:
+    top 1.1s cubic-bezier(0.77, 0, 0.175, 1),
+    left 1.1s cubic-bezier(0.77, 0, 0.175, 1),
+    width 1.1s cubic-bezier(0.77, 0, 0.175, 1),
+    height 1.1s cubic-bezier(0.77, 0, 0.175, 1),
+    border-radius 1.1s ease;
+}
+
+.sobre-modal-overlay.open .sobre-modal-card {
+  border-radius: 0px;
+}
+
+/* Parte superior: texto + imagem */
+.sobre-modal-top {
+  display: flex;
+  flex-direction: row;
+  min-height: 60vh;
+  flex-shrink: 0;
+}
+
+.sobre-modal-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 80px 64px 64px;
+  opacity: 0;
+  transform: translateX(-28px);
+  transition: opacity 0.7s ease 0.85s, transform 0.7s ease 0.85s;
+}
+
+.sobre-modal-overlay.open .sobre-modal-content {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.sobre-modal-image {
+  width: 40%;
+  flex-shrink: 0;
+  overflow: hidden;
+  min-height: 60vh;
+}
+
+.sobre-modal-image img {
+  width: 40%;
+  height: 90%;
+  object-fit: cover;
+  object-position: center top;
+  filter: grayscale(100%);
+  display: block;
+}
+
+.sobre-modal-content h2 {
+  font-family: 'DM Sans', sans-serif;
+  font-size: clamp(11px, 0.85vw, 13px);
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.3);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  line-height: 1;
+  margin: 0 0 32px;
+}
+
+.sobre-modal-content p {
+  font-family: 'DM Sans', sans-serif;
+  font-size: clamp(14px, 1.1vw, 18px);
+  font-weight: 300;
+  color: rgba(255, 255, 255, 0.75);
+  line-height: 1.8;
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+/* ── PROCESSO CRIATIVO ── */
+
+.sobre-modal-processo {
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+  padding: 64px 64px 80px;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.7s ease 1s, transform 0.7s ease 1s;
+}
+
+.sobre-modal-overlay.open .sobre-modal-processo {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.sobre-modal-processo-title {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.25);
+  margin: 0 0 28px;
+}
+
+.sobre-processo-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.sobre-processo-card {
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 16px;
+  padding: 28px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  background: rgba(255, 255, 255, 0.03);
+  transition: background 0.3s ease, border-color 0.3s ease;
+}
+
+.sobre-processo-card:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.sobre-processo-num {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 0.18em;
+  color: rgba(255, 255, 255, 0.2);
+}
+
+.sobre-processo-card-title {
+  font-family: 'DM Sans', sans-serif;
+  font-size: clamp(14px, 1vw, 16px);
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.85);
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+.sobre-processo-card-text {
+  font-family: 'DM Sans', sans-serif;
+  font-size: clamp(12px, 0.85vw, 13px);
+  font-weight: 300;
+  color: rgba(255, 255, 255, 0.4);
+  line-height: 1.65;
+  margin: 0;
+}
+
+/* ── FECHAR ── */
+
+.sobre-modal-close {
+  position: absolute;
+  top: 28px;
+  right: 28px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 20px;
+  line-height: 1;
+  opacity: 0;
+  transition: opacity 0.3s ease 0.9s, background 0.2s ease;
+}
+
+.sobre-modal-overlay.open .sobre-modal-close {
+  opacity: 1;
+}
+
+.sobre-modal-close:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* ── LABEL INFERIOR ── */
+
+.sobre-recent-label {
+  position: absolute;
+  bottom: 48px;
+  left: 6vw;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 10px;
+  font-weight: 400;
+  letter-spacing: 0.22em;
+  color: rgba(0, 0, 0, 0.3);
+  text-transform: uppercase;
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 0.7s ease 0.5s, transform 0.7s ease 0.5s;
+}
+
+.sobre-bottom-line {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: rgba(0, 0, 0, 0.08);
+}
+
+
+
+.sobre-section.is-visible .sobre-label { opacity: 1; transform: translateY(0); }
+.sobre-section.is-visible .sobre-left-text { opacity: 1; transform: translateY(0); }
+.sobre-section.is-visible .sobre-right-text { opacity: 1; transform: translateY(0); }
+.sobre-section.is-visible .sobre-about-btn { opacity: 1; }
+.sobre-section.is-visible .sobre-recent-label { opacity: 1; transform: translateY(0); }
+
+/* ── RESPONSIVO ── */
+
+@media (max-width: 768px) {
+  .sobre-section {
+    padding: 24vw 6vw 20vw;
+    min-height: 100vh;
+    align-items: flex-start;
+  }
+
+  .sobre-section::after {
+    top: 24px;
+    right: 24px;
+  }
+
+  .sobre-grid {
+    grid-template-columns: 1fr;
+    gap: 40px 0;
+  }
+
+  .sobre-label {
+    margin-bottom: 24px;
+  }
+
+  .sobre-left-text {
+    font-size: clamp(28px, 8.5vw, 48px);
+    line-height: 1.22;
+  }
+
+  .sobre-right {
+    gap: 28px;
+  }
+
+  .sobre-right-text {
+    font-size: clamp(14px, 3.8vw, 17px);
+    line-height: 1.75;
+  }
+
+  .sobre-about-btn {
+    width: 100%;
+    height: 88px;
+    border-radius: 16px;
+  }
+
+  .sobre-btn-label {
+    font-size: 13px;
+    letter-spacing: 0.18em;
+  }
+
+  .sobre-recent-label {
+    bottom: 28px;
+  }
+
+  /* Modal mobile */
+  .sobre-modal-top {
+    flex-direction: column;
+  }
+
+  .sobre-modal-image {
+    width: 100%;
+    height: 220px;
+    min-height: unset;
+  }
+
+  .sobre-modal-image img {
+    width: 100%;
+    height: 100%;
+  }
+
+  .sobre-modal-content {
+    padding: 36px 24px 28px;
+  }
+
+  .sobre-modal-content h2 {
+    margin-bottom: 20px;
+  }
+
+  .sobre-modal-processo {
+    padding: 28px 24px 48px;
+  }
+
+  .sobre-processo-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .sobre-processo-card {
+    padding: 22px 20px;
+  }
+
+  .sobre-modal-close {
+    top: 16px;
+    right: 16px;
+    width: 36px;
+    height: 36px;
+    font-size: 18px;
+  }
+}
+
+@media (max-width: 400px) {
+  .sobre-section {
+    padding: 28vw 5vw 22vw;
+  }
+
+  .sobre-left-text {
+    font-size: clamp(24px, 9vw, 32px);
+  }
+
+  .sobre-about-btn {
+    height: 76px;
+  }
+}

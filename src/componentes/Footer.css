@@ -1,0 +1,301 @@
+@import url('https://fonts.cdnfonts.com/css/agrandir');
+
+.footer__wrapper {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  background-color: transparent;
+  box-sizing: border-box;
+  overflow: hidden;
+  padding-bottom: 0;
+}
+
+.footer {
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  background-color: #0f0f0f;
+  overflow: hidden;
+  transform-origin: bottom center;
+  will-change: border-radius, transform, width;
+  margin: 0 auto;
+}
+
+.footer__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 80px 80px;
+  gap: 40px;
+}
+
+.footer__left {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  max-width: 360px;
+}
+
+.footer__subtitle {
+  font-family: 'Agrandir', sans-serif;
+  font-size: 1.2rem;
+  font-weight: 400;
+  color: #ffffff;
+  margin: 0;
+}
+
+.footer__description {
+  font-family: 'Agrandir', sans-serif;
+  font-size: 0.95rem;
+  color: #999999;
+  margin: 0;
+  line-height: 1.6;
+}
+
+.footer__contact {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-family: 'Agrandir', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: #ffffff;
+  text-decoration: none;
+  margin-top: 8px;
+}
+
+.footer__arrow {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background-color: #636363;
+  border-radius: 50%;
+  font-size: 1rem;
+  color: #ffffff;
+}
+
+.footer__right {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.footer__text {
+  font-family: 'Agrandir', sans-serif;
+  font-size: clamp(3.5rem, 7vw, 7rem);
+  font-weight: 800;
+  margin: 0;
+  line-height: 0.95;
+  letter-spacing: -0.03em;
+  text-align: right;
+  color: #ffffff;
+  text-transform: uppercase;
+}
+
+.footer__bottom {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  padding: 48px 80px 60px;
+  gap: 32px;
+}
+
+.footer__col {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.footer__line {
+  width: 100%;
+  height: 1px;
+  background-color: #2e2e2e;
+  margin-bottom: 6px;
+}
+
+.footer__col-title {
+  font-family: 'Agrandir', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: #ffffff;
+  text-transform: uppercase;
+}
+
+.footer__col-info {
+  font-family: 'Agrandir', sans-serif;
+  font-size: 0.9rem;
+  color: #888888;
+  margin: 0;
+  line-height: 1.7;
+}
+
+.footer__col-info a {
+  color: #888888;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.footer__col-info a:hover {
+  color: #ffffff;
+}
+/* ─── Responsivo ─── */
+@media (max-width: 768px) {
+  .footer__wrapper {
+    align-items: flex-end;
+  }
+
+  .footer {
+     transition: border-radius 0.8s cubic-bezier(0.65, 0, 0.35, 1),
+              width 0.8s cubic-bezier(0.65, 0, 0.35, 1),
+              transform 0.8s cubic-bezier(0.65, 0, 0.35, 1);
+    
+    
+    margin: 0;
+  }
+
+ 
+  .footer__top {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 40px 28px 32px;
+    gap: 28px;
+  }
+
+  .footer__left {
+    max-width: 100%;
+    gap: 14px;
+  }
+
+  .footer__subtitle {
+    font-size: 1rem;
+  }
+
+  .footer__description {
+    font-size: 0.88rem;
+  }
+
+  .footer__right {
+    justify-content: flex-start;
+    width: 100%;
+  }
+
+  .footer__text {
+    font-size: clamp(2rem, 9vw, 3rem);
+    text-align: left;
+    line-height: 1;
+  }
+
+  .footer__bottom {
+    grid-template-columns: 1fr 1fr;
+    padding: 32px 28px 48px;
+    gap: 28px 20px;
+  }
+
+  .footer__col-info {
+    font-size: 0.82rem;
+  }
+}
+
+.footer__hover-link {
+  position: relative;
+  display: inline-block;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.footer__hover-link .c-text {
+  display: flex;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+  color: #888888;
+  padding-bottom: 2px;
+}
+
+.footer__hover-link .c-text span:nth-of-type(1) {
+  display: block;
+  white-space: nowrap;
+  transform: translateY(0%) rotate(0.001deg);
+  transition: all 0.5s cubic-bezier(0.7, 0, 0.3, 1);
+  transition-delay: -0.05s;
+  font-family: 'Agrandir', sans-serif;
+  font-size: 0.9rem;
+  line-height: 1.7;
+}
+
+.footer__hover-link .c-text .c-serif {
+  color: #ffffff;
+  font-style: italic;
+  position: absolute;
+  top: 0;
+  left: 0;
+  white-space: nowrap;
+  transform: translateY(140%) rotate(10deg);
+  transition: all 0.5s cubic-bezier(0.7, 0, 0.3, 1);
+  transition-delay: 0s;
+  font-family: 'Agrandir', sans-serif;
+  font-size: 0.9rem;
+  line-height: 1.7;
+}
+
+.footer__hover-link .c-fill {
+  background: rgba(255, 255, 255, 0.2);
+  position: absolute;
+  width: 100%;
+  height: 1px;
+  bottom: 0;
+  left: 0;
+  transition: all 0.5s cubic-bezier(0.7, 0, 0.3, 1);
+}
+
+.footer__hover-link:hover .c-text span:nth-of-type(1) {
+  transform: translateY(-140%) rotate(-10deg);
+  transition-delay: 0s;
+}
+
+.footer__hover-link:hover .c-text .c-serif {
+  transform: translateY(0%) rotate(0.001deg);
+  transition-delay: -0.05s;
+}
+
+.footer__hover-link:hover .c-fill {
+  background: #ffffff;
+}
+
+/* ─── Botão CONTATO — seta desliza para direita no hover ─── */
+.footer__contact {
+  position: relative;
+  overflow: hidden;
+}
+
+.footer__arrow-wrap {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background-color: #636363;
+  border-radius: 50%;
+  overflow: hidden;
+  flex-shrink: 0;
+  transition: background-color 0.3s ease;
+}
+
+.footer__contact:hover .footer__arrow-wrap {
+  background-color: #e02020;
+}
+
+.footer__arrow {
+  display: inline-block;
+  font-size: 1rem;
+  color: #ffffff;
+  transition: transform 0.35s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.footer__contact:hover .footer__arrow {
+  transform: translate(3px, -3px);
+}
