@@ -41,6 +41,7 @@ const ITEMS = [
   },
 ];
 
+
 function CursorGallery({ mousePos, visible, images }) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [prevIndex, setPrevIndex] = useState(null);
@@ -48,7 +49,10 @@ function CursorGallery({ mousePos, visible, images }) {
   const baseUrl = import.meta.env.BASE_URL;
 
   useEffect(() => {
-    if (!visible) { clearInterval(intervalRef.current); return; }
+    if (!visible) {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+      return;
+    }
     intervalRef.current = setInterval(() => {
       setPrevIndex(currentIndex);
       setCurrentIndex((i) => (i + 1) % images.length);
@@ -57,7 +61,10 @@ function CursorGallery({ mousePos, visible, images }) {
   }, [visible, currentIndex, images]);
 
   useEffect(() => {
-    if (visible) { setCurrentIndex(0); setPrevIndex(null); }
+    if (visible) {
+      setCurrentIndex(0);
+      setPrevIndex(null);
+    }
   }, [visible]);
 
   return (
@@ -65,18 +72,23 @@ function CursorGallery({ mousePos, visible, images }) {
       className={"cursor-gallery" + (visible ? " cursor-gallery--visible" : "")}
       style={{ left: mousePos.x, top: mousePos.y }}
     >
-      {images.map((src, i) => (
-        <img
-          key={src}
-          src={`${baseUrl}${src}`}
-          alt=""
-          className={[
-            "cursor-gallery__img",
-            i === currentIndex ? "cursor-gallery__img--active" : "",
-            i === prevIndex    ? "cursor-gallery__img--prev"   : "",
-          ].join(" ")}
-        />
-      ))}
+      {images.map((caminhoDaImagem, i) => {
+
+        const urlCompleta = `${baseUrl}${caminhoDaImagem}`;
+        
+        return (
+          <img
+            key={caminhoDaImagem}
+            src={urlCompleta}
+            alt=""
+            className={[
+              "cursor-gallery__img",
+              i === currentIndex ? "cursor-gallery__img--active" : "",
+              i === prevIndex    ? "cursor-gallery__img--prev"   : "",
+            ].join(" ")}
+          />
+        );
+      })}
     </div>
   );
 }

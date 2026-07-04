@@ -9,12 +9,22 @@ const PROJECTS = [
     image: "desenvolvimento/marinho.PNG",
     link: "https://haeffnermarinho.adv.br/#/",
   },
+
+{
+    label: "Site imobiliaria",
+    desc: "Encontre o imóvel dos seus sonhos: as melhores opções prontas para morar.",
+    type: "Corporativo",
+    image: "desenvolvimento/imobiliaria.png",
+    link: "https://www.jmarinhoimoveis.com.br/",
+  },
+
+
   {
     label: "Zero (em construção)",
     desc: "Landing page desenvolvida para a empresa .ZERO, especializada em ações de degustação em mercados, que trabalha com marcas como Ambev, Heinz e Hemmer, e atua em redes como Festval, Condor e Carrefour, entre outras",
     type: "Landing Page",
     image: "desenvolvimento/zero.PNG",
-    link: "https://kawwav.github.io/Site--Zero/",
+    link: "https://kawwav.github.io/Zero-1.2/",
   },
 
   {
@@ -36,7 +46,7 @@ const PROJECTS = [
     label: "Souza 1.2 (em construção)",
     desc: "Site institucional com foco industrial, desenvolvido para apresentar a empresa Souza e seus serviços de manutenção e montagem industrial. Com um versão melhorada",
     type: "Corporativo",
-    image: "desenvolvimento/souza.PNG",
+    image : "desenvolvimento/industrial.png",
     link: "https://kawwav.github.io/Souza-/",
   }
   
@@ -60,6 +70,9 @@ function ProjectRow({ project, index }) {
     window.open(project.link, "_blank", "noopener,noreferrer");
   };
 
+  // ADICIONE ESSA LINHA: Pega "/" localmente ou "/Kawwa/" no deploy online
+  const baseUrl = import.meta.env.BASE_URL;
+
   return (
     <>
       <div
@@ -75,7 +88,8 @@ function ProjectRow({ project, index }) {
       >
 
         <div className="desenv-card-img">
-          <img src={project.image} alt={project.label} />
+          {/* ALTERADO: Incluído o baseUrl antes do caminho */}
+          <img src={`${baseUrl}${project.image}`} alt={project.label} />
         </div>
 
         {/* Campos desktop */}
@@ -94,12 +108,12 @@ function ProjectRow({ project, index }) {
         </div>
       </div>
 
-
       <div
         className={"desenv-cursor-img" + (hovered ? " desenv-cursor-img--visible" : "")}
         style={{ left: mousePos.x, top: mousePos.y }}
       >
-        <img src={project.image} alt={project.label} />
+        {/* ALTERADO: Incluído o baseUrl antes do caminho */}
+        <img src={`${baseUrl}${project.image}`} alt={project.label} />
       </div>
     </>
   );

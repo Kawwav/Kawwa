@@ -70,7 +70,7 @@ function ProjectRow({ project, index }) {
   return (
     <>
       <div
-        className={`desenv-meta__row${hovered ? " is-hovered" : ""}`}
+        className={`designer-meta__row${hovered ? " is-hovered" : ""}`}
         style={{ "--row-delay": `${index * 0.07}s` }}
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
@@ -80,29 +80,29 @@ function ProjectRow({ project, index }) {
         tabIndex={0}
         onKeyDown={(e) => e.key === "Enter" && handleClick()}
       >
-        <div className="desenv-card-img">
+        <div className="row-card-img">
           {/* Adicionado o baseUrl aqui */}
           <img src={`${baseUrl}${project.image}`} alt={project.label} />
         </div>
 
         {/* Campos desktop */}
-        <span className="desenv-meta__label">{project.label}</span>
-        <span className="desenv-meta__desc">{project.desc}</span>
-        <span className="desenv-meta__type">{project.type}</span>
-        <span className="desenv-meta__arrow">↗</span>
+        <span className="designer-meta__label">{project.label}</span>
+        <span className="designer-meta__desc">{project.desc}</span>
+        <span className="designer-meta__type">{project.type}</span>
+        <span className="designer-meta__arrow">↗</span>
 
         {/* Rodapé mobile */}
-        <div className="desenv-meta__info-mobile">
-          <div className="desenv-meta__info-top">
-            <span className="desenv-meta__label">{project.label}</span>
-            <span className="desenv-meta__arrow" aria-hidden="true">↗</span>
+        <div className="designer-meta__info-mobile">
+          <div className="designer-meta__info-top">
+            <span className="designer-meta__label">{project.label}</span>
+            <span className="designer-meta__arrow" aria-hidden="true">↗</span>
           </div>
-          <span className="desenv-meta__type">{project.type}</span>
+          <span className="designer-meta__type">{project.type}</span>
         </div>
       </div>
 
       <div
-        className={"desenv-cursor-img" + (hovered ? " desenv-cursor-img--visible" : "")}
+        className={"row-cursor-img" + (hovered ? " row-cursor-img--visible" : "")}
         style={{ left: mousePos.x, top: mousePos.y }}
       >
         {/* Adicionado o baseUrl aqui também */}
