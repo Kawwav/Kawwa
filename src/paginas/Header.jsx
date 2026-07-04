@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { FaWhatsapp, FaInstagram } from "react-icons/fa";
 import "./Header.css";
 
@@ -110,8 +110,20 @@ function Globe() {
 const NAME = "VINÍCIUS KAWASUGUI SANTIAGO";
 const REPEAT = 8;
 
-export default function Header() {
-    const isMobile = typeof window !== "undefined" && window.innerWidth <= 768;
+export default function Header({ revealed = true }) {
+    // "visible" controla as classes is-visible dos blocos do header.
+    // Se a página já chega "revealed" (entrada pulada nessa sessão),
+    // mostramos tudo direto, sem animação de entrada.
+    const [visible, setVisible] = useState(revealed);
+
+    useEffect(() => {
+        if (revealed && !visible) {
+            // pequeno delay para garantir que a transição CSS dispare
+            // logo no instante em que o quadro cinza termina de subir
+            const t = setTimeout(() => setVisible(true), 50);
+            return () => clearTimeout(t);
+        }
+    }, [revealed]);
 
     const items = Array.from({ length: REPEAT }, (_, i) => (
         <span className="marquee-item" key={i}>
@@ -123,7 +135,7 @@ export default function Header() {
     return (
         <div className="main-content">
 
-            <div className="header-left-block">
+            <div className={`header-left-block${visible ? " is-visible" : ""}`}>
                 <span className="copyright-label">
                     <div className="c-text">
                         <span>©KAWWA</span>
@@ -144,12 +156,12 @@ export default function Header() {
             </div>
 
             {/* Globo + localização */}
-            <div className="location-widget">
+            <div className={`location-widget${visible ? " is-visible" : ""}`}>
                 <Globe />
                 <span className="location-text">CURITIBA — BRASIL</span>
             </div>
 
-            <div className="marquee-wrapper">
+            <div className={`marquee-wrapper${visible ? " is-visible" : ""}`}>
                 <div className="marquee-track">
                     {items}
                     {items}
@@ -157,7 +169,7 @@ export default function Header() {
             </div>
 
             {/* Ícones sociais */}
-            <div className="social-icons">
+            <div className={`social-icons${visible ? " is-visible" : ""}`}>
                 <a
                     href="https://wa.me/5541988184388?text=Olá%20Vinícius%2C%20vim%20pelo%20seu%20portfólio%20e%20gostaria%20de%20conversar%20sobre%20um%20projeto!"
                     target="_blank"

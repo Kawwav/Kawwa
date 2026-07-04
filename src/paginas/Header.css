@@ -61,6 +61,30 @@
   transition: opacity 0.3s ease, transform 0.3s ease;
 }
 
+/* ─── Efeito de revelação (itens sobem do chão quando o quadro cinza some) ─── */
+.header-left-block,
+.location-widget,
+.marquee-wrapper,
+.social-icons {
+  opacity: 0;
+  transform: translateY(48px);
+  transition: opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.header-left-block.is-visible,
+.location-widget.is-visible,
+.marquee-wrapper.is-visible,
+.social-icons.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.header-left-block.is-visible { transition-delay: 0s; }
+.location-widget.is-visible   { transition-delay: 0.1s; }
+.marquee-wrapper.is-visible   { transition-delay: 0.2s; }
+.social-icons.is-visible      { transition-delay: 0.35s; }
+
 .location-widget {
   position: absolute;
   top: 32px;
@@ -363,6 +387,16 @@
   align-items: center;
   gap: 0;
   z-index: 10;
+}
+
+/* quando o reveal ainda não aconteceu, a translateX(-50%) de centralização
+   precisa conviver com o translateY do efeito de subida do chão */
+.social-icons {
+  transform: translate(-50%, 48px);
+}
+
+.social-icons.is-visible {
+  transform: translate(-50%, 0);
 }
 
 @media (max-width: 768px) {

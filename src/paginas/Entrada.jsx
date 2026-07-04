@@ -12,10 +12,15 @@ const fonts = [
 ];
 
 export default function Entrada({ onFinish }) {
-    const jaExibiu = sessionStorage.getItem("entrada-exibida") === "true";
+
+    const [jaExibiu] = useState(
+        () => sessionStorage.getItem("entrada-exibida") === "true"
+    );
+
     const [slideUp, setSlideUp] = useState(jaExibiu);
     const [fontIndex, setFontIndex] = useState(0);
     const [fading, setFading] = useState(false);
+    const [done, setDone] = useState(jaExibiu);
 
     useEffect(() => {
         if (jaExibiu) {
@@ -26,7 +31,9 @@ export default function Entrada({ onFinish }) {
             sessionStorage.setItem("entrada-exibida", "true");
             setSlideUp(true);
             if (onFinish) setTimeout(onFinish, 1000);
-        }, 5000);
+            
+            setTimeout(() => setDone(true), 1000);
+        }, 2500);
         return () => clearTimeout(slideTimer);
     }, []);
 
@@ -42,7 +49,7 @@ export default function Entrada({ onFinish }) {
         return () => clearInterval(interval);
     }, []);
 
-    if (jaExibiu) return null;
+    if (done) return null;
 
     return (
         <div className={`entrada-overlay ${slideUp ? "slide-up" : ""}`}>

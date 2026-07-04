@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Header from "./paginas/Header";
 import Entrada from "./paginas/Entrada";
@@ -15,6 +16,9 @@ npm run deploy*/
 function App() {
 
   const base = import.meta.env.DEV ? "/" : "/Kawwa";
+  const [introDone, setIntroDone] = useState(
+    () => sessionStorage.getItem("entrada-exibida") === "true"
+  );
 
   return (
     <BrowserRouter basename={base}>
@@ -23,8 +27,8 @@ function App() {
           path="/"
           element={
             <>
-              <Entrada />
-              <Header />
+              <Entrada onFinish={() => setIntroDone(true)} />
+              <Header revealed={introDone} />
               <Sobre />
               <Servicos />
               <Footer />
