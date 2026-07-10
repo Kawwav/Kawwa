@@ -14,7 +14,6 @@ const GALLERY_IMAGES = {
   desenvolvimento: [
     "desenvolvimento/marinho.PNG",
     "desenvolvimento/zero.PNG",
-    "desenvolvimento/igor.PNG",
     "desenvolvimento/sitebolsa.PNG",
     "desenvolvimento/souza (1).PNG",
     "desenvolvimento/barbearia (1).PNG",
@@ -48,6 +47,38 @@ function CursorGallery({ mousePos, visible, images }) {
   const intervalRef = useRef(null);
   const baseUrl = import.meta.env.BASE_URL;
 
+  const containerRef = useRef(null);
+  const targetPos = useRef(mousePos);
+  const smoothPos = useRef(mousePos);
+
+  // mantém sempre o alvo (posição real do mouse) atualizado
+  useEffect(() => {
+    targetPos.current = mousePos;
+  }, [mousePos]);
+
+  // loop contínuo de interpolação (delay suave ao seguir o mouse)
+  useEffect(() => {
+    let raf;
+    const EASE = 0.1; // menor = mais "atraso"/suavidade, maior = mais rápido/direto
+
+    const animate = () => {
+      smoothPos.current = {
+        x: smoothPos.current.x + (targetPos.current.x - smoothPos.current.x) * EASE,
+        y: smoothPos.current.y + (targetPos.current.y - smoothPos.current.y) * EASE,
+      };
+
+      if (containerRef.current) {
+        containerRef.current.style.left = `${smoothPos.current.x}px`;
+        containerRef.current.style.top = `${smoothPos.current.y}px`;
+      }
+
+      raf = requestAnimationFrame(animate);
+    };
+
+    raf = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(raf);
+  }, []);
+
   useEffect(() => {
     if (!visible) {
       if (intervalRef.current) clearInterval(intervalRef.current);
@@ -69,22 +100,24 @@ function CursorGallery({ mousePos, visible, images }) {
 
   return (
     <div
-      className={"cursor-gallery" + (visible ? " cursor-gallery--visible" : "")}
-      style={{ left: mousePos.x, top: mousePos.y }}
+      ref={containerRef}
+      className={"cursor" + (visible ? " visivel" : "")}
+      style={{ left: smoothPos.current.x, top: smoothPos.current.y }}
     >
+      <div className="camada" />
       {images.map((caminhoDaImagem, i) => {
 
         const urlCompleta = `${baseUrl}${caminhoDaImagem}`;
-        
+
         return (
           <img
             key={caminhoDaImagem}
             src={urlCompleta}
             alt=""
             className={[
-              "cursor-gallery__img",
-              i === currentIndex ? "cursor-gallery__img--active" : "",
-              i === prevIndex    ? "cursor-gallery__img--prev"   : "",
+              "imagem",
+              i === currentIndex ? "ativa"    : "",
+              i === prevIndex    ? "anterior" : "",
             ].join(" ")}
           />
         );
@@ -116,10 +149,10 @@ function SplitItem({ item, index, onMouseEnter, onMouseLeave, onMouseMove, onSpl
     <li
       ref={itemRef}
       className={[
-        "servicos-item",
-        item.hasGallery && !split && !isTouchDevice ? "servicos-item--gallery"   : "",
-        item.hasSplit             ? "servicos-item--splittable" : "",
-        split                     ? "servicos-item--split"      : "",
+        "item",
+        item.hasGallery && !split && !isTouchDevice ? "galeria"  : "",
+        item.hasSplit             ? "clicavel" : "",
+        split                     ? "dividido" : "",
       ].join(" ")}
       style={{ "--item-delay": `${index * 0.12}s` }}
       onMouseEnter={() => { if (!split && !isTouchDevice) onMouseEnter(item); }}
@@ -127,16 +160,32 @@ function SplitItem({ item, index, onMouseEnter, onMouseLeave, onMouseMove, onSpl
       onMouseMove={item.hasGallery && !split && !isTouchDevice ? onMouseMove : undefined}
       onClick={handleClick}
     >
-      <div className="servicos-item__row">
-        <div className="servicos-item__half servicos-item__half--top">
-          <h2 className="servicos-item-title">{item.title}</h2>
-          <span className="servicos-item-num">{item.num}</span>
+      <div className="linha">
+        <div className="metade topo">
+          <h2 className="titulo">{item.title}</h2>
+          <div className="meta">
+            <span className="numero">{item.num}</span>
+            {item.hasSplit && (
+              <span className="cta">
+                Clique para ver
+                <span className="seta">→</span>
+              </span>
+            )}
+          </div>
         </div>
-        <div className="servicos-item__half servicos-item__half--bottom">
-          <h2 className="servicos-item-title">{item.title}</h2>
-          <span className="servicos-item-num">{item.num}</span>
+        <div className="metade baixo">
+          <h2 className="titulo">{item.title}</h2>
+          <div className="meta">
+            <span className="numero">{item.num}</span>
+            {item.hasSplit && (
+              <span className="cta">
+                Clique para ver
+                <span className="seta">→</span>
+              </span>
+            )}
+          </div>
         </div>
-        <div className="servicos-item__hover-bg" />
+        <div className="fundo" />
       </div>
     </li>
   );
@@ -186,25 +235,25 @@ export default function Servicos() {
     el.style.setProperty("--reveal-x", `${origin.x}px`);
     el.style.setProperty("--reveal-y", `${origin.y}px`);
     el.style.setProperty("--reveal-r", `${maxRadius}px`);
-    el.classList.remove("reveal-overlay--go");
+    el.classList.remove("ir");
 
     // força reflow
     void el.offsetWidth;
 
-    
+
     requestAnimationFrame(() => {
       el.style.setProperty("--reveal-r", `0px`);
-      el.classList.add("reveal-overlay--go");
+      el.classList.add("ir");
     });
-  }, []);  
+  }, []);
 
   useEffect(() => {
     const section = sectionRef.current;
     if (!section) return;
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting) section.classList.add("is-visible");
-        else section.classList.remove("is-visible");
+        if (entry.isIntersecting) section.classList.add("visivel");
+        else section.classList.remove("visivel");
       },
       { threshold: 0.15 }
     );
@@ -231,13 +280,13 @@ export default function Servicos() {
     el.style.setProperty("--zoom-x", `${origin.x}px`);
     el.style.setProperty("--zoom-y", `${origin.y}px`);
     el.style.setProperty("--zoom-r", `0px`);
-    el.classList.remove("zoom-overlay--go");
+    el.classList.remove("ir");
     setZoomTarget(route);
     void el.offsetWidth;
 
     requestAnimationFrame(() => {
       el.style.setProperty("--zoom-r", `${maxRadius}px`);
-      el.classList.add("zoom-overlay--go");
+      el.classList.add("ir");
     });
 
     setTimeout(() => navigate(route), 1000);
@@ -245,10 +294,10 @@ export default function Servicos() {
 
   return (
     <>
-      <section className="servicos-section" ref={sectionRef}>
-        <p className="servicos-label">Serviços</p>
+      <section className="servicos" ref={sectionRef}>
+        <p className="label">Serviços</p>
 
-        <ul className="servicos-list">
+        <ul className="lista">
           {ITEMS.map((item, i) => (
             <SplitItem
               key={item.title}
@@ -271,10 +320,10 @@ export default function Servicos() {
         />
       </section>
 
-      <div className="zoom-overlay" ref={zoomRef} aria-hidden={zoomTarget === null} />
+      <div className="zoom" ref={zoomRef} aria-hidden={zoomTarget === null} />
 
-     
-      <div className="reveal-overlay" ref={revealRef} />
+
+      <div className="revelar" ref={revealRef} />
     </>
   );
 }

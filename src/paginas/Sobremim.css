@@ -1,6 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400&display=swap');
 
-.sobremim-curtain {
+.cortina {
     position: fixed;
     inset: 0;
     width: 100vw;
@@ -10,17 +10,17 @@
     pointer-events: none;
     transform: translateY(100%);
 }
-.sobremim-curtain.curtain-in      { animation: smCurtainIn      0.55s cubic-bezier(0.76,0,0.24,1) forwards; }
-.sobremim-curtain.curtain-out     { animation: smCurtainOut     0.55s cubic-bezier(0.76,0,0.24,1) forwards; }
-.sobremim-curtain.curtain-close-in  { transform: translateY(-100%); animation: smCurtainCloseIn  0.55s cubic-bezier(0.76,0,0.24,1) forwards; }
-.sobremim-curtain.curtain-close-out { animation: smCurtainCloseOut 0.55s cubic-bezier(0.76,0,0.24,1) forwards; }
+.cortina.cortina-entrando         { animation: cortinaEntra     0.55s cubic-bezier(0.76,0,0.24,1) forwards; }
+.cortina.cortina-saindo           { animation: cortinaSai       0.55s cubic-bezier(0.76,0,0.24,1) forwards; }
+.cortina.cortina-fecha-entrando   { transform: translateY(-100%); animation: cortinaFechaEntra 0.55s cubic-bezier(0.76,0,0.24,1) forwards; }
+.cortina.cortina-fecha-saindo     { animation: cortinaFechaSai  0.55s cubic-bezier(0.76,0,0.24,1) forwards; }
 
-@keyframes smCurtainIn       { from { transform: translateY(100%);  } to { transform: translateY(0%);    } }
-@keyframes smCurtainOut      { from { transform: translateY(0%);    } to { transform: translateY(-100%); } }
-@keyframes smCurtainCloseIn  { from { transform: translateY(-100%); } to { transform: translateY(0%);    } }
-@keyframes smCurtainCloseOut { from { transform: translateY(0%);    } to { transform: translateY(100%);  } }
+@keyframes cortinaEntra      { from { transform: translateY(100%);  } to { transform: translateY(0%);    } }
+@keyframes cortinaSai        { from { transform: translateY(0%);    } to { transform: translateY(-100%); } }
+@keyframes cortinaFechaEntra { from { transform: translateY(-100%); } to { transform: translateY(0%);    } }
+@keyframes cortinaFechaSai   { from { transform: translateY(0%);    } to { transform: translateY(100%);  } }
 
-.sobremim-page {
+.pagina {
     position: fixed;
     inset: 0;
     background: #0a0a0a;
@@ -33,11 +33,11 @@
     padding: 0 6vw 160px;
     box-sizing: border-box;
 }
-body.sobremim-open { overflow: hidden; }
-.sobremim-page.sm-visible { visibility: visible; }
+body.pagina-aberta { overflow: hidden; }
+.pagina.pagina-visivel { visibility: visible; }
 
 /* ── BOTÃO VOLTAR ── */
-.sobremim-back {
+.botao-voltar {
     position: sticky;
     top: 32px;
     left: 0;
@@ -54,23 +54,23 @@ body.sobremim-open { overflow: hidden; }
     margin-bottom: -60px;
     transition: border-color 0.3s ease, background 0.3s ease;
 }
-.sobremim-back:hover {
+.botao-voltar:hover {
     border-color: rgba(255,255,255,0.3);
     background: rgba(255,255,255,0.05);
 }
-.sobremim-back-arrow {
+.botao-voltar-seta {
     font-family: 'DM Sans', sans-serif;
     font-size: 18px;
     color: rgba(255,255,255,0.6);
     line-height: 1;
     transition: transform 0.3s ease, color 0.3s ease;
 }
-.sobremim-back:hover .sobremim-back-arrow {
+.botao-voltar:hover .botao-voltar-seta {
     transform: translateX(-3px);
     color: #fff;
 }
 
-.sobremim-hero {
+.topo {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 0 6vw;
@@ -78,12 +78,13 @@ body.sobremim-open { overflow: hidden; }
     padding-top: 140px;
     padding-bottom: 80px;
 }
-.sobremim-hero-left {
+.topo-texto {
     display: flex;
     flex-direction: column;
     align-items: center;
+    will-change: transform;
 }
-.sobremim-name {
+.nome {
     font-family: 'DM Sans', sans-serif;
     font-size: clamp(48px, 8vw, 130px);
     font-weight: 300;
@@ -93,7 +94,7 @@ body.sobremim-open { overflow: hidden; }
     margin: 0 0 48px;
     text-align: center;
 }
-.sobremim-bio {
+.bio {
     font-family: 'DM Sans', sans-serif;
     font-size: clamp(13px, 1vw, 16px);
     font-weight: 300;
@@ -103,23 +104,24 @@ body.sobremim-open { overflow: hidden; }
     max-width: 480px;
     text-align: center;
 }
-.sobremim-bio:last-child { margin-bottom: 0; }
+.bio:last-child { margin-bottom: 0; }
 
-.sobremim-hero-right {
+.topo-foto {
     display: flex;
     flex-direction: column;
     gap: 20px;
     justify-content: flex-start;
     margin-top: -60px;
 }
-.sobremim-img-wrap {
+.foto {
     position: relative;
     width: 70%;
     aspect-ratio: 3 / 4;
     overflow: hidden;
     border-radius: 16px;
+    will-change: transform;
 }
-.sobremim-img-wrap img {
+.foto img {
     width: 100%;
     height: 100%;
     object-fit: cover;
@@ -127,24 +129,24 @@ body.sobremim-open { overflow: hidden; }
     display: block;
     transition: transform 0.8s ease;
 }
-.sobremim-img-wrap:hover img { transform: scale(1.03); }
-.sobremim-img-overlay {
+.foto:hover img { transform: scale(1.03); }
+.foto-sombra {
     position: absolute;
     inset: 0;
     background: linear-gradient(to bottom, transparent 50%, rgba(10,10,10,0.55) 100%);
     pointer-events: none;
 }
 
-.sobremim-divider {
+.divisor {
     width: 100%;
     height: 1px;
     background: rgba(255,255,255,0.07);
     margin-bottom: 80px;
 }
 
-.sobremim-processo { width: 100%; }
+.processo { width: 100%; }
 
-.sobremim-processo-eyebrow {
+.processo-titulo {
     font-family: 'DM Sans', sans-serif;
     font-size: 37px;
     font-weight: 400;
@@ -154,7 +156,7 @@ body.sobremim-open { overflow: hidden; }
     margin: 0 0 120px;
 }
 
-.sobremim-processo-steps {
+.processo-lista {
     position: relative;
     display: flex;
     flex-direction: column;
@@ -162,8 +164,8 @@ body.sobremim-open { overflow: hidden; }
     padding-bottom: 80px;
 }
 
-.sobremim-track-bg,
-.sobremim-track-fill {
+.linha-base,
+.linha-progresso {
     position: absolute;
     left: 50%;
     transform: translateX(-50%);
@@ -171,11 +173,11 @@ body.sobremim-open { overflow: hidden; }
     top: 22px;
     pointer-events: none;
 }
-.sobremim-track-bg {
+.linha-base {
     bottom: 22px;
     background: rgba(255,255,255,0.07);
 }
-.sobremim-track-fill {
+.linha-progresso {
     height: 0;
     bottom: auto;
     background: rgba(255,255,255,0.35);
@@ -183,7 +185,7 @@ body.sobremim-open { overflow: hidden; }
     transition: height 0.08s linear;
 }
 
-.sobremim-processo-step {
+.etapa {
     display: grid;
     grid-template-columns: 1fr 60px 1fr;
     align-items: center;
@@ -191,31 +193,31 @@ body.sobremim-open { overflow: hidden; }
 }
 
 /* Estado inicial dos cards — invisíveis, 24px abaixo */
-.sobremim-processo-card {
+.etapa-caixa {
     opacity: 0;
     transform: translateY(24px);
     transition: opacity 0.65s ease, transform 0.65s cubic-bezier(0.16,1,0.3,1);
 }
 
 /* Quando a linha chega no step, o card aparece */
-.sobremim-processo-step.step-visible .sobremim-processo-card {
+.etapa.etapa-visivel .etapa-caixa {
     opacity: 1;
     transform: translateY(0);
 }
 
 /* Nó também aparece junto */
-.sobremim-processo-dot {
+.etapa-circulo {
     opacity: 0;
     transform: scale(0.6);
     transition: opacity 0.5s ease, transform 0.5s cubic-bezier(0.16,1,0.3,1);
 }
-.sobremim-processo-step.step-visible .sobremim-processo-dot {
+.etapa.etapa-visivel .etapa-circulo {
     opacity: 1;
     transform: scale(1);
 }
 
 /* ── POSICIONAMENTO ── */
-.sobremim-processo-step.step-left .sobremim-processo-card {
+.etapa.etapa-esquerda .etapa-caixa {
     grid-column: 1;
     margin-left: auto;
     margin-right: 36px;
@@ -223,7 +225,7 @@ body.sobremim-open { overflow: hidden; }
     max-width: 380px;
     width: 100%;
 }
-.sobremim-processo-step.step-right .sobremim-processo-card {
+.etapa.etapa-direita .etapa-caixa {
     grid-column: 3;
     margin-left: 36px;
     text-align: left;
@@ -231,7 +233,7 @@ body.sobremim-open { overflow: hidden; }
     width: 100%;
 }
 
-.sobremim-processo-node {
+.etapa-no {
     grid-column: 2;
     display: flex;
     align-items: center;
@@ -239,7 +241,7 @@ body.sobremim-open { overflow: hidden; }
     position: relative;
     z-index: 2;
 }
-.sobremim-processo-dot {
+.etapa-circulo {
     width: 44px;
     height: 44px;
     border-radius: 50%;
@@ -255,11 +257,11 @@ body.sobremim-open { overflow: hidden; }
         border-color 0.4s ease,
         box-shadow   0.4s ease;
 }
-.sobremim-processo-step.step-visible .sobremim-processo-dot:hover {
+.etapa.etapa-visivel .etapa-circulo:hover {
     border-color: rgba(255,255,255,0.45);
     box-shadow: 0 0 24px rgba(255,255,255,0.07);
 }
-.sobremim-processo-dot-num {
+.etapa-numero {
     font-family: 'DM Sans', sans-serif;
     font-size: 10px;
     font-weight: 400;
@@ -267,12 +269,12 @@ body.sobremim-open { overflow: hidden; }
     color: rgba(255,255,255,0.25);
     transition: color 0.4s ease;
 }
-.sobremim-processo-step.step-visible:hover .sobremim-processo-dot-num {
+.etapa.etapa-visivel:hover .etapa-numero {
     color: rgba(255,255,255,0.75);
 }
 
 /* ── CARD ── */
-.sobremim-processo-card {
+.etapa-caixa {
     display: flex;
     flex-direction: column;
     gap: 12px;
@@ -286,18 +288,18 @@ body.sobremim-open { overflow: hidden; }
         background   0.35s ease,
         border-color 0.35s ease;
 }
-.sobremim-processo-step.step-visible:hover .sobremim-processo-card {
+.etapa.etapa-visivel:hover .etapa-caixa {
     background: rgba(255,255,255,0.045);
     border-color: rgba(255,255,255,0.12);
 }
-.sobremim-processo-step.step-left.step-visible:hover .sobremim-processo-card {
+.etapa.etapa-esquerda.etapa-visivel:hover .etapa-caixa {
     transform: translateX(-5px);
 }
-.sobremim-processo-step.step-right.step-visible:hover .sobremim-processo-card {
+.etapa.etapa-direita.etapa-visivel:hover .etapa-caixa {
     transform: translateX(5px);
 }
 
-.sobremim-processo-title {
+.etapa-titulo {
     font-family: 'DM Sans', sans-serif;
     font-size: clamp(15px, 1.1vw, 18px);
     font-weight: 400;
@@ -305,7 +307,7 @@ body.sobremim-open { overflow: hidden; }
     margin: 0;
     letter-spacing: -0.01em;
 }
-.sobremim-processo-text {
+.etapa-texto {
     font-family: 'DM Sans', sans-serif;
     font-size: clamp(12px, 0.85vw, 13px);
     font-weight: 300;
@@ -315,76 +317,76 @@ body.sobremim-open { overflow: hidden; }
 }
 
 @media (max-width: 768px) {
-    .sobremim-page {
+    .pagina {
         padding: 0 5vw 100px;
     }
 
-    .sobremim-back {
+    .botao-voltar {
         top: 20px;
         padding: 8px 18px 8px 14px;
     }
 
-    .sobremim-hero {
+    .topo {
         grid-template-columns: 1fr;
         padding-top: 90px;
         padding-bottom: 48px;
         gap: 36px;
     }
 
-    .sobremim-hero-right {
+    .topo-foto {
         order: -1;
         margin-top: 0;
         align-items: center;
     }
 
-    .sobremim-img-wrap {
+    .foto {
         width: 75%;
         aspect-ratio: 3 / 4;
     }
 
-    .sobremim-name {
+    .nome {
         font-size: clamp(40px, 11vw, 72px);
         margin-bottom: 28px;
         text-align: center;
     }
 
-    .sobremim-bio {
+    .bio {
         font-size: clamp(13px, 3.8vw, 16px);
         text-align: center;
         max-width: 100%;
     }
 
-    .sobremim-divider {
+    .divisor {
         margin-bottom: 48px;
     }
 
-    .sobremim-processo-eyebrow {
+    .processo-titulo {
         font-size: clamp(20px, 6vw, 30px);
         letter-spacing: 0.14em;
         margin-bottom: 64px;
     }
 
-    .sobremim-processo-steps {
+    .processo-lista {
         gap: 72px;
         padding-left: 0;
         padding-bottom: 60px;
     }
 
-    .sobremim-track-bg,
-    .sobremim-track-fill {
+    .linha-base,
+    .linha-progresso {
         left: 20px;
         transform: none;
     }
 
-    .sobremim-processo-step {
+    .etapa {
         grid-template-columns: 44px 1fr;
         align-items: flex-start;
         width: 100%;
         box-sizing: border-box;
     }
 
-    .sobremim-processo-step.step-left .sobremim-processo-card,
-    .sobremim-processo-step.step-right .sobremim-processo-card {
+    .etapa.etapa-esquerda .etapa-caixa,
+    .etapa.etapa-direita .etapa-caixa {
         grid-column: 2;
         grid-row: 1;
         text-align: left;
@@ -396,7 +398,7 @@ body.sobremim-open { overflow: hidden; }
         box-sizing: border-box;
     }
 
-    .sobremim-processo-node {
+    .etapa-no {
         grid-column: 1;
         grid-row: 1;
         align-self: flex-start;
@@ -404,53 +406,53 @@ body.sobremim-open { overflow: hidden; }
         justify-content: flex-start;
     }
 
-    .sobremim-processo-dot {
+    .etapa-circulo {
         width: 36px;
         height: 36px;
     }
 
-    .sobremim-processo-title {
+    .etapa-titulo {
         font-size: clamp(14px, 4vw, 17px);
     }
 
-    .sobremim-processo-text {
+    .etapa-texto {
         font-size: clamp(12px, 3.4vw, 14px);
         line-height: 1.65;
     }
 
-    .sobremim-processo-step.step-left.step-visible:hover .sobremim-processo-card,
-    .sobremim-processo-step.step-right.step-visible:hover .sobremim-processo-card {
+    .etapa.etapa-esquerda.etapa-visivel:hover .etapa-caixa,
+    .etapa.etapa-direita.etapa-visivel:hover .etapa-caixa {
         transform: none;
     }
 }
 
 @media (max-width: 400px) {
-    .sobremim-page {
+    .pagina {
         padding: 0 4vw 80px;
     }
 
-    .sobremim-img-wrap {
+    .foto {
         width: 90%;
     }
 
-    .sobremim-name {
+    .nome {
         font-size: clamp(36px, 12vw, 52px);
     }
 
-    .sobremim-processo-steps {
+    .processo-lista {
         gap: 56px;
     }
 
-    .sobremim-track-bg,
-    .sobremim-track-fill {
+    .linha-base,
+    .linha-progresso {
         left: 18px;
     }
 
-    .sobremim-processo-step {
+    .etapa {
         grid-template-columns: 36px 1fr;
     }
 
-    .sobremim-processo-dot {
+    .etapa-circulo {
         width: 30px;
         height: 30px;
     }

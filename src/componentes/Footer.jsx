@@ -38,20 +38,20 @@ const Footer = () => {
   const borderRadiusValue = `50% 50% 0 0 / ${radius}% ${radius}% 0 0`;
 
   return (
-    <div className="footer__wrapper">
+    <div className="rodape__container">
       <footer
         ref={footerRef}
-        className="footer"
+        className="rodape"
         style={{
           borderRadius: borderRadiusValue,
           width: `${width}%`,
           transform: `scale(${scale})`,
         }}
       >
-        <div className="footer__top">
-          <div className="footer__left">
-            <h3 className="footer__subtitle">Vamos trabalhar juntos</h3>
-            <p className="footer__description">
+        <div className="rodape__topo">
+          <div className="rodape__esquerda">
+            <h3 className="rodape__subtitulo">Vamos trabalhar juntos</h3>
+            <p className="rodape__descricao">
               Tem uma ideia ou projeto que precisa ganhar vida?
               Entre em contato e vamos conversar.
             </p>
@@ -59,78 +59,78 @@ const Footer = () => {
               href="https://wa.me/5541988184388?text=Ol%C3%A1%20Vin%C3%ADcius%2C%20vim%20pelo%20seu%20portf%C3%B3lio%20e%20gostaria%20de%20conversar%20sobre%20um%20projeto!"
               target="_blank"
               rel="noopener noreferrer"
-              className="footer__contact"
+              className="rodape__contato"
             >
               CONTATO
-              <span className="footer__arrow-wrap">
-                <span className="footer__arrow">↗</span>
+              <span className="rodape__seta-container">
+                <span className="rodape__seta">↗</span>
               </span>
             </a>
           </div>
 
-          <div className="footer__right">
-            <p className="footer__text">
+          <div className="rodape__direita">
+            <p className="rodape__texto">
               Tem um<br />
               Projeto em mente?
             </p>
           </div>
         </div>
 
-        <div className="footer__bottom">
-          <div className="footer__col">
-            <div className="footer__line" />
-            <span className="footer__col-title">LOCALIZAÇÃO</span>
-            <p className="footer__col-info">Curitiba, PR<br />Brasil</p>
+        <div className="rodape__base">
+          <div className="rodape__coluna">
+            <div className="rodape__linha" />
+            <span className="rodape__coluna-titulo">LOCALIZAÇÃO</span>
+            <p className="rodape__coluna-info">Curitiba, PR<br />Brasil</p>
           </div>
 
-          <div className="footer__col">
-            <div className="footer__line" />
-            <span className="footer__col-title">CONTATO</span>
-            <p className="footer__col-info">
+          <div className="rodape__coluna">
+            <div className="rodape__linha" />
+            <span className="rodape__coluna-titulo">CONTATO</span>
+            <p className="rodape__coluna-info">
               <a
                 href="https://wa.me/5541988184388?text=Ol%C3%A1%20Vin%C3%ADcius%2C%20vim%20pelo%20seu%20portf%C3%B3lio%20e%20gostaria%20de%20conversar%20sobre%20um%20projeto!"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="footer__hover-link"
+                className="rodape__link"
               >
-                <span className="c-text">
+                <span className="link__texto">
                   <span>+55 41 98818-4388</span>
-                  <span className="c-serif">+55 41 98818-4388</span>
+                  <span className="link__texto-hover">+55 41 98818-4388</span>
                 </span>
-                <span className="c-fill" />
+                <span className="link__linha" />
               </a>
             </p>
           </div>
 
-          <div className="footer__col">
-            <div className="footer__line" />
-            <span className="footer__col-title">E-MAIL</span>
-            <p className="footer__col-info">
-              <a href="mailto:vinikawwa@gmail.com" className="footer__hover-link">
-                <span className="c-text">
+          <div className="rodape__coluna">
+            <div className="rodape__linha" />
+            <span className="rodape__coluna-titulo">E-MAIL</span>
+            <p className="rodape__coluna-info">
+              <a href="mailto:vinikawwa@gmail.com" className="rodape__link">
+                <span className="link__texto">
                   <span>vinikawwa@gmail.com</span>
-                  <span className="c-serif">vinikawwa@gmail.com</span>
+                  <span className="link__texto-hover">vinikawwa@gmail.com</span>
                 </span>
-                <span className="c-fill" />
+                <span className="link__linha" />
               </a>
             </p>
           </div>
 
-          <div className="footer__col">
-            <div className="footer__line" />
-            <span className="footer__col-title">SIGA-NOS</span>
-            <p className="footer__col-info">
+          <div className="rodape__coluna">
+            <div className="rodape__linha" />
+            <span className="rodape__coluna-titulo">SIGA-NOS</span>
+            <p className="rodape__coluna-info">
               <a
                 href="https://www.instagram.com/_k.aww.a_/"
                 target="_blank"
                 rel="noreferrer"
-                className="footer__hover-link"
+                className="rodape__link"
               >
-                <span className="c-text">
+                <span className="link__texto">
                   <span>Instagram</span>
-                  <span className="c-serif">Instagram</span>
+                  <span className="link__texto-hover">Instagram</span>
                 </span>
-                <span className="c-fill" />
+                <span className="link__linha" />
               </a>
             </p>
           </div>

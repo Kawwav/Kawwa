@@ -53,18 +53,81 @@ const PROJECTS = [
 
 ];
 
+/* ─── Imagem que segue o cursor (backdrop + crossfade + delay suave) ─── */
+function CursorImage({ mousePos, visible, image }) {
+  const [currentImage, setCurrentImage] = useState(image);
+  const [prevImage, setPrevImage] = useState(null);
 
-function ProjectRow({ project, index }) {
-  const [hovered, setHovered] = useState(false);
-  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
-  const rafRef = useRef(null);
+  const containerRef = useRef(null);
+  const targetPos = useRef(mousePos);
+  const smoothPos = useRef(mousePos);
+  const baseUrl = import.meta.env.BASE_URL;
 
-  const handleMouseMove = useCallback((e) => {
-    if (rafRef.current) cancelAnimationFrame(rafRef.current);
-    rafRef.current = requestAnimationFrame(() => {
-      setMousePos({ x: e.clientX, y: e.clientY });
-    });
+  // mantém sempre o alvo (posição real do mouse) atualizado
+  useEffect(() => {
+    targetPos.current = mousePos;
+  }, [mousePos]);
+
+  // loop contínuo de interpolação (delay suave ao seguir o mouse)
+  useEffect(() => {
+    let raf;
+    const EASE = 0.12; // menor = mais "atraso"/suavidade, maior = mais rápido/direto
+
+    const animate = () => {
+      smoothPos.current = {
+        x: smoothPos.current.x + (targetPos.current.x - smoothPos.current.x) * EASE,
+        y: smoothPos.current.y + (targetPos.current.y - smoothPos.current.y) * EASE,
+      };
+
+      if (containerRef.current) {
+        containerRef.current.style.left = `${smoothPos.current.x}px`;
+        containerRef.current.style.top = `${smoothPos.current.y}px`;
+      }
+
+      raf = requestAnimationFrame(animate);
+    };
+
+    raf = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(raf);
   }, []);
+
+  // crossfade: quando a imagem muda (troca de linha em hover), a antiga esmaece e a nova aparece
+  useEffect(() => {
+    if (image && image !== currentImage) {
+      setPrevImage(currentImage);
+      setCurrentImage(image);
+    }
+  }, [image]);
+
+  return (
+    <div
+      ref={containerRef}
+      className={"desenv-cursor-img" + (visible ? " desenv-cursor-img--visible" : "")}
+      style={{ left: smoothPos.current.x, top: smoothPos.current.y }}
+    >
+      <div className="desenv-cursor-img__backdrop" />
+      {prevImage && (
+        <img
+          key={prevImage}
+          src={`${baseUrl}${prevImage}`}
+          alt=""
+          className="desenv-cursor-img__photo desenv-cursor-img__photo--prev"
+        />
+      )}
+      {currentImage && (
+        <img
+          key={currentImage}
+          src={`${baseUrl}${currentImage}`}
+          alt=""
+          className="desenv-cursor-img__photo desenv-cursor-img__photo--active"
+        />
+      )}
+    </div>
+  );
+}
+
+function ProjectRow({ project, index, onHoverStart, onHoverEnd, onMouseMove }) {
+  const [hovered, setHovered] = useState(false);
 
   const handleClick = () => {
     window.open(project.link, "_blank", "noopener,noreferrer");
@@ -74,48 +137,38 @@ function ProjectRow({ project, index }) {
   const baseUrl = import.meta.env.BASE_URL;
 
   return (
-    <>
-      <div
-        className={`desenv-meta__row${hovered ? " is-hovered" : ""}`}
-        style={{ "--row-delay": `${index * 0.07}s` }}
-        onMouseEnter={() => setHovered(true)}
-        onMouseLeave={() => setHovered(false)}
-        onMouseMove={handleMouseMove}
-        onClick={handleClick}
-        role="link"
-        tabIndex={0}
-        onKeyDown={(e) => e.key === "Enter" && handleClick()}
-      >
+    <div
+      className={`desenv-meta__row${hovered ? " is-hovered" : ""}`}
+      style={{ "--row-delay": `${index * 0.07}s` }}
+      onMouseEnter={() => { setHovered(true); onHoverStart(project); }}
+      onMouseLeave={() => { setHovered(false); onHoverEnd(); }}
+      onMouseMove={onMouseMove}
+      onClick={handleClick}
+      role="link"
+      tabIndex={0}
+      onKeyDown={(e) => e.key === "Enter" && handleClick()}
+    >
 
-        <div className="desenv-card-img">
-          {/* ALTERADO: Incluído o baseUrl antes do caminho */}
-          <img src={`${baseUrl}${project.image}`} alt={project.label} />
-        </div>
-
-        {/* Campos desktop */}
-        <span className="desenv-meta__label">{project.label}</span>
-        <span className="desenv-meta__desc">{project.desc}</span>
-        <span className="desenv-meta__type">{project.type}</span>
-        <span className="desenv-meta__arrow">↗</span>
-
-        {/* Rodapé mobile */}
-        <div className="desenv-meta__info-mobile">
-          <div className="desenv-meta__info-top">
-            <span className="desenv-meta__label">{project.label}</span>
-            <span className="desenv-meta__arrow" aria-hidden="true">↗</span>
-          </div>
-          <span className="desenv-meta__type">{project.type}</span>
-        </div>
-      </div>
-
-      <div
-        className={"desenv-cursor-img" + (hovered ? " desenv-cursor-img--visible" : "")}
-        style={{ left: mousePos.x, top: mousePos.y }}
-      >
+      <div className="desenv-card-img">
         {/* ALTERADO: Incluído o baseUrl antes do caminho */}
         <img src={`${baseUrl}${project.image}`} alt={project.label} />
       </div>
-    </>
+
+      {/* Campos desktop */}
+      <span className="desenv-meta__label">{project.label}</span>
+      <span className="desenv-meta__desc">{project.desc}</span>
+      <span className="desenv-meta__type">{project.type}</span>
+      <span className="desenv-meta__arrow">↗</span>
+
+      {/* Rodapé mobile */}
+      <div className="desenv-meta__info-mobile">
+        <div className="desenv-meta__info-top">
+          <span className="desenv-meta__label">{project.label}</span>
+          <span className="desenv-meta__arrow" aria-hidden="true">↗</span>
+        </div>
+        <span className="desenv-meta__type">{project.type}</span>
+      </div>
+    </div>
   );
 }
 
@@ -124,9 +177,21 @@ export default function Desenvolvimento() {
   const navigate = useNavigate();
   const exitRef  = useRef(null);
 
+  const [cursorVisible,  setCursorVisible]  = useState(false);
+  const [hoveredImage,   setHoveredImage]   = useState(null);
+  const [mousePos,       setMousePos]       = useState({ x: 0, y: 0 });
+  const rafRef = useRef(null);
+
   useEffect(() => {
     const t = setTimeout(() => setVisible(true), 100);
     return () => clearTimeout(t);
+  }, []);
+
+  const handleMouseMove = useCallback((e) => {
+    if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    rafRef.current = requestAnimationFrame(() => {
+      setMousePos({ x: e.clientX, y: e.clientY });
+    });
   }, []);
 
   const handleBack = useCallback((e) => {
@@ -193,9 +258,22 @@ export default function Desenvolvimento() {
           <div className="desenv-meta__divider" />
 
           {PROJECTS.map((project, i) => (
-            <ProjectRow key={project.label} project={project} index={i} />
+            <ProjectRow
+              key={project.label}
+              project={project}
+              index={i}
+              onHoverStart={(p) => { setHoveredImage(p.image); setCursorVisible(true); }}
+              onHoverEnd={() => setCursorVisible(false)}
+              onMouseMove={handleMouseMove}
+            />
           ))}
         </div>
+
+        <CursorImage
+          mousePos={mousePos}
+          visible={cursorVisible}
+          image={hoveredImage}
+        />
       </div>
 
       <div className="desenv-exit-overlay" ref={exitRef} />

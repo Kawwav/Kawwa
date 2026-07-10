@@ -2,86 +2,126 @@ import { useEffect, useRef, useState } from "react";
 import "./Sobremim.css";
 
 export default function Sobremim({ onClose }) {
-    const curtainRef  = useRef(null);
-    const pageRef     = useRef(null);
-    const stepsRef    = useRef([]);
-    const lineRef     = useRef(null);
-    const [pageVisible, setPageVisible] = useState(false);
+    const cortinaRef = useRef(null);
+    const paginaRef  = useRef(null);
+    const etapasRef  = useRef([]);
+    const linhaRef   = useRef(null);
+    const fotoRef    = useRef(null);
+    const textoRef   = useRef(null);
+    const [paginaVisivel, setPaginaVisivel] = useState(false);
 
     useEffect(() => {
-        document.body.classList.add("sobremim-open");
-        return () => document.body.classList.remove("sobremim-open");
+        document.body.classList.add("pagina-aberta");
+        return () => document.body.classList.remove("pagina-aberta");
     }, []);
 
     useEffect(() => {
-        const curtain = curtainRef.current;
-        curtain.classList.add("curtain-in");
-        const phase2 = setTimeout(() => {
-            setPageVisible(true);
-            curtain.classList.remove("curtain-in");
-            curtain.classList.add("curtain-out");
+        const cortina = cortinaRef.current;
+        cortina.classList.add("cortina-entrando");
+        const fase2 = setTimeout(() => {
+            setPaginaVisivel(true);
+            cortina.classList.remove("cortina-entrando");
+            cortina.classList.add("cortina-saindo");
         }, 550);
-        return () => clearTimeout(phase2);
+        return () => clearTimeout(fase2);
     }, []);
 
-    const handleBack = () => {
-        const curtain = curtainRef.current;
-        curtain.classList.remove("curtain-out");
-        curtain.classList.add("curtain-close-in");
+    const handleVoltar = () => {
+        const cortina = cortinaRef.current;
+        cortina.classList.remove("cortina-saindo");
+        cortina.classList.add("cortina-fecha-entrando");
         setTimeout(() => {
-            setPageVisible(false);
+            setPaginaVisivel(false);
             onClose();
-            curtain.classList.remove("curtain-close-in");
-            curtain.classList.add("curtain-close-out");
+            cortina.classList.remove("cortina-fecha-entrando");
+            cortina.classList.add("cortina-fecha-saindo");
         }, 550);
     };
 
     useEffect(() => {
-        const handleKey = (e) => { if (e.key === "Escape") handleBack(); };
+        const handleKey = (e) => { if (e.key === "Escape") handleVoltar(); };
         window.addEventListener("keydown", handleKey);
         return () => window.removeEventListener("keydown", handleKey);
     }, []);
 
+    // Revela cada card exatamente quando ele entra na área visível da tela,
+    // e esconde de novo quando sai (rolando pra cima ou pra baixo)
     useEffect(() => {
-        if (!pageVisible) return;
+        if (!paginaVisivel) return;
 
-        const page  = pageRef.current;
-        const line  = lineRef.current;
-        const steps = stepsRef.current.filter(Boolean);
-        if (!line || !steps.length) return;
+        const pagina = paginaRef.current;
+        const etapas = etapasRef.current.filter(Boolean);
+        if (!etapas.length) return;
+
+        const observer = new IntersectionObserver(
+            (entries) => {
+                entries.forEach((entry) => {
+                    entry.target.classList.toggle("etapa-visivel", entry.isIntersecting);
+                });
+            },
+            {
+                root: pagina,
+                // só considera "alcançado" quando o card entra na parte de baixo da tela
+                rootMargin: "0px 0px -10% 0px",
+                threshold: 0,
+            }
+        );
+
+        etapas.forEach((etapa) => observer.observe(etapa));
+
+        return () => observer.disconnect();
+    }, [paginaVisivel]);
+
+    // Efeito parallax na foto e no texto de introdução + progresso da linha do processo
+    useEffect(() => {
+        if (!paginaVisivel) return;
+
+        const pagina = paginaRef.current;
+        const linha  = linhaRef.current;
+        const etapas = etapasRef.current.filter(Boolean);
 
         const handleScroll = () => {
-            const wrapper       = line.parentElement;
-            const wrapperTop    = wrapper.offsetTop;
-            const wrapperHeight = wrapper.offsetHeight;
+            const scrollY = pagina.scrollTop;
+            const emMobile = window.innerWidth <= 768;
 
-            
-            const pen      = page.scrollTop + page.clientHeight * 0.70;
-            const progress = Math.min(1, Math.max(0, (pen - wrapperTop) / wrapperHeight));
+            // parallax: a foto "atrasa" em relação ao scroll, o texto avança um pouco mais rápido
+            if (fotoRef.current) {
+                fotoRef.current.style.transform = emMobile
+                    ? "translateY(0px)"
+                    : `translateY(${scrollY * 0.18}px)`;
+            }
+            if (textoRef.current) {
+                textoRef.current.style.transform = emMobile
+                    ? "translateY(0px)"
+                    : `translateY(${scrollY * -0.1}px)`;
+            }
 
-            // cresce a linha
-            line.style.height = (progress * 100) + "%";
+            if (!linha || !etapas.length) return;
 
-            
-            const lineReachedPx = wrapperTop + progress * wrapperHeight;
+            const wrapper    = linha.parentElement;
+            const wrapperTop = wrapper.offsetTop;
 
-            
-            steps.forEach((step, i) => {
-                const node    = step.querySelector(".sobremim-processo-node");
-                const nodeTop = node.offsetTop + wrapperTop;
-                const nodeMid = nodeTop + node.offsetHeight / 2;
+            // a linha vai do centro do primeiro ponto até o centro do último ponto
+            const primeiroNo = etapas[0].querySelector(".etapa-no");
+            const ultimoNo   = etapas[etapas.length - 1].querySelector(".etapa-no");
+            const inicio = wrapperTop + primeiroNo.offsetTop + primeiroNo.offsetHeight / 2;
+            const fim    = wrapperTop + ultimoNo.offsetTop + ultimoNo.offsetHeight / 2;
 
-                
-                if (i === 0 || lineReachedPx >= nodeMid) {
-                    step.classList.add("step-visible");
-                }
-            });
+            const alcance = scrollY + pagina.clientHeight * 0.5;
+            let progresso = fim > inicio ? (alcance - inicio) / (fim - inicio) : 1;
+            progresso = Math.min(1, Math.max(0, progresso));
+
+            // se a página já chegou ao fim do scroll, força a linha a completar
+            const maxScroll = pagina.scrollHeight - pagina.clientHeight;
+            if (scrollY >= maxScroll - 2) progresso = 1;
+
+            linha.style.height = (progresso * 100) + "%";
         };
 
-        page.addEventListener("scroll", handleScroll, { passive: true });
-        handleScroll(); 
-        return () => page.removeEventListener("scroll", handleScroll);
-    }, [pageVisible]);
+        pagina.addEventListener("scroll", handleScroll, { passive: true });
+        handleScroll();
+        return () => pagina.removeEventListener("scroll", handleScroll);
+    }, [paginaVisivel]);
 
     const processo = [
         {
@@ -103,74 +143,74 @@ export default function Sobremim({ onClose }) {
 
     return (
         <>
-            <div ref={curtainRef} className="sobremim-curtain" />
+            <div ref={cortinaRef} className="cortina" />
             <div
-                ref={pageRef}
-                className={"sobremim-page" + (pageVisible ? " sm-visible" : "")}
+                ref={paginaRef}
+                className={"pagina" + (paginaVisivel ? " pagina-visivel" : "")}
             >
-                <button className="sobremim-back" onClick={handleBack}>
-                    <span className="sobremim-back-arrow">←</span>
+                <button className="botao-voltar" onClick={handleVoltar}>
+                    <span className="botao-voltar-seta">←</span>
                 </button>
 
-                <div className="sobremim-hero">
-                    <div className="sobremim-hero-left">
-                        <h1 className="sobremim-name">Vinícius<br />Kawasugui<br />Santiago</h1>
-                        <p className="sobremim-bio">
+                <div className="topo">
+                    <div className="topo-texto" ref={textoRef}>
+                        <h1 className="nome">Vinícius<br />Kawasugui<br />Santiago</h1>
+                        <p className="bio">
                             Sou formado em Engenharia de Software e atuo como
                             desenvolvedor web e web designer. Ajudo empresas a
                             construírem uma presença digital forte e estratégica,
                             criando sites que vão além do básico.
                         </p>
-                        <p className="sobremim-bio">
+                        <p className="bio">
                             Tenho como foco desenvolver visuais modernos,
                             diferenciados e dinâmicos, sempre pensando na melhor
                             experiência para o usuário e nos resultados para o negócio.
                         </p>
                     </div>
-                    <div className="sobremim-hero-right">
-                        <div className="sobremim-img-wrap">
+                    <div className="topo-foto">
+                        <div className="foto" ref={fotoRef}>
                             <img src="eu2.jpg" alt="Vinícius Kawasugui Santiago" />
-                            <div className="sobremim-img-overlay" />
+                            <div className="foto-sombra" />
                         </div>
                     </div>
                 </div>
 
-                <div className="sobremim-divider" />
+                <div className="divisor" />
 
-                <div className="sobremim-processo">
-                    <p className="sobremim-processo-eyebrow">O processo criativo</p>
+                <div className="processo">
+                    <p className="processo-titulo">O processo criativo</p>
 
-                    <div className="sobremim-processo-steps">
+                    <div className="processo-lista">
                         {/* trilha cinza de fundo */}
-                        <div className="sobremim-track-bg" />
+                        <div className="linha-base" />
                         {/* trilha branca que cresce */}
-                        <div className="sobremim-track-fill" ref={lineRef} />
+                        <div className="linha-progresso" ref={linhaRef} />
 
                         {processo.map((item, i) => {
-                            const side = i % 2 === 0 ? "step-left" : "step-right";
+                            const lado = i % 2 === 0 ? "etapa-esquerda" : "etapa-direita";
                             return (
                                 <div
-                                    className={`sobremim-processo-step ${side}`}
+                                    className={`etapa ${lado}`}
                                     key={item.num}
-                                    ref={(el) => (stepsRef.current[i] = el)}
+                                    ref={(el) => (etapasRef.current[i] = el)}
                                 >
-                                    {side === "step-left" && (
-                                        <div className="sobremim-processo-card">
-                                            <p className="sobremim-processo-title">{item.title}</p>
-                                            <p className="sobremim-processo-text">{item.text}</p>
+                                    {lado === "etapa-esquerda" && (
+                                        <div className="etapa-caixa">
+                                            <p className="etapa-titulo">{item.title}</p>
+                                            <p className="etapa-texto">{item.text}</p>
                                         </div>
                                     )}
 
-                                    <div className="sobremim-processo-node">
-                                        <div className="sobremim-processo-dot">
-                                            <span className="sobremim-processo-dot-num">{item.num}</span>
+                                    <div className="etapa-no">
+                                        <div className="etapa-circulo">
+                                            <span className="etapa-numero">{item.num}</span>
                                         </div>
                                     </div>
 
-                                    {side === "step-right" && (
-                                        <div className="sobremim-processo-card">
-                                            <p className="sobremim-processo-title">{item.title}</p>
-                                            <p className="sobremim-processo-text">{item.text}</p>
+                                    {lado === "etapa-direita" && (
+                                        <div className="etapa-caixa">
+                                            <p className="etapa-titulo">{item.title}</p>
+                                            <p className="etapa-texto">{item.text}</p>
                                         </div>
                                     )}
                                 </div>

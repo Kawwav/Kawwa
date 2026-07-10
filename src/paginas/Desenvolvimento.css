@@ -179,14 +179,14 @@
   transform: rotate(45deg) translate(2px, -2px);
 }
 
-/* ─── Imagem que segue o cursor ─── */
+/* ─── Imagem que segue o cursor (mesmo estilo do Serviços) ─── */
 .desenv-cursor-img {
   position: fixed;
   pointer-events: none;
   z-index: 9999;
-  width: 320px;
-  height: 210px;
-  transform: translate(-50%, -160%);
+  width: 440px;
+  height: 300px;
+  transform: translate(-50%, -60%);
   border-radius: 12px;
   overflow: hidden;
   box-shadow: 0 24px 60px rgba(0,0,0,0.5), 0 4px 16px rgba(0,0,0,0.3);
@@ -199,13 +199,31 @@
   transition: clip-path 0.5s cubic-bezier(0.23, 1, 0.32, 1);
 }
 
-.desenv-cursor-img img {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  border-radius: 12px;
-  display: block;
+/* Quadrado de fundo, atrás da imagem */
+.desenv-cursor-img__backdrop {
+  position: absolute;
+  inset: 20px;
+  background: #b3b3b3;
+  border-radius: 10px;
+  z-index: 0;
 }
+
+/* Imagem com crossfade ao trocar de projeto */
+.desenv-cursor-img__photo {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 360px;
+  height: 220px;
+  object-fit: contain;
+  opacity: 0;
+  transition: opacity 0.7s cubic-bezier(0.23, 1, 0.32, 1);
+  border-radius: 8px;
+}
+
+.desenv-cursor-img__photo--active { opacity: 1; z-index: 2; }
+.desenv-cursor-img__photo--prev   { opacity: 0; z-index: 1; }
 
 .desenv-card-img {
   display: none;
