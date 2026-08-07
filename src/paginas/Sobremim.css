@@ -1,4 +1,12 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;700;800&display=swap');
+
+@font-face {
+    font-family: 'Brittany Signature';
+    src: url('./BrittanySignature.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
 
 .cortina {
     position: fixed;
@@ -23,18 +31,43 @@
 .pagina {
     position: fixed;
     inset: 0;
-    background: #0a0a0a;
+    background: #000000;
     z-index: 8000;
     overflow-y: auto;
     overflow-x: hidden;
     display: flex;
     flex-direction: column;
     visibility: hidden;
-    padding: 0 6vw 160px;
+    /* padding-bottom generoso (em vh) para garantir que o ÚLTIMO item da
+       linha do tempo tenha espaço de sobra pra "subir" até a faixa central
+       da tela (35%-65%) antes do scroll acabar — sem isso, os últimos itens
+       nunca cruzam essa faixa, nunca viram "ativo" e o texto deles nunca
+       fica visível (ver .linha-tempo-item-ativo no CSS). */
+    padding: 0 6vw 70vh;
     box-sizing: border-box;
 }
 body.pagina-aberta { overflow: hidden; }
 .pagina.pagina-visivel { visibility: visible; }
+
+/* ── FUNDO COM IMAGEM (uma camada por item da linha do tempo) ──
+   Duas camadas (.pagina-fundo) ficam empilhadas via z-index: a imagem em si
+   é definida via JS (inline style), de acordo com o item ativo; aqui só
+   ficam as regras de posição/tamanho e a transição de opacidade que cria
+   o efeito de crossfade entre uma imagem e outra. */
+.pagina-fundo {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    background-size: cover;
+    background-position: center;
+    opacity: 0;
+    transition: opacity 1s ease;
+    pointer-events: none;
+}
+
+.pagina-fundo-visivel {
+    opacity: 1;
+}
 
 /* ── BOTÃO VOLTAR ── */
 .botao-voltar {
@@ -51,7 +84,7 @@ body.pagina-aberta { overflow: hidden; }
     align-items: center;
     gap: 10px;
     width: fit-content;
-    margin-bottom: -60px;
+    margin-bottom: -30px;
     transition: border-color 0.3s ease, background 0.3s ease;
 }
 .botao-voltar:hover {
@@ -70,255 +103,201 @@ body.pagina-aberta { overflow: hidden; }
     color: #fff;
 }
 
-.topo {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 0 6vw;
-    align-items: flex-start;
-    padding-top: 140px;
-    padding-bottom: 80px;
-}
-.topo-texto {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    will-change: transform;
-}
-.nome {
-    font-family: 'DM Sans', sans-serif;
-    font-size: clamp(48px, 8vw, 130px);
-    font-weight: 300;
-    color: #ffffff;
-    line-height: 1.05;
-    letter-spacing: -0.03em;
-    margin: 0 0 48px;
-    text-align: center;
-}
-.bio {
-    font-family: 'DM Sans', sans-serif;
-    font-size: clamp(13px, 1vw, 16px);
-    font-weight: 300;
-    color: rgba(255,255,255,0.5);
-    line-height: 1.8;
-    margin: 0 0 20px;
-    max-width: 480px;
-    text-align: center;
-}
-.bio:last-child { margin-bottom: 0; }
-
-.topo-foto {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-    justify-content: flex-start;
-    margin-top: -60px;
-}
-.foto {
+/* ── HERO ── */
+.hero {
     position: relative;
-    width: 70%;
-    aspect-ratio: 3 / 4;
-    overflow: hidden;
-    border-radius: 16px;
-    will-change: transform;
-}
-.foto img {
     width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position:center 40%;
-    display: block;
-    transition: transform 0.8s ease;
-}
-.foto:hover img { transform: scale(1.03); }
-.foto-sombra {
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(to bottom, transparent 50%, rgba(10,10,10,0.55) 100%);
-    pointer-events: none;
+    flex: 1 0 auto;
+    min-height: 74vh;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+    padding-top: 90px;
+    padding-bottom: 40px;
+    box-sizing: border-box;
 }
 
-.divisor {
-    width: 100%;
-    height: 1px;
-    background: rgba(255,255,255,0.07);
-    margin-bottom: 80px;
+.hero-topo {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
 }
 
-.processo { width: 100%; }
+.hero-nome-wrapper {
+    position: relative;
+    width: fit-content;
+    max-width: 100%;
+    margin: 0;
+    will-change: transform, opacity;
+}
 
-.processo-titulo {
+.hero-nome {
     font-family: 'DM Sans', sans-serif;
-    font-size: 37px;
-    font-weight: 400;
-    letter-spacing: 0.22em;
+    font-weight: 800;
     text-transform: uppercase;
     color: #ffffff;
-    margin: 0 0 120px;
+    font-size: 190px; /* tamanho máximo; ajustado dinamicamente via JS */
+    line-height: 0.92;
+    letter-spacing: -0.03em;
+    white-space: nowrap;
+    margin: 0;
 }
 
-.processo-lista {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    gap: 200px;
-    padding-bottom: 80px;
+/* Quebra "VINÍCIUS / KAWASUGUI" usada só no mobile (ver media query abaixo) */
+.hero-nome-quebra {
+    display: none;
 }
 
-.linha-base,
-.linha-progresso {
+/* ── ASSINATURA "Santiago" — efeito de escrita à mão ── */
+/* A palavra é renderizada como SVG e o contorno das letras é "desenhado"
+   animando stroke-dashoffset (como uma caneta traçando o texto).
+   Depois, a tinta preenche o traço para dar o acabamento de caligrafia. */
+.hero-santiago {
     position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 1px;
-    top: 22px;
+    top: 76%;
+    right: 10%;
+    width: 260px;
+    height: 112px;
+    transform: rotate(6deg);
     pointer-events: none;
 }
-.linha-base {
-    bottom: 22px;
-    background: rgba(255,255,255,0.07);
-}
-.linha-progresso {
-    height: 0;
-    bottom: auto;
-    background: rgba(255,255,255,0.35);
-    /* transição suave da linha avançando */
-    transition: height 0.08s linear;
-}
 
-.etapa {
-    display: grid;
-    grid-template-columns: 1fr 60px 1fr;
-    align-items: center;
-    position: relative;
-}
-
-/* Estado inicial dos cards — invisíveis, 24px abaixo */
-.etapa-caixa {
-    opacity: 0;
-    transform: translateY(24px);
-    transition: opacity 0.65s ease, transform 0.65s cubic-bezier(0.16,1,0.3,1);
-}
-
-/* Quando a linha chega no step, o card aparece */
-.etapa.etapa-visivel .etapa-caixa {
-    opacity: 1;
-    transform: translateY(0);
-}
-
-/* Nó também aparece junto */
-.etapa-circulo {
-    opacity: 0;
-    transform: scale(0.6);
-    transition: opacity 0.5s ease, transform 0.5s cubic-bezier(0.16,1,0.3,1);
-}
-.etapa.etapa-visivel .etapa-circulo {
-    opacity: 1;
-    transform: scale(1);
-}
-
-/* ── POSICIONAMENTO ── */
-.etapa.etapa-esquerda .etapa-caixa {
-    grid-column: 1;
-    margin-left: auto;
-    margin-right: 36px;
-    text-align: right;
-    max-width: 380px;
+.hero-santiago-svg {
     width: 100%;
+    height: 100%;
+    overflow: visible;
+    display: block;
 }
-.etapa.etapa-direita .etapa-caixa {
-    grid-column: 3;
-    margin-left: 36px;
+
+.hero-santiago-texto {
+    font-family: 'Brittany Signature', cursive;
+    font-size: 100px;
+    fill: none;
+    stroke: #e2482f;
+    stroke-width: 2px;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-dasharray: 1600;
+    stroke-dashoffset: 1600;
+}
+
+.hero-santiago.hero-santiago-escrevendo .hero-santiago-texto {
+    animation:
+        assinaturaTracar   1.7s cubic-bezier(0.65, 0, 0.35, 1) forwards,
+        assinaturaPreencher 0.6s ease-out forwards;
+    animation-delay: 0.35s, 1.85s;
+}
+
+@keyframes assinaturaTracar {
+    to { stroke-dashoffset: 0; }
+}
+
+@keyframes assinaturaPreencher {
+    to { fill: #e2482f; }
+}
+
+.hero-rodape {
+    display: flex;
+    align-items: flex-end;
+    margin-top: 28px;
+    will-change: transform, opacity;
+}
+
+/* ── "Web Designer e Desenvolvedor" — surge do chão ── */
+/* A máscara esconde tudo abaixo da linha de base; o texto começa deslocado
+   para baixo (como se estivesse enterrado no chão) e sobe até a posição final. */
+.hero-cargo-mascara {
+    overflow: hidden;
+}
+
+.hero-cargo {
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 700;
+    text-transform: uppercase;
     text-align: left;
-    max-width: 380px;
-    width: 100%;
+    letter-spacing: 0.06em;
+    color: rgb(255, 255, 255);
+    font-size: 37px;
+    line-height: 1.3;
+    margin: 0;
+    transform: translateY(120%);
+    opacity: 0;
 }
 
-.etapa-no {
-    grid-column: 2;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+.hero-rodape-visivel .hero-cargo {
+    animation: cargoSurgeDoChao 0.9s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    animation-delay: 0.45s;
+}
+
+@keyframes cargoSurgeDoChao {
+    0% {
+        transform: translateY(120%);
+        opacity: 0;
+    }
+    40% {
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(0%);
+        opacity: 1;
+    }
+}
+
+/* ── FOTO COM PARALLAX ── */
+.foto-secao {
     position: relative;
-    z-index: 2;
-}
-.etapa-circulo {
-    width: 44px;
-    height: 44px;
-    border-radius: 50%;
-    border: 1.5px solid rgba(255,255,255,0.15);
-    background: #0a0a0a;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    transition:
-        opacity   0.5s ease,
-        transform 0.5s cubic-bezier(0.16,1,0.3,1),
-        border-color 0.4s ease,
-        box-shadow   0.4s ease;
-}
-.etapa.etapa-visivel .etapa-circulo:hover {
-    border-color: rgba(255,255,255,0.45);
-    box-shadow: 0 0 24px rgba(255,255,255,0.07);
-}
-.etapa-numero {
-    font-family: 'DM Sans', sans-serif;
-    font-size: 10px;
-    font-weight: 400;
-    letter-spacing: 0.12em;
-    color: rgba(255,255,255,0.25);
-    transition: color 0.4s ease;
-}
-.etapa.etapa-visivel:hover .etapa-numero {
-    color: rgba(255,255,255,0.75);
+    width: 720px;
+    max-width: 60vw;
+    height: 720px;
+    flex: 0 0 auto;
+    align-self: center;
+    margin: -40px auto 0;
+    border-radius: 4px;
+    overflow: hidden;
+    background: #000;
+
 }
 
-/* ── CARD ── */
-.etapa-caixa {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    padding: 32px 28px;
-    border: 1px solid rgba(255,255,255,0.07);
-    border-radius: 20px;
-    background: rgba(255,255,255,0.02);
-    transition:
-        opacity      0.65s ease,
-        transform    0.65s cubic-bezier(0.16,1,0.3,1),
-        background   0.35s ease,
-        border-color 0.35s ease;
-}
-.etapa.etapa-visivel:hover .etapa-caixa {
-    background: rgba(255,255,255,0.045);
-    border-color: rgba(255,255,255,0.12);
-}
-.etapa.etapa-esquerda.etapa-visivel:hover .etapa-caixa {
-    transform: translateX(-5px);
-}
-.etapa.etapa-direita.etapa-visivel:hover .etapa-caixa {
-    transform: translateX(5px);
+.foto-secao-img {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 50%;
+    height: 140%;
+    object-fit: cover;
+    object-position: center 30%;
+    transform: translate(-50%, -50%) scale(1.25);
+    will-change: transform;
+    filter: saturate(1.05) contrast(1.03);
 }
 
-.etapa-titulo {
-    font-family: 'DM Sans', sans-serif;
-    font-size: clamp(15px, 1.1vw, 18px);
-    font-weight: 400;
-    color: rgba(255,255,255,0.88);
-    margin: 0;
-    letter-spacing: -0.01em;
+.foto-secao-sombra {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(0,0,0,0.35) 0%, rgba(0,0,0,0) 22%, rgba(0,0,0,0) 70%, rgba(0,0,0,0.55) 100%);
+    pointer-events: none;
 }
-.etapa-texto {
-    font-family: 'DM Sans', sans-serif;
-    font-size: clamp(12px, 0.85vw, 13px);
-    font-weight: 300;
-    color: rgba(255,255,255,0.38);
-    line-height: 1.7;
-    margin: 0;
+
+@media (max-width: 768px) {
+    .foto-secao {
+        width: 100%;
+        max-width: none;
+        height: 60vh;
+        margin: 36px auto 0;
+        border-radius: 2px;
+    }
+
+    .foto-secao-img {
+        height: 150%;
+    }
 }
 
 @media (max-width: 768px) {
     .pagina {
-        padding: 0 5vw 100px;
+        padding: 0 5vw 70vh;
     }
 
     .botao-voltar {
@@ -326,134 +305,364 @@ body.pagina-aberta { overflow: hidden; }
         padding: 8px 18px 8px 14px;
     }
 
-    .topo {
-        grid-template-columns: 1fr;
-        padding-top: 90px;
-        padding-bottom: 48px;
-        gap: 36px;
+    .hero {
+        min-height: 58vh;
+        padding-top: 70px;
+        padding-bottom: 24px;
     }
 
-    .topo-foto {
-        order: -1;
-        margin-top: 0;
-        align-items: center;
-    }
-
-    .foto {
-        width: 75%;
-        aspect-ratio: 3 / 4;
-    }
-
-    .nome {
-        font-size: clamp(40px, 11vw, 72px);
-        margin-bottom: 28px;
+    .hero-nome-wrapper {
+        width: 100%;
         text-align: center;
     }
 
-    .bio {
-        font-size: clamp(13px, 3.8vw, 16px);
+    .hero-nome {
+        font-size: clamp(2.6rem, 12vw, 4rem) !important;
+        white-space: normal;
+        line-height: 1;
         text-align: center;
-        max-width: 100%;
     }
 
-    .divisor {
-        margin-bottom: 48px;
+    .hero-nome-quebra {
+        display: block;
     }
 
-    .processo-titulo {
-        font-size: clamp(20px, 6vw, 30px);
-        letter-spacing: 0.14em;
-        margin-bottom: 64px;
+    /* Assinatura sai da sobreposição e passa a ficar no fluxo normal,
+       abaixo de "KAWASUGUI", centralizada */
+    .hero-santiago {
+        position: static;
+        display: block;
+        width: clamp(140px, 42vw, 190px);
+        height: 80px;
+        margin: 4px auto 0;
+        transform: rotate(6deg);
     }
 
-    .processo-lista {
-        gap: 72px;
-        padding-left: 0;
-        padding-bottom: 60px;
-    }
-
-    .linha-base,
-    .linha-progresso {
-        left: 20px;
-        transform: none;
-    }
-
-    .etapa {
-        grid-template-columns: 44px 1fr;
-        align-items: flex-start;
-        width: 100%;
-        box-sizing: border-box;
-    }
-
-    .etapa.etapa-esquerda .etapa-caixa,
-    .etapa.etapa-direita .etapa-caixa {
-        grid-column: 2;
-        grid-row: 1;
-        text-align: left;
-        margin: 0;
-        max-width: 100%;
-        width: 100%;
-        min-width: 0;
-        padding: 20px 18px;
-        box-sizing: border-box;
-    }
-
-    .etapa-no {
-        grid-column: 1;
-        grid-row: 1;
-        align-self: flex-start;
-        padding-top: 4px;
-        justify-content: flex-start;
-    }
-
-    .etapa-circulo {
-        width: 36px;
-        height: 36px;
-    }
-
-    .etapa-titulo {
-        font-size: clamp(14px, 4vw, 17px);
-    }
-
-    .etapa-texto {
-        font-size: clamp(12px, 3.4vw, 14px);
-        line-height: 1.65;
-    }
-
-    .etapa.etapa-esquerda.etapa-visivel:hover .etapa-caixa,
-    .etapa.etapa-direita.etapa-visivel:hover .etapa-caixa {
-        transform: none;
+    .hero-cargo {
+        font-size: 0.8rem;
+        letter-spacing: 0.05em;
     }
 }
 
 @media (max-width: 400px) {
     .pagina {
-        padding: 0 4vw 80px;
+        padding: 0 4vw 70vh;
+    }
+}
+
+/* ── TEXTO DE MISSÃO ── */
+.missao-secao {
+    width: 100%;
+    max-width: 1200px;
+    margin: 220px auto 0;
+    padding: 0 10px;
+    box-sizing: border-box;
+    text-align: center;
+    opacity: 0;
+    transform: translateY(36px);
+    transition: opacity 1s cubic-bezier(0.16, 1, 0.3, 1), transform 1s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.missao-secao.missao-secao-visivel {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.missao-texto {
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 800;
+    font-size: 78px;
+    line-height: 1.16;
+    letter-spacing: -0.02em;
+    color: #ffffff;
+    margin: 0;
+}
+
+.missao-texto::before,
+.missao-texto::after {
+    content: '"';
+    color: #e2482f;
+}
+
+/* cada letra começa "apagada" (cinza) — a opacidade é atualizada via JS,
+   frame a frame, conforme o scroll avança (ver useEffect no componente).
+   Sem transition aqui de propósito: o efeito de suavidade já vem do lerp
+   em JS, então uma transition CSS por cima só deixaria o preenchimento
+   "atrasado" e borrado. */
+.missao-letra {
+    opacity: 0.22;
+}
+
+@media (max-width: 1100px) {
+    .missao-texto {
+        font-size: clamp(2.2rem, 6.5vw, 4.4rem);
+    }
+}
+
+@media (max-width: 768px) {
+    .missao-secao {
+        margin-top: 140px;
     }
 
-    .foto {
-        width: 90%;
+    .missao-texto {
+        font-size: clamp(1.6rem, 7vw, 2.4rem);
+        line-height: 1.22;
+    }
+}
+
+/* ── "POR TRÁS DO PROCESSO CRIATIVO" — texto normal, sem posição fixa.
+   Ele rola junto com a página como qualquer outro elemento; o único efeito
+   é o tamanho (escala), controlado via JS conforme a seção passa pela tela
+   (ver useEffect correspondente no componente). ── */
+.processo-secao {
+    width: 100%;
+    margin: 220px auto 0;
+    padding: 0;
+    box-sizing: border-box;
+    text-align: center;
+}
+
+.processo-texto-grupo {
+    display: block;
+    width: 100%;
+    margin: 0;
+}
+
+/* cada linha ocupa a largura toda para não quebrar o alinhamento central
+   quando ela se desloca lateralmente na entrada */
+.processo-linha {
+    display: block;
+    width: 100%;
+    will-change: transform;
+}
+
+/* estado inicial (antes do JS assumir): linhas fora da tela, cada uma do
+   lado pelo qual "chegam" conforme o scroll avança */
+.processo-linha-esquerda {
+    transform: translateX(-115%);
+}
+
+.processo-linha-direita {
+    transform: translateX(115%);
+}
+
+.processo-texto {
+    display: block;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 800;
+    text-transform: uppercase;
+    font-size: 130px;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    color: #ffffff;
+    margin: 0;
+}
+
+@media (max-width: 1100px) {
+    .processo-texto {
+        font-size: clamp(2.4rem, 9vw, 6rem);
+    }
+}
+
+@media (max-width: 768px) {
+    .processo-secao {
+        margin-top: 140px;
     }
 
-    .nome {
-        font-size: clamp(36px, 12vw, 52px);
+    .processo-texto {
+        font-size: clamp(1.8rem, 10vw, 3rem);
+    }
+}
+
+/* ── LINHA DO TEMPO ── */
+.linha-tempo-secao {
+    position: relative;
+    width: 100%;
+    max-width: 1100px;
+    margin: 220px auto 0;
+    padding: 0 10px;
+    box-sizing: border-box;
+}
+
+/* ── TRILHA ÚNICA (acompanha o scroll) ──
+   Substitui os traços fixos entre os itens por uma única barra vertical
+   contínua: o fundo cinza cobre do primeiro ao último ponto, e o trecho
+   colorido por cima cresce (via JS, controlando a altura em %) conforme
+   a página é rolada, como uma barra de progresso de leitura. */
+.linha-tempo-trilho {
+    position: absolute;
+    width: 1.5px;
+    background: rgba(255, 255, 255, 0.18);
+    transform: translateX(-50%);
+    pointer-events: none;
+    z-index: 0;
+}
+
+.linha-tempo-trilho-progresso {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 0%;
+    background: #e2482f;
+}
+
+.linha-tempo-item {
+    display: grid;
+    grid-template-columns: 160px 40px 1fr;
+    column-gap: 40px;
+    margin-bottom: 160px;
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+                transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.linha-tempo-item-visivel {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Apenas o item mais próximo do centro da tela (o "ativo", controlado via
+   JS a partir do scroll) fica com cor cheia; os demais ficam apagados/cinza. */
+.linha-tempo-ano,
+.linha-tempo-ponto {
+    transition: color 0.5s ease, background 0.5s ease;
+}
+
+.linha-tempo-titulo,
+.linha-tempo-descricao {
+    transition: opacity 0.5s ease, transform 0.5s ease, color 0.5s ease;
+}
+
+.linha-tempo-item:not(.linha-tempo-item-ativo) .linha-tempo-ano {
+    color: rgba(255, 255, 255, 0.28);
+}
+
+.linha-tempo-item:not(.linha-tempo-item-ativo) .linha-tempo-ponto {
+    background: rgba(255, 255, 255, 0.22);
+}
+
+/* título e descrição só são revelados quando o item vira o "ativo" da linha do tempo */
+.linha-tempo-item:not(.linha-tempo-item-ativo) .linha-tempo-titulo,
+.linha-tempo-item:not(.linha-tempo-item-ativo) .linha-tempo-descricao {
+    opacity: 0;
+    transform: translateY(10px);
+}
+
+.linha-tempo-item-ativo .linha-tempo-ano {
+    color: #ffffff;
+}
+
+.linha-tempo-item-ativo .linha-tempo-ponto {
+    background: #e2482f;
+}
+
+.linha-tempo-item-ativo .linha-tempo-titulo,
+.linha-tempo-item-ativo .linha-tempo-descricao {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.linha-tempo-item-ativo .linha-tempo-titulo {
+    color: #ffffff;
+}
+
+.linha-tempo-item-ativo .linha-tempo-descricao {
+    color: rgba(255, 255, 255, 0.85);
+}
+
+.linha-tempo-ano-col {
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-end;
+    padding-top: 4px;
+}
+
+.linha-tempo-ano {
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 800;
+    font-size: 44px;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    color: #ffffff;
+    white-space: nowrap;
+}
+
+.linha-tempo-eixo-col {
+    position: relative;
+    display: flex;
+    justify-content: center;
+}
+
+.linha-tempo-ponto {
+    position: relative;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: #e2482f;
+    margin-top: 10px;
+    flex-shrink: 0;
+    z-index: 1;
+}
+
+.linha-tempo-descricao-col {
+    padding-bottom: 292px;
+}
+
+.linha-tempo-titulo {
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 700;
+    font-size: 44px;
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+    color: #ffffff;
+    margin: 0 0 16px;
+    max-width: 720px;
+}
+
+.linha-tempo-descricao {
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 400;
+    font-size: 28px;
+    line-height: 1.5;
+    color: rgba(255, 255, 255, 0.8);
+    margin: 0;
+    max-width: 720px;
+}
+
+@media (max-width: 768px) {
+    .linha-tempo-secao {
+        margin: 140px auto 0;
     }
 
-    .processo-lista {
-        gap: 56px;
+    .linha-tempo-item {
+        grid-template-columns: 80px 28px 1fr;
+        column-gap: 18px;
+        margin-bottom: 100px;
     }
 
-    .linha-base,
-    .linha-progresso {
-        left: 18px;
+    .linha-tempo-ano {
+        font-size: 24px;
     }
 
-    .etapa {
-        grid-template-columns: 36px 1fr;
+    .linha-tempo-ponto {
+        width: 10px;
+        height: 10px;
+        margin-top: 6px;
     }
 
-    .etapa-circulo {
-        width: 30px;
-        height: 30px;
+    .linha-tempo-descricao-col {
+        padding-bottom: 116px;
+    }
+
+    .linha-tempo-titulo {
+        font-size: 26px;
+        margin-bottom: 8px;
+    }
+
+    .linha-tempo-descricao {
+        font-size: 18px;
+        line-height: 1.5;
     }
 }

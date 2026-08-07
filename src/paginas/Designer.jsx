@@ -25,13 +25,6 @@ const PROJECTS = [
     link: "https://www.figma.com/proto/8GGxUQWTnV3NflPHdxvDbp/pet-shoop?node-id=4-7&starting-point-node-id=4%3A7",
   },
   {
-    label: "Academia",
-    desc: "Página de alta performance para academia com foco em captação de alunos",
-    type: "Web Design",
-    image: "designer/academia.PNG",
-    link: "https://www.figma.com/proto/Kz7A1ggBZinhCkml9aFRs6/projeto-academia?node-id=1-3&starting-point-node-id=1%3A3",
-  },
-  {
     label: "Souza Industrial",
     desc: "Portfólio digital para empresa industrial com navegação imersiva e animada",
     type: "UI / Motion",
