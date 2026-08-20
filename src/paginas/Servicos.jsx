@@ -4,7 +4,6 @@ import "./Servicos.css";
 
 const GALLERY_IMAGES = {
   designer: [
-    "designer/academia.PNG",
     "designer/barbearia.PNG",
     "designer/petshop.PNG",
     "designer/roupa.png",

@@ -1,125 +1,74 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, Suspense, useMemo } from "react";
+import { Canvas, useFrame } from "@react-three/fiber";
+import { useGLTF } from "@react-three/drei";
 import { FaWhatsapp, FaInstagram } from "react-icons/fa";
+import * as THREE from "three";
 import "./Header.css";
 
-function Globe() {
-    const canvasRef = useRef(null);
+const baseUrl = import.meta.env.BASE_URL;
+const GLB_PATH = `${baseUrl}low_poly_planet_earth.glb`;
+const EU_IMAGE_PATH = `${baseUrl}eu.png`;
 
-    useEffect(() => {
-        const canvas = canvasRef.current;
-        const ctx = canvas.getContext("2d");
-        const SIZE = 52;
-        canvas.width = SIZE;
-        canvas.height = SIZE;
-        const R = SIZE / 2 - 2;
-        const cx = SIZE / 2;
-        const cy = SIZE / 2;
-        let angle = 0;
+function EarthModel() {
+    const { scene } = useGLTF(GLB_PATH);
+    const ref = useRef(null);
+    const centeredScene = useMemo(() => {
+        const clone = scene.clone(true);
 
-        const continents = [
-            [[70,-140],[70,-60],[50,-55],[25,-80],[15,-85],[10,-77],[8,-77],[20,-105],[30,-110],[40,-125],[55,-130],[70,-140]],
-            [[10,-75],[0,-50],[-10,-37],[-20,-40],[-35,-57],[-55,-68],[-55,-75],[-40,-72],[-20,-70],[-5,-80],[5,-77],[10,-75]],
-            [[70,30],[60,28],[50,15],[43,10],[36,10],[36,28],[42,35],[55,22],[60,25],[70,30]],
-            [[37,10],[30,32],[12,42],[0,42],[-10,40],[-35,18],[-35,25],[-20,35],[0,50],[10,42],[22,37],[37,10]],
-            [[70,140],[70,60],[55,30],[42,35],[36,28],[36,50],[12,44],[0,42],[0,100],[10,105],[22,115],[35,120],[55,130],[70,140]],
-            [[-15,130],[-15,140],[-22,150],[-38,145],[-38,115],[-22,114],[-15,130]],
-        ];
+        const box = new THREE.Box3().setFromObject(clone);
+        const center = box.getCenter(new THREE.Vector3());
+        const size = box.getSize(new THREE.Vector3());
+        const radius = Math.max(size.x, size.y, size.z) / 2;
 
-        function latLonToXY(lat, lon, rotY) {
-            const phi = (90 - lat) * Math.PI / 180;
-            const theta = (lon + rotY) * Math.PI / 180;
-            const x3 = R * Math.sin(phi) * Math.cos(theta);
-            const y3 = R * Math.cos(phi);
-            const z3 = R * Math.sin(phi) * Math.sin(theta);
-            return { x: cx + x3, y: cy - y3, z: z3 };
-        }
+        // Recentraliza no (0,0,0)
+        clone.position.sub(center);
 
-        function draw() {
-            ctx.clearRect(0, 0, SIZE, SIZE);
+        // Normaliza a escala para um raio-alvo consistente
+        const targetRadius = 1.1;
+        const scaleFactor = radius > 0 ? targetRadius / radius : 1;
+        clone.scale.setScalar(scaleFactor);
 
-            const grad = ctx.createRadialGradient(cx - R * 0.3, cy - R * 0.3, 0, cx, cy, R);
-            grad.addColorStop(0, "rgba(80,80,80,0.15)");
-            grad.addColorStop(1, "rgba(20,20,20,0.05)");
-            ctx.beginPath();
-            ctx.arc(cx, cy, R, 0, Math.PI * 2);
-            ctx.fillStyle = grad;
-            ctx.fill();
+        return clone;
+    }, [scene]);
 
-            ctx.strokeStyle = "rgba(255,255,255,0.08)";
-            ctx.lineWidth = 0.4;
+    useFrame((_, delta) => {
+        if (ref.current) ref.current.rotation.y += delta * 0.25;
+    });
 
-            for (let lat = -75; lat <= 75; lat += 30) {
-                ctx.beginPath();
-                let first = true;
-                for (let lon = -180; lon <= 180; lon += 3) {
-                    const p = latLonToXY(lat, lon, angle);
-                    if (p.z >= 0) { first ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y); first = false; }
-                    else { first = true; }
-                }
-                ctx.stroke();
-            }
-
-            for (let lon = 0; lon < 360; lon += 30) {
-                ctx.beginPath();
-                let first = true;
-                for (let lat = -90; lat <= 90; lat += 3) {
-                    const p = latLonToXY(lat, lon, angle);
-                    if (p.z >= 0) { first ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y); first = false; }
-                    else { first = true; }
-                }
-                ctx.stroke();
-            }
-
-            continents.forEach((poly) => {
-                const pts = poly.map(([lat, lon]) => latLonToXY(lat, lon, angle));
-                ctx.beginPath();
-                let started = false;
-                pts.forEach((p) => {
-                    if (p.z >= 0) { started ? ctx.lineTo(p.x, p.y) : ctx.moveTo(p.x, p.y); started = true; }
-                    else { started = false; }
-                });
-                ctx.closePath();
-                ctx.fillStyle = "rgba(255,255,255,0.18)";
-                ctx.fill();
-                ctx.strokeStyle = "rgba(255,255,255,0.35)";
-                ctx.lineWidth = 0.6;
-                ctx.stroke();
-            });
-
-            ctx.beginPath();
-            ctx.arc(cx, cy, R, 0, Math.PI * 2);
-            ctx.strokeStyle = "rgba(255,255,255,0.25)";
-            ctx.lineWidth = 0.8;
-            ctx.stroke();
-
-            ctx.beginPath();
-            ctx.arc(cx - R * 0.28, cy - R * 0.28, R * 0.18, 0, Math.PI * 2);
-            ctx.fillStyle = "rgba(255,255,255,0.06)";
-            ctx.fill();
-        }
-
-        let raf;
-        function loop() { angle += 0.12; draw(); raf = requestAnimationFrame(loop); }
-        loop();
-        return () => cancelAnimationFrame(raf);
-    }, []);
-
-    return <canvas ref={canvasRef} className="globe-canvas" />;
+    return <primitive ref={ref} object={centeredScene} />;
 }
+
+function Globe() {
+    return (
+        <div className="globe-canvas">
+            <Canvas
+                camera={{ position: [0, 0, 3], fov: 45 }}
+                gl={{ alpha: true, antialias: true }}
+                dpr={[1, 2]}
+                onCreated={({ gl }) => gl.setClearColor(0x000000, 0)}
+            >
+                <ambientLight intensity={1} />
+                <directionalLight position={[3, 2, 4]} intensity={1.2} />
+                <directionalLight position={[-3, -1, -2]} intensity={0.3} />
+                <Suspense fallback={null}>
+                    <EarthModel />
+                </Suspense>
+            </Canvas>
+        </div>
+    );
+}
+
+// Pré-carrega o modelo assim que o bundle é avaliado
+useGLTF.preload(GLB_PATH);
 
 const NAME = "VINÍCIUS KAWASUGUI SANTIAGO";
 const REPEAT = 8;
 
 export default function Header({ revealed = true }) {
-    // "visible" controla as classes is-visible dos blocos do header.
-    // Se a página já chega "revealed" (entrada pulada nessa sessão),
-    // mostramos tudo direto, sem animação de entrada.
     const [visible, setVisible] = useState(revealed);
-
     useEffect(() => {
         if (revealed && !visible) {
-            // pequeno delay para garantir que a transição CSS dispare
-            // logo no instante em que o quadro cinza termina de subir
+
             const t = setTimeout(() => setVisible(true), 50);
             return () => clearTimeout(t);
         }
@@ -133,7 +82,10 @@ export default function Header({ revealed = true }) {
     ));
 
     return (
-        <div className="main-content">
+        <div
+            className="main-content"
+            style={{ "--eu-bg": `url('${EU_IMAGE_PATH}')` }}
+        >
 
             <div className={`header-left-block${visible ? " is-visible" : ""}`}>
                 <span className="copyright-label">
@@ -155,7 +107,7 @@ export default function Header({ revealed = true }) {
                 </div>
             </div>
 
-            {/* Globo + localização */}
+            {/* Globo 3D + localização */}
             <div className={`location-widget${visible ? " is-visible" : ""}`}>
                 <Globe />
                 <span className="location-text">CURITIBA — BRASIL</span>

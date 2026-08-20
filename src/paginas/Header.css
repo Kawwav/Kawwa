@@ -107,11 +107,20 @@
 
 .globe-canvas {
   display: block;
+  position: relative;
   width: 72px;
   height: 72px;
   opacity: 0.65;
-  filter: grayscale(1);
   flex-shrink: 0;
+  border-radius: 50%;
+  overflow: hidden;
+  background: transparent;
+}
+
+.globe-canvas canvas {
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
 }
 
 @media (max-width: 768px) {
@@ -156,7 +165,7 @@
   content: '';
   position: absolute;
   inset: 0;
-  background-image: url('/eu.png');
+  background-image: var(--eu-bg);
   background-size: 55%;
   background-position: center 10%;
   background-repeat: no-repeat;

@@ -528,6 +528,151 @@ const linhaTempo = [
         return () => cancelAnimationFrame(frameId);
     }, [paginaVisivel]);
 
+    // "Scroll-jacking" suave dentro da linha do tempo: enquanto a seção
+    // estiver ocupando a tela, cada scroll (roda do mouse/trackpad ou
+    // arraste no touch) avança ou volta exatamente UM item por vez, com uma
+    // transição extremamente suave (easing customizado via
+    // requestAnimationFrame, não o "smooth" nativo do navegador). Antes do
+    // primeiro item e depois do último o scroll volta a ser livre, para
+    // entrar/sair da seção com naturalidade.
+    useEffect(() => {
+        const pagina = paginaRef.current;
+        const secao = linhaTempoSecaoRef.current;
+        if (!pagina || !secao) return;
+
+        let animando = false;
+        let travaId = null;
+        const DURACAO_MS = 1500;
+
+        // easeInOutCubic — acelera e desacelera suavemente, sem nenhum
+        // solavanco no começo nem no fim do movimento
+        const facilitador = (t) =>
+            t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+
+        const animarScrollPara = (destino) => {
+            animando = true;
+            const origem = pagina.scrollTop;
+            const distancia = destino - origem;
+            const inicio = performance.now();
+
+            const passo = (agora) => {
+                const decorrido = agora - inicio;
+                const progresso = Math.min(decorrido / DURACAO_MS, 1);
+                pagina.scrollTop = origem + distancia * facilitador(progresso);
+
+                if (progresso < 1) {
+                    requestAnimationFrame(passo);
+                } else {
+                    // pequena folga antes de liberar novos disparos, pra
+                    // absorver eventos de "momentum" residuais do trackpad
+                    travaId = setTimeout(() => { animando = false; }, 120);
+                }
+            };
+            requestAnimationFrame(passo);
+        };
+
+        const indiceMaisProximoDoCentro = () => {
+            const rectPagina = pagina.getBoundingClientRect();
+            const centroPagina = rectPagina.top + rectPagina.height / 2;
+            let menorDistancia = Infinity;
+            let indice = 0;
+
+            linhaTempoItensRef.current.forEach((el, i) => {
+                if (!el) return;
+                const rect = el.getBoundingClientRect();
+                const centroItem = rect.top + rect.height / 2;
+                const distancia = Math.abs(centroItem - centroPagina);
+                if (distancia < menorDistancia) {
+                    menorDistancia = distancia;
+                    indice = i;
+                }
+            });
+
+            return indice;
+        };
+
+        const scrollParaItem = (indice) => {
+            const el = linhaTempoItensRef.current[indice];
+            if (!el) return;
+            const rectPagina = pagina.getBoundingClientRect();
+            const rect = el.getBoundingClientRect();
+            const centroPagina = rectPagina.top + rectPagina.height / 2;
+            const centroItem = rect.top + rect.height / 2;
+            animarScrollPara(pagina.scrollTop + (centroItem - centroPagina));
+        };
+
+        // a seção "conta" como em uso quando parte dela está de fato visível
+        // na área da página — só aí o scroll fica "preso" andando item a item
+        const dentroDaSecao = () => {
+            const rectSecao = secao.getBoundingClientRect();
+            const rectPagina = pagina.getBoundingClientRect();
+            return rectSecao.top < rectPagina.bottom && rectSecao.bottom > rectPagina.top;
+        };
+
+        const tentarAvancar = (direcao) => {
+            const alvo = indiceMaisProximoDoCentro() + direcao;
+
+            // nas pontas (antes do 1º item / depois do último) libera o
+            // scroll normal, pra sair da seção com naturalidade
+            if (alvo < 0 || alvo > linhaTempo.length - 1) return false;
+
+            scrollParaItem(alvo);
+            return true;
+        };
+
+        const aoRodaMouse = (e) => {
+            if (!dentroDaSecao()) return;
+
+            if (animando) {
+                e.preventDefault();
+                return;
+            }
+
+            if (tentarAvancar(e.deltaY > 0 ? 1 : -1)) e.preventDefault();
+        };
+
+        let toqueInicioY = null;
+
+        const aoTocarInicio = (e) => {
+            toqueInicioY = dentroDaSecao() ? e.touches[0].clientY : null;
+        };
+
+        const aoTocarMover = (e) => {
+            if (toqueInicioY === null) return;
+
+            if (animando) {
+                e.preventDefault();
+                return;
+            }
+
+            const yAtual = e.touches[0].clientY;
+            const deslocamento = toqueInicioY - yAtual;
+            const LIMIAR = 40; // px mínimos de arraste pra contar como "um scroll"
+
+            if (Math.abs(deslocamento) > LIMIAR) {
+                if (tentarAvancar(deslocamento > 0 ? 1 : -1)) {
+                    e.preventDefault();
+                    toqueInicioY = yAtual;
+                }
+            }
+        };
+
+        const aoTocarFim = () => { toqueInicioY = null; };
+
+        pagina.addEventListener("wheel", aoRodaMouse, { passive: false });
+        pagina.addEventListener("touchstart", aoTocarInicio, { passive: true });
+        pagina.addEventListener("touchmove", aoTocarMover, { passive: false });
+        pagina.addEventListener("touchend", aoTocarFim, { passive: true });
+
+        return () => {
+            pagina.removeEventListener("wheel", aoRodaMouse);
+            pagina.removeEventListener("touchstart", aoTocarInicio);
+            pagina.removeEventListener("touchmove", aoTocarMover);
+            pagina.removeEventListener("touchend", aoTocarFim);
+            if (travaId) clearTimeout(travaId);
+        };
+    }, [paginaVisivel]);
+
     return (
         <>
             <div ref={cortinaRef} className="cortina" />
