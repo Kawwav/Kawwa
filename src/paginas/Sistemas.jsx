@@ -1,42 +1,14 @@
 import { useEffect, useState, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import "./Designer.css";
+import "./Sistemas.css";
 
 const PROJECTS = [
   {
-    label: "Designer de Roupa",
-    desc: "Projeto no Figma com foco em UX, tipografia expressiva e identidade visual única",
-    type: "UI/UX",
-    image: "designer/roupa.png",
-    link: "https://www.figma.com/proto/C2CBBMK6sZ3NqDlQER8vXz/Kawa?node-id=40-52&p=f&t=3wMEfPb71WCkETQq-0&scaling=contain&content-scaling=fixed&page-id=0%3A1",
-  },
-  {
-    label: "Barbearia",
-    desc: "Identidade visual e landing page para barbearia urbana com foco em conversão",
-    type: "Serviços / UI",
-    image: "designer/barbearia.PNG",
-    link: "https://www.figma.com/proto/jvZpBRqssemA92rRvezZPT/Untitled?node-id=2-6&p=f&t=MViT0JtzB9yw9EXa-0&scaling=min-zoom&content-scaling=fixed&page-id=0%3A1&starting-point-node-id=2%3A6",
-  },
-  {
-    label: "Pet Shop",
-    desc: "Design de interface amigável e colorida para clínica veterinária e pet shop",
-    type: "UI/UX",
-    image: "designer/petshop.PNG",
-    link: "https://www.figma.com/proto/8GGxUQWTnV3NflPHdxvDbp/pet-shoop?node-id=4-7&starting-point-node-id=4%3A7",
-  },
-  {
-    label: "Souza Industrial",
-    desc: "Portfólio digital para empresa industrial com navegação imersiva e animada",
-    type: "UI / Motion",
-    image: "designer/souza.PNG",
-    link: "https://www.figma.com/proto/Zz8UxpaWutVfM0326TpAfZ/SOUZA?node-id=6-11&p=f&t=EeTFp7LF7HeU3kRk-0&scaling=min-zoom&content-scaling=fixed&page-id=0%3A1",
-  },
-  {
-    label: "Vivi Art",
-    desc: "Loja virtual para artista plástica com galeria interativa e checkout otimizado",
-    type: "E-commerce",
-    image: "designer/viviart.PNG",
-    link: "https://www.figma.com/proto/HIZKSZ2MGeAPpzfIbKKhE3/site-viviart-VER-1.2?node-id=1-2&t=v1Nr5V3hRXI0uXOy-0&scaling=min-zoom&content-scaling=fixed&page-id=0%3A1",
+    label: "Sistema Barbearia",
+    desc: "Sistema completo para barbearias, com agendamento online, cadastro de clientes e barbeiros, customização do site, acompanhamento financeiro e clube de assinatura para clientes",
+    type: "Sistema Web",
+    image: "sistemas/barbearia.png",
+    link: "https://kawwav.github.io/sistemabarbearia/",
   },
 ];
 
@@ -86,7 +58,7 @@ const DURACAO_SAIDA = 850;
 const DURACAO_ENTRADA = 1000;
 const ATRASO_POR_ITEM = 60;
 
-export default function Designer() {
+export default function Sistemas() {
   const [visible, setVisible] = useState(false);
   const navigate = useNavigate();
   const exitRef = useRef(null);
@@ -147,41 +119,41 @@ export default function Designer() {
     const imgB = imagemRefB.current;
     if (!caixa || !imgA || !imgB) return;
 
-    caixa.classList.add("designer-hover-caixa--ativa");
+    caixa.classList.add("sistemas-hover-caixa--ativa");
 
     const atual = imagemAtivaRef.current;
 
     if (!atual) {
       imgA.src = src;
-      imgA.classList.remove("designer-hover-imagem--saindo", "designer-hover-imagem--entrando");
-      imgA.classList.add("designer-hover-imagem--ativa");
+      imgA.classList.remove("sistemas-hover-imagem--saindo", "sistemas-hover-imagem--entrando");
+      imgA.classList.add("sistemas-hover-imagem--ativa");
       imagemAtivaRef.current = imgA;
       return;
     }
 
     const proxima = atual === imgA ? imgB : imgA;
 
-    atual.classList.remove("designer-hover-imagem--ativa");
-    atual.classList.add("designer-hover-imagem--saindo");
+    atual.classList.remove("sistemas-hover-imagem--ativa");
+    atual.classList.add("sistemas-hover-imagem--saindo");
 
     proxima.src = src;
-    proxima.classList.remove("designer-hover-imagem--saindo");
-    proxima.classList.add("designer-hover-imagem--entrando");
+    proxima.classList.remove("sistemas-hover-imagem--saindo");
+    proxima.classList.add("sistemas-hover-imagem--entrando");
 
     void proxima.offsetWidth;
 
-    proxima.classList.remove("designer-hover-imagem--entrando");
-    proxima.classList.add("designer-hover-imagem--ativa");
+    proxima.classList.remove("sistemas-hover-imagem--entrando");
+    proxima.classList.add("sistemas-hover-imagem--ativa");
 
     imagemAtivaRef.current = proxima;
   };
 
   const handleListaMouseLeave = () => {
     const caixa = caixaRef.current;
-    if (caixa) caixa.classList.remove("designer-hover-caixa--ativa");
+    if (caixa) caixa.classList.remove("sistemas-hover-caixa--ativa");
     const atual = imagemAtivaRef.current;
     if (atual) {
-      atual.classList.remove("designer-hover-imagem--ativa", "designer-hover-imagem--entrando", "designer-hover-imagem--saindo");
+      atual.classList.remove("sistemas-hover-imagem--ativa", "sistemas-hover-imagem--entrando", "sistemas-hover-imagem--saindo");
     }
     imagemAtivaRef.current = null;
   };
@@ -202,16 +174,16 @@ export default function Designer() {
     el.style.setProperty("--exit-x", `${origin.x}px`);
     el.style.setProperty("--exit-y", `${origin.y}px`);
     el.style.setProperty("--exit-r", `0px`);
-    el.classList.remove("exit-overlay--go");
+    el.classList.remove("sistemas-exit-overlay--go");
     void el.offsetWidth;
 
     requestAnimationFrame(() => {
       el.style.setProperty("--exit-r", `${maxRadius}px`);
-      el.classList.add("exit-overlay--go");
+      el.classList.add("sistemas-exit-overlay--go");
     });
 
     setTimeout(() => {
-      navigate("/", { state: { from: "/designer", origin } });
+      navigate("/", { state: { from: "/sistemas", origin } });
     }, 1000);
   }, [navigate]);
 
@@ -225,22 +197,22 @@ export default function Designer() {
 
   return (
     <>
-      <div className="designer-page">
+      <div className="sistemas-page">
         <button
-          className={`designer-back${visible ? " is-visible" : ""}`}
+          className={`sistemas-back${visible ? " is-visible" : ""}`}
           onClick={handleBack}
           aria-label="Voltar para Serviços"
         >
           ← Voltar
         </button>
 
-        <div className={`designer-topo${visible ? " is-visible" : ""}`}>
-          <h1 className="designer-title">Web Designer</h1>
+        <div className={`sistemas-topo${visible ? " is-visible" : ""}`}>
+          <h1 className="sistemas-title">Sistemas</h1>
 
-          <div className="designer-toggle">
+          <div className="sistemas-toggle">
             <button
               type="button"
-              className={`designer-toggle-btn ${visao === "lista" ? "designer-toggle-btn--ativo" : ""}`}
+              className={`sistemas-toggle-btn ${visao === "lista" ? "sistemas-toggle-btn--ativo" : ""}`}
               onClick={() => trocarVisao("lista")}
               onMouseMove={mouseFollow.onMouseMove}
               onMouseLeave={mouseFollow.onMouseLeave}
@@ -252,7 +224,7 @@ export default function Designer() {
             </button>
             <button
               type="button"
-              className={`designer-toggle-btn ${visao === "grade" ? "designer-toggle-btn--ativo" : ""}`}
+              className={`sistemas-toggle-btn ${visao === "grade" ? "sistemas-toggle-btn--ativo" : ""}`}
               onClick={() => trocarVisao("grade")}
               onMouseMove={mouseFollow.onMouseMove}
               onMouseLeave={mouseFollow.onMouseLeave}
@@ -267,22 +239,22 @@ export default function Designer() {
 
         {visaoExibida === "lista" && (
           <>
-            <div className="designer-cabecalho">
-              <span>Categoria</span>
+            <div className="sistemas-cabecalho">
+              <span>Sistema</span>
               <span>Descrição</span>
               <span>Tipo</span>
               <span />
             </div>
 
             <div
-              className={`designer-lista ${fase === "saindo" ? "designer-lista--saindo" : ""} ${fase === "entrando" ? "designer-lista--entrando" : ""}`}
+              className={`sistemas-lista ${fase === "saindo" ? "sistemas-lista--saindo" : ""} ${fase === "entrando" ? "sistemas-lista--entrando" : ""}`}
               ref={listaRef}
               onMouseMove={handleListaMouseMove}
               onMouseLeave={handleListaMouseLeave}
             >
               {PROJECTS.map((p, i) => (
                 <div
-                  className="designer-item"
+                  className="sistemas-item"
                   key={p.label}
                   style={{ "--i": i }}
                   onMouseEnter={() => handleItemMouseEnter(`${baseUrl}${p.image}`)}
@@ -291,26 +263,26 @@ export default function Designer() {
                   tabIndex={0}
                   onKeyDown={(e) => e.key === "Enter" && abrirProjeto(p.link)}
                 >
-                  <h3 className="designer-item-label">{p.label}</h3>
-                  <span className="designer-item-desc">{p.desc}</span>
-                  <span className="designer-item-type">{p.type}</span>
-                  <span className="designer-item-arrow">↗</span>
+                  <h3 className="sistemas-item-label">{p.label}</h3>
+                  <span className="sistemas-item-desc">{p.desc}</span>
+                  <span className="sistemas-item-type">{p.type}</span>
+                  <span className="sistemas-item-arrow">↗</span>
                 </div>
               ))}
 
-              <div className="designer-hover-caixa" ref={caixaRef}>
-                <img src={`${baseUrl}${PROJECTS[0].image}`} alt="" className="designer-hover-imagem" ref={imagemRefA} />
-                <img src={`${baseUrl}${PROJECTS[0].image}`} alt="" className="designer-hover-imagem" ref={imagemRefB} />
+              <div className="sistemas-hover-caixa" ref={caixaRef}>
+                <img src={`${baseUrl}${PROJECTS[0].image}`} alt="" className="sistemas-hover-imagem" ref={imagemRefA} />
+                <img src={`${baseUrl}${PROJECTS[0].image}`} alt="" className="sistemas-hover-imagem" ref={imagemRefB} />
               </div>
             </div>
           </>
         )}
 
         {visaoExibida === "grade" && (
-          <div className={`designer-grade ${fase === "saindo" ? "designer-grade--saindo" : ""} ${fase === "entrando" ? "designer-grade--entrando" : ""}`}>
+          <div className={`sistemas-grade ${fase === "saindo" ? "sistemas-grade--saindo" : ""} ${fase === "entrando" ? "sistemas-grade--entrando" : ""}`}>
             {PROJECTS.map((p, i) => (
               <div
-                className="designer-card"
+                className="sistemas-card"
                 key={p.label}
                 style={{ "--i": i }}
                 onClick={() => abrirProjeto(p.link)}
@@ -318,14 +290,14 @@ export default function Designer() {
                 tabIndex={0}
                 onKeyDown={(e) => e.key === "Enter" && abrirProjeto(p.link)}
               >
-                <div className="designer-card-imagem-wrap">
-                  <img src={`${baseUrl}${p.image}`} alt={p.label} className="designer-card-imagem" />
+                <div className="sistemas-card-imagem-wrap">
+                  <img src={`${baseUrl}${p.image}`} alt={p.label} className="sistemas-card-imagem" />
                 </div>
-                <h3 className="designer-card-label">{p.label}</h3>
-                <div className="designer-card-linha" />
-                <div className="designer-card-rodape">
-                  <span className="designer-card-type">{p.type}</span>
-                  <span className="designer-card-arrow">↗</span>
+                <h3 className="sistemas-card-label">{p.label}</h3>
+                <div className="sistemas-card-linha" />
+                <div className="sistemas-card-rodape">
+                  <span className="sistemas-card-type">{p.type}</span>
+                  <span className="sistemas-card-arrow">↗</span>
                 </div>
               </div>
             ))}
@@ -333,7 +305,7 @@ export default function Designer() {
         )}
       </div>
 
-      <div className="exit-overlay" ref={exitRef} />
+      <div className="sistemas-exit-overlay" ref={exitRef} />
     </>
   );
 }

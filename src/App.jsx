@@ -7,15 +7,16 @@ import Sobremim from "./paginas/Sobremim";
 import Servicos from "./paginas/Servicos";
 import Designer from "./paginas/Designer";
 import Desenvolvimento from "./paginas/Desenvolvimento";
+import Sistemas from "./paginas/Sistemas";
 import "./App.css";
 import Footer from "./componentes/Footer";
 
 /*npm run build 
 npm run deploy*/
 
-/*git add .*/
-/*git commit -m "....."*/
-/*git push*/
+//git add .
+//git commit -m "....."
+//git push
 
 function App() {
 
@@ -42,6 +43,7 @@ function App() {
         <Route path="/sobre-mim" element={<Sobremim />} />
         <Route path="/designer" element={<Designer />} />
         <Route path="/desenvolvimento" element={<Desenvolvimento />} />
+        <Route path="/sistemas" element={<Sistemas />} />
       </Routes>
     </BrowserRouter>
   );

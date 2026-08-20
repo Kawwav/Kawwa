@@ -19,6 +19,9 @@ const GALLERY_IMAGES = {
     "desenvolvimento/barbearia (1).PNG",
     "desenvolvimento/souza.PNG"
   ],
+  sistemas: [
+    "sistemas/barbearia.png",
+  ],
 };
 
 const ITEMS = [
@@ -37,6 +40,14 @@ const ITEMS = [
     folder: "desenvolvimento",
     hasSplit: true,
     route: "/desenvolvimento",
+  },
+  {
+    title: "SISTEMAS",
+    num: "03",
+    hasGallery: true,
+    folder: "sistemas",
+    hasSplit: true,
+    route: "/sistemas",
   },
 ];
 

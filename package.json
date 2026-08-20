@@ -2,6 +2,7 @@
   "name": "kawwa",
   "private": true,
   "version": "0.0.0",
+  "homepage": "https://kawwav.github.io/Kawwa",
   "type": "module",
   "scripts": {
     "dev": "vite",

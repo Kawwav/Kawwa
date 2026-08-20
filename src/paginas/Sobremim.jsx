@@ -44,13 +44,15 @@ export default function Sobremim({ onClose }) {
         "Minha missão é desenvolver sites e experiências digitais que fortaleçam marcas, gerem resultados e ajudem empresas a crescer com design moderno, estratégia e tecnologia.";
 
     // Conteúdo da linha do tempo — edite número/título/descrição livremente aqui
-    const linhaTempo = [
-        { ano: "01.", titulo: "Descoberta", descricao: "Entendo o negócio, seus objetivos e o que precisa ser resolvido.", imagem: "/item1.jpg" },
-        { ano: "02.", titulo: "Estratégia", descricao: "Defino a estrutura, funcionalidades e a melhor experiência para o usuário.", imagem: "/item2.jpg" },
-        { ano: "03.", titulo: "Design", descricao: "Crio uma identidade visual moderna, intuitiva e alinhada à marca.", imagem: "/item3.jpg" },
-        { ano: "04.", titulo: "Desenvolvimento", descricao: "Transformo o projeto em um site ou sistema funcional, rápido e responsivo.", imagem: "/item4.jpg" },
-        { ano: "05.", titulo: "Entrega e evolução", descricao: "Testo, ajusto e entrego a solução pronta para crescer junto com o negócio.", imagem: "/item5.jpg" },
-    ];
+const BASE = import.meta.env.BASE_URL;
+
+const linhaTempo = [
+    { ano: "01.", titulo: "Descoberta", descricao: "Entendo o negócio, seus objetivos e o que precisa ser resolvido.", imagem: `${BASE}item1.jpg` },
+    { ano: "02.", titulo: "Estratégia", descricao: "Defino a estrutura, funcionalidades e a melhor experiência para o usuário.", imagem: `${BASE}item2.jpg` },
+    { ano: "03.", titulo: "Design", descricao: "Crio uma identidade visual moderna, intuitiva e alinhada à marca.", imagem: `${BASE}item3.jpg` },
+    { ano: "04.", titulo: "Desenvolvimento", descricao: "Transformo o projeto em um site ou sistema funcional, rápido e responsivo.", imagem: `${BASE}item4.jpg` },
+    { ano: "05.", titulo: "Entrega e evolução", descricao: "Testo, ajusto e entrego a solução pronta para crescer junto com o negócio.", imagem: `${BASE}item5.jpg` },
+];
 
     useEffect(() => {
         document.body.classList.add("pagina-aberta");
@@ -590,8 +592,8 @@ export default function Sobremim({ onClose }) {
                     <img
                         ref={fotoImgRef}
                         className="foto-secao-img"
-                        src="/Santiago1.jpg"
-                        alt="Vinícius Kawasugui no topo da montanha"
+                        src={`${import.meta.env.BASE_URL}Santiago1.jpg`}
+                        alt="eu"
                     />
                     <div className="foto-secao-sombra" />
                 </div>

@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Desenvolvimento.css";
+
 const PROJECTS = [
   {
     label: "Marinho",
@@ -10,14 +11,13 @@ const PROJECTS = [
     link: "https://haeffnermarinho.adv.br/#/",
   },
 
-{
+  {
     label: "Site imobiliaria",
     desc: "Encontre o imóvel dos seus sonhos: as melhores opções prontas para morar.",
     type: "Corporativo",
     image: "desenvolvimento/imobiliaria.png",
     link: "https://www.jmarinhoimoveis.com.br/",
   },
-
 
   {
     label: "Zero (em construção)",
@@ -46,153 +46,164 @@ const PROJECTS = [
     label: "Souza 1.2 (em construção)",
     desc: "Site institucional com foco industrial, desenvolvido para apresentar a empresa Souza e seus serviços de manutenção e montagem industrial. Com um versão melhorada",
     type: "Corporativo",
-    image : "desenvolvimento/industrial.png",
+    image: "desenvolvimento/industrial.png",
     link: "https://kawwav.github.io/Souza-/",
-  }
-  
+  },
 
+   {
+    label: "Sistema Barbearia",
+    desc: "Sistema completo para barbearias, com agendamento online, cadastro de clientes e barbeiros, customização do site, acompanhamento financeiro e clube de assinatura para clientes",
+    type: "Sistema Web",
+    image: "sistemas/barbearia.png",
+    link: "https://kawwav.github.io/sistemabarbearia/",
+  },
 ];
 
-/* ─── Imagem que segue o cursor (backdrop + crossfade + delay suave) ─── */
-function CursorImage({ mousePos, visible, image }) {
-  const [currentImage, setCurrentImage] = useState(image);
-  const [prevImage, setPrevImage] = useState(null);
-
-  const containerRef = useRef(null);
-  const targetPos = useRef(mousePos);
-  const smoothPos = useRef(mousePos);
-  const baseUrl = import.meta.env.BASE_URL;
-
-  // mantém sempre o alvo (posição real do mouse) atualizado
-  useEffect(() => {
-    targetPos.current = mousePos;
-  }, [mousePos]);
-
-  // loop contínuo de interpolação (delay suave ao seguir o mouse)
-  useEffect(() => {
-    let raf;
-    const EASE = 0.12; // menor = mais "atraso"/suavidade, maior = mais rápido/direto
-
-    const animate = () => {
-      smoothPos.current = {
-        x: smoothPos.current.x + (targetPos.current.x - smoothPos.current.x) * EASE,
-        y: smoothPos.current.y + (targetPos.current.y - smoothPos.current.y) * EASE,
-      };
-
-      if (containerRef.current) {
-        containerRef.current.style.left = `${smoothPos.current.x}px`;
-        containerRef.current.style.top = `${smoothPos.current.y}px`;
-      }
-
-      raf = requestAnimationFrame(animate);
-    };
-
-    raf = requestAnimationFrame(animate);
-    return () => cancelAnimationFrame(raf);
-  }, []);
-
-  // crossfade: quando a imagem muda (troca de linha em hover), a antiga esmaece e a nova aparece
-  useEffect(() => {
-    if (image && image !== currentImage) {
-      setPrevImage(currentImage);
-      setCurrentImage(image);
-    }
-  }, [image]);
-
+function IconLista() {
   return (
-    <div
-      ref={containerRef}
-      className={"desenv-cursor-img" + (visible ? " desenv-cursor-img--visible" : "")}
-      style={{ left: smoothPos.current.x, top: smoothPos.current.y }}
-    >
-      <div className="desenv-cursor-img__backdrop" />
-      {prevImage && (
-        <img
-          key={prevImage}
-          src={`${baseUrl}${prevImage}`}
-          alt=""
-          className="desenv-cursor-img__photo desenv-cursor-img__photo--prev"
-        />
-      )}
-      {currentImage && (
-        <img
-          key={currentImage}
-          src={`${baseUrl}${currentImage}`}
-          alt=""
-          className="desenv-cursor-img__photo desenv-cursor-img__photo--active"
-        />
-      )}
-    </div>
+    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <line x1="4" y1="6" x2="20" y2="6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+      <line x1="4" y1="12" x2="20" y2="12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+      <line x1="4" y1="18" x2="20" y2="18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+    </svg>
   );
 }
 
-function ProjectRow({ project, index, onHoverStart, onHoverEnd, onMouseMove }) {
-  const [hovered, setHovered] = useState(false);
+function IconGrade() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="4" y="4" width="7" height="7" rx="1.5" stroke="currentColor" strokeWidth="2" />
+      <rect x="13" y="4" width="7" height="7" rx="1.5" stroke="currentColor" strokeWidth="2" />
+      <rect x="4" y="13" width="7" height="7" rx="1.5" stroke="currentColor" strokeWidth="2" />
+      <rect x="13" y="13" width="7" height="7" rx="1.5" stroke="currentColor" strokeWidth="2" />
+    </svg>
+  );
+}
 
-  const handleClick = () => {
-    window.open(project.link, "_blank", "noopener,noreferrer");
+// Faz o ícone dentro do botão "seguir" o cursor com um leve efeito magnético
+function useMouseFollow(strength = 0.35) {
+  const handleMouseMove = (e) => {
+    const btn = e.currentTarget;
+    const icon = btn.querySelector("svg");
+    if (!icon) return;
+    const rect = btn.getBoundingClientRect();
+    const x = e.clientX - rect.left - rect.width / 2;
+    const y = e.clientY - rect.top - rect.height / 2;
+    icon.style.transform = `translate(${x * strength}px, ${y * strength}px)`;
   };
 
-  // ADICIONE ESSA LINHA: Pega "/" localmente ou "/Kawwa/" no deploy online
-  const baseUrl = import.meta.env.BASE_URL;
+  const handleMouseLeave = (e) => {
+    const icon = e.currentTarget.querySelector("svg");
+    if (!icon) return;
+    icon.style.transform = "translate(0px, 0px)";
+  };
 
-  return (
-    <div
-      className={`desenv-meta__row${hovered ? " is-hovered" : ""}`}
-      style={{ "--row-delay": `${index * 0.07}s` }}
-      onMouseEnter={() => { setHovered(true); onHoverStart(project); }}
-      onMouseLeave={() => { setHovered(false); onHoverEnd(); }}
-      onMouseMove={onMouseMove}
-      onClick={handleClick}
-      role="link"
-      tabIndex={0}
-      onKeyDown={(e) => e.key === "Enter" && handleClick()}
-    >
-
-      <div className="desenv-card-img">
-        {/* ALTERADO: Incluído o baseUrl antes do caminho */}
-        <img src={`${baseUrl}${project.image}`} alt={project.label} />
-      </div>
-
-      {/* Campos desktop */}
-      <span className="desenv-meta__label">{project.label}</span>
-      <span className="desenv-meta__desc">{project.desc}</span>
-      <span className="desenv-meta__type">{project.type}</span>
-      <span className="desenv-meta__arrow">↗</span>
-
-      {/* Rodapé mobile */}
-      <div className="desenv-meta__info-mobile">
-        <div className="desenv-meta__info-top">
-          <span className="desenv-meta__label">{project.label}</span>
-          <span className="desenv-meta__arrow" aria-hidden="true">↗</span>
-        </div>
-        <span className="desenv-meta__type">{project.type}</span>
-      </div>
-    </div>
-  );
+  return { onMouseMove: handleMouseMove, onMouseLeave: handleMouseLeave };
 }
+
+const DURACAO_SAIDA = 850;
+const DURACAO_ENTRADA = 1000;
+const ATRASO_POR_ITEM = 60;
 
 export default function Desenvolvimento() {
   const [visible, setVisible] = useState(false);
   const navigate = useNavigate();
-  const exitRef  = useRef(null);
+  const exitRef = useRef(null);
+  const baseUrl = import.meta.env.BASE_URL;
 
-  const [cursorVisible,  setCursorVisible]  = useState(false);
-  const [hoveredImage,   setHoveredImage]   = useState(null);
-  const [mousePos,       setMousePos]       = useState({ x: 0, y: 0 });
-  const rafRef = useRef(null);
+  const [visao, setVisao] = useState("lista");
+  const [visaoExibida, setVisaoExibida] = useState("lista");
+  const [fase, setFase] = useState("idle"); // "idle" | "saindo" | "entrando"
+  const mouseFollow = useMouseFollow(0.3);
+  const transicaoTimers = useRef([]);
 
   useEffect(() => {
     const t = setTimeout(() => setVisible(true), 100);
     return () => clearTimeout(t);
   }, []);
 
-  const handleMouseMove = useCallback((e) => {
-    if (rafRef.current) cancelAnimationFrame(rafRef.current);
-    rafRef.current = requestAnimationFrame(() => {
-      setMousePos({ x: e.clientX, y: e.clientY });
-    });
+  const trocarVisao = (nova) => {
+    if (nova === visao || fase !== "idle") return;
+
+    setVisao(nova);
+    setFase("saindo");
+
+    const maiorAtraso = (PROJECTS.length - 1) * ATRASO_POR_ITEM;
+    const t1 = setTimeout(() => {
+      setVisaoExibida(nova);
+      setFase("entrando");
+
+      const t2 = setTimeout(() => {
+        setFase("idle");
+      }, DURACAO_ENTRADA + maiorAtraso);
+      transicaoTimers.current.push(t2);
+    }, DURACAO_SAIDA + maiorAtraso);
+    transicaoTimers.current.push(t1);
+  };
+
+  useEffect(() => {
+    return () => transicaoTimers.current.forEach(clearTimeout);
   }, []);
+
+  const listaRef = useRef(null);
+  const caixaRef = useRef(null);
+  const imagemRefA = useRef(null);
+  const imagemRefB = useRef(null);
+  const imagemAtivaRef = useRef(null);
+
+  const handleListaMouseMove = (e) => {
+    const container = listaRef.current;
+    const caixa = caixaRef.current;
+    if (!container || !caixa) return;
+    const rect = container.getBoundingClientRect();
+    caixa.style.left = `${e.clientX - rect.left}px`;
+    caixa.style.top = `${e.clientY - rect.top}px`;
+  };
+
+  const handleItemMouseEnter = (src) => {
+    const caixa = caixaRef.current;
+    const imgA = imagemRefA.current;
+    const imgB = imagemRefB.current;
+    if (!caixa || !imgA || !imgB) return;
+
+    caixa.classList.add("desenv-hover-caixa--ativa");
+
+    const atual = imagemAtivaRef.current;
+
+    if (!atual) {
+      imgA.src = src;
+      imgA.classList.remove("desenv-hover-imagem--saindo", "desenv-hover-imagem--entrando");
+      imgA.classList.add("desenv-hover-imagem--ativa");
+      imagemAtivaRef.current = imgA;
+      return;
+    }
+
+    const proxima = atual === imgA ? imgB : imgA;
+
+    atual.classList.remove("desenv-hover-imagem--ativa");
+    atual.classList.add("desenv-hover-imagem--saindo");
+
+    proxima.src = src;
+    proxima.classList.remove("desenv-hover-imagem--saindo");
+    proxima.classList.add("desenv-hover-imagem--entrando");
+
+    void proxima.offsetWidth;
+
+    proxima.classList.remove("desenv-hover-imagem--entrando");
+    proxima.classList.add("desenv-hover-imagem--ativa");
+
+    imagemAtivaRef.current = proxima;
+  };
+
+  const handleListaMouseLeave = () => {
+    const caixa = caixaRef.current;
+    if (caixa) caixa.classList.remove("desenv-hover-caixa--ativa");
+    const atual = imagemAtivaRef.current;
+    if (atual) {
+      atual.classList.remove("desenv-hover-imagem--ativa", "desenv-hover-imagem--entrando", "desenv-hover-imagem--saindo");
+    }
+    imagemAtivaRef.current = null;
+  };
 
   const handleBack = useCallback((e) => {
     const el = exitRef.current;
@@ -203,7 +214,7 @@ export default function Desenvolvimento() {
       : { x: window.innerWidth / 2, y: window.innerHeight / 2 };
 
     const maxRadius = Math.hypot(
-      Math.max(origin.x, window.innerWidth  - origin.x),
+      Math.max(origin.x, window.innerWidth - origin.x),
       Math.max(origin.y, window.innerHeight - origin.y)
     );
 
@@ -219,9 +230,7 @@ export default function Desenvolvimento() {
     });
 
     setTimeout(() => {
-      navigate("/", {
-        state: { from: "/desenvolvimento", origin },
-      });
+      navigate("/", { state: { from: "/desenvolvimento", origin } });
     }, 1000);
   }, [navigate]);
 
@@ -231,10 +240,11 @@ export default function Desenvolvimento() {
     return () => window.removeEventListener("keydown", onKey);
   }, [handleBack]);
 
+  const abrirProjeto = (link) => window.open(link, "_blank", "noopener,noreferrer");
+
   return (
     <>
       <div className="desenv-page">
-
         <button
           className={`desenv-back${visible ? " is-visible" : ""}`}
           onClick={handleBack}
@@ -243,37 +253,103 @@ export default function Desenvolvimento() {
           ← Voltar
         </button>
 
-        <h1 className={`desenv-title${visible ? " is-visible" : ""}`}>
-          DESENVOLVIMENTO
-        </h1>
+        <div className={`desenv-topo${visible ? " is-visible" : ""}`}>
+          <h1 className="desenv-title">Desenvolvimento</h1>
 
-        <div className={`desenv-meta${visible ? " is-visible" : ""}`}>
-          <div className="desenv-meta__header">
-            <span>PROJETO</span>
-            <span>DESCRIÇÃO</span>
-            <span>TIPO</span>
-            <span />
+          <div className="desenv-toggle">
+            <button
+              type="button"
+              className={`desenv-toggle-btn ${visao === "lista" ? "desenv-toggle-btn--ativo" : ""}`}
+              onClick={() => trocarVisao("lista")}
+              onMouseMove={mouseFollow.onMouseMove}
+              onMouseLeave={mouseFollow.onMouseLeave}
+              aria-label="Ver como lista"
+              aria-pressed={visao === "lista"}
+              disabled={fase !== "idle"}
+            >
+              <IconLista />
+            </button>
+            <button
+              type="button"
+              className={`desenv-toggle-btn ${visao === "grade" ? "desenv-toggle-btn--ativo" : ""}`}
+              onClick={() => trocarVisao("grade")}
+              onMouseMove={mouseFollow.onMouseMove}
+              onMouseLeave={mouseFollow.onMouseLeave}
+              aria-label="Ver como grade"
+              aria-pressed={visao === "grade"}
+              disabled={fase !== "idle"}
+            >
+              <IconGrade />
+            </button>
           </div>
-
-          <div className="desenv-meta__divider" />
-
-          {PROJECTS.map((project, i) => (
-            <ProjectRow
-              key={project.label}
-              project={project}
-              index={i}
-              onHoverStart={(p) => { setHoveredImage(p.image); setCursorVisible(true); }}
-              onHoverEnd={() => setCursorVisible(false)}
-              onMouseMove={handleMouseMove}
-            />
-          ))}
         </div>
 
-        <CursorImage
-          mousePos={mousePos}
-          visible={cursorVisible}
-          image={hoveredImage}
-        />
+        {visaoExibida === "lista" && (
+          <>
+            <div className="desenv-cabecalho">
+              <span>Projeto</span>
+              <span>Descrição</span>
+              <span>Tipo</span>
+              <span />
+            </div>
+
+            <div
+              className={`desenv-lista ${fase === "saindo" ? "desenv-lista--saindo" : ""} ${fase === "entrando" ? "desenv-lista--entrando" : ""}`}
+              ref={listaRef}
+              onMouseMove={handleListaMouseMove}
+              onMouseLeave={handleListaMouseLeave}
+            >
+              {PROJECTS.map((p, i) => (
+                <div
+                  className="desenv-item"
+                  key={p.label}
+                  style={{ "--i": i }}
+                  onMouseEnter={() => handleItemMouseEnter(`${baseUrl}${p.image}`)}
+                  onClick={() => abrirProjeto(p.link)}
+                  role="link"
+                  tabIndex={0}
+                  onKeyDown={(e) => e.key === "Enter" && abrirProjeto(p.link)}
+                >
+                  <h3 className="desenv-item-label">{p.label}</h3>
+                  <span className="desenv-item-desc">{p.desc}</span>
+                  <span className="desenv-item-type">{p.type}</span>
+                  <span className="desenv-item-arrow">↗</span>
+                </div>
+              ))}
+
+              <div className="desenv-hover-caixa" ref={caixaRef}>
+                <img src={`${baseUrl}${PROJECTS[0].image}`} alt="" className="desenv-hover-imagem" ref={imagemRefA} />
+                <img src={`${baseUrl}${PROJECTS[0].image}`} alt="" className="desenv-hover-imagem" ref={imagemRefB} />
+              </div>
+            </div>
+          </>
+        )}
+
+        {visaoExibida === "grade" && (
+          <div className={`desenv-grade ${fase === "saindo" ? "desenv-grade--saindo" : ""} ${fase === "entrando" ? "desenv-grade--entrando" : ""}`}>
+            {PROJECTS.map((p, i) => (
+              <div
+                className="desenv-card"
+                key={p.label}
+                style={{ "--i": i }}
+                onClick={() => abrirProjeto(p.link)}
+                role="link"
+                tabIndex={0}
+                onKeyDown={(e) => e.key === "Enter" && abrirProjeto(p.link)}
+              >
+                <div className="desenv-card-imagem-wrap">
+                  <img src={`${baseUrl}${p.image}`} alt={p.label} className="desenv-card-imagem" />
+                </div>
+                <h3 className="desenv-card-label">{p.label}</h3>
+                <div className="desenv-card-linha" />
+                <div className="desenv-card-rodape">
+                  <span className="desenv-card-type">{p.type}</span>
+                  <span className="desenv-card-arrow">↗</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       <div className="desenv-exit-overlay" ref={exitRef} />

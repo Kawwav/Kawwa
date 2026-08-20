@@ -1,6 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;700;800&display=swap');
 
-.desenv-page {
+.sistemas-page {
   min-height: 100svh;
   background: #0a0a0a;
   font-family: 'DM Sans', sans-serif;
@@ -12,8 +12,7 @@
   position: relative;
 }
 
-/* ─── Voltar ─── */
-.desenv-back {
+.sistemas-back {
   font-family: 'DM Sans', sans-serif;
   font-size: 12px;
   font-weight: 500;
@@ -31,17 +30,16 @@
   align-self: flex-start;
 }
 
-.desenv-back.is-visible {
+.sistemas-back.is-visible {
   opacity: 1;
   transform: translateY(0);
 }
 
-.desenv-back:hover {
+.sistemas-back:hover {
   color: #ffffff;
 }
 
-/* ─── Topo: título + toggle de visão ─── */
-.desenv-topo {
+.sistemas-topo {
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
@@ -52,31 +50,31 @@
   transition: opacity 0.8s ease 0.05s, transform 0.8s ease 0.05s;
 }
 
-.desenv-topo.is-visible {
+.sistemas-topo.is-visible {
   opacity: 1;
   transform: translateY(0);
 }
 
-.desenv-title {
+.sistemas-title {
   font-family: 'DM Sans', sans-serif;
-  font-weight: 1000;
+  font-weight: 800;
   font-size: clamp(28px, 4.2vw, 56px);
   line-height: 1.12;
-  letter-spacing: 0.01em;
+  letter-spacing: -0.02em;
   text-transform: uppercase;
   color: #ffffff;
   margin: 0;
 }
 
 /* ── Botões de visão (lista / grade) ── */
-.desenv-toggle {
+.sistemas-toggle {
   display: flex;
   align-items: center;
   gap: 12px;
   flex-shrink: 0;
 }
 
-.desenv-toggle-btn {
+.sistemas-toggle-btn {
   position: relative;
   display: flex;
   align-items: center;
@@ -93,7 +91,7 @@
   transition: border-color 0.6s cubic-bezier(0.19, 1, 0.22, 1), color 0.7s cubic-bezier(0.19, 1, 0.22, 1);
 }
 
-.desenv-toggle-btn svg {
+.sistemas-toggle-btn svg {
   position: relative;
   width: 26px;
   height: 26px;
@@ -102,7 +100,7 @@
   will-change: transform;
 }
 
-.desenv-toggle-btn::before {
+.sistemas-toggle-btn::before {
   content: '';
   position: absolute;
   inset: 0;
@@ -112,34 +110,31 @@
   transition: clip-path 1.1s cubic-bezier(0.19, 1, 0.22, 1);
 }
 
-.desenv-toggle-btn:hover::before {
+.sistemas-toggle-btn:hover::before {
   clip-path: circle(100% at 50% 0%);
 }
 
-.desenv-toggle-btn:hover {
+.sistemas-toggle-btn:hover {
   border-color: #ffffff;
   color: #0a0a0a;
 }
 
-.desenv-toggle-btn--ativo {
+.sistemas-toggle-btn--ativo {
   background: #ffffff;
   border-color: #ffffff;
   color: #0a0a0a;
 }
 
-.desenv-toggle-btn--ativo:hover {
+.sistemas-toggle-btn--ativo:hover {
   color: #0a0a0a;
 }
 
-.desenv-toggle-btn:disabled {
+.sistemas-toggle-btn:disabled {
   cursor: default;
   opacity: 0.6;
 }
 
-/* ───────────────────────────────────────────
-   CABEÇALHO DA TABELA
-─────────────────────────────────────────── */
-.desenv-cabecalho {
+.sistemas-cabecalho {
   display: grid;
   grid-template-columns: 1.2fr 2.2fr 1fr 32px;
   gap: 0 3vw;
@@ -147,25 +142,22 @@
   border-bottom: 1px solid rgba(255, 255, 255, 0.15);
 }
 
-.desenv-cabecalho span {
+.sistemas-cabecalho span {
   font-family: 'DM Sans', sans-serif;
   font-size: 12px;
-  font-weight: 500;
+  font-weight: 400;
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.5);
+  color: rgba(255, 255, 255, 0.3);
 }
 
-/* ───────────────────────────────────────────
-   VISÃO EM LISTA
-─────────────────────────────────────────── */
-.desenv-lista {
+.sistemas-lista {
   display: flex;
   flex-direction: column;
   position: relative;
 }
 
-.desenv-hover-caixa {
+.sistemas-hover-caixa {
   position: absolute;
   top: 0;
   left: 0;
@@ -182,12 +174,12 @@
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
 }
 
-.desenv-hover-caixa--ativa {
+.sistemas-hover-caixa--ativa {
   opacity: 1;
   transform: translate(-50%, -55%) scale(1);
 }
 
-.desenv-hover-imagem {
+.sistemas-hover-imagem {
   position: absolute;
   inset: 24px;
   width: calc(100% - 48px);
@@ -199,37 +191,37 @@
   transition: transform 1.1s cubic-bezier(0.19, 1, 0.22, 1);
 }
 
-.desenv-hover-imagem--ativa {
+.sistemas-hover-imagem--ativa {
   transform: translateY(0);
 }
 
-.desenv-hover-imagem--saindo {
+.sistemas-hover-imagem--saindo {
   transform: translateY(calc(-100% - 48px));
 }
 
-.desenv-hover-imagem--entrando {
+.sistemas-hover-imagem--entrando {
   transform: translateY(calc(100% + 48px));
   transition: none;
 }
 
-.desenv-item {
+.sistemas-item {
   display: grid;
   grid-template-columns: 1.2fr 2.2fr 1fr 32px;
   gap: 0 3vw;
   align-items: center;
   padding: 28px 0 28px 32px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   cursor: pointer;
   transition: padding-left 0.35s cubic-bezier(0.16, 1, 0.3, 1), background 0.35s ease;
 }
 
-.desenv-item:hover {
+.sistemas-item:hover {
   padding-left: 50px;
 }
 
-.desenv-item-label {
+.sistemas-item-label {
   font-family: 'DM Sans', sans-serif;
-  font-weight: 1000;
+  font-weight: 700;
   font-size: clamp(1rem, 1.6vw, 1.35rem);
   letter-spacing: -0.01em;
   color: #ffffff;
@@ -238,58 +230,60 @@
   transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease;
 }
 
-.desenv-item:hover .desenv-item-label {
+.sistemas-item:hover .sistemas-item-label {
   transform: translateX(-10px);
   opacity: 0.6;
 }
 
-.desenv-item-desc,
-.desenv-item-type {
+.sistemas-item-desc,
+.sistemas-item-type {
   font-family: 'DM Sans', sans-serif;
   font-size: clamp(0.78rem, 1vw, 0.95rem);
-  font-weight: 400;
-  color: rgba(255, 255, 255, 0.7);
+  font-weight: 300;
+  color: rgba(255, 255, 255, 0.5);
   line-height: 1.55;
   transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease;
 }
 
-.desenv-item:hover .desenv-item-desc,
-.desenv-item:hover .desenv-item-type {
+.sistemas-item-type {
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.sistemas-item:hover .sistemas-item-desc,
+.sistemas-item:hover .sistemas-item-type {
   opacity: 0.35;
   transform: translateX(10px);
 }
 
-.desenv-item-arrow {
+.sistemas-item-arrow {
   font-family: 'DM Sans', sans-serif;
   font-size: 18px;
-  color: rgba(255, 255, 255, 0.4);
+  color: rgba(255, 255, 255, 0.2);
   text-align: right;
   transition: color 0.3s ease, transform 0.3s ease;
   display: block;
   transform: rotate(0deg);
 }
 
-.desenv-item:hover .desenv-item-arrow {
-  color: #ffffff;
+.sistemas-item:hover .sistemas-item-arrow {
+  color: rgba(255, 255, 255, 0.9);
   transform: rotate(45deg) translate(2px, -2px);
 }
 
-/* ───────────────────────────────────────────
-   VISÃO EM GRADE
-─────────────────────────────────────────── */
-.desenv-grade {
+.sistemas-grade {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 28px;
   padding-top: 8px;
 }
 
-.desenv-card {
+.sistemas-card {
   position: relative;
   cursor: pointer;
 }
 
-.desenv-card-imagem-wrap {
+.sistemas-card-imagem-wrap {
   width: 100%;
   aspect-ratio: 4 / 3;
   border-radius: 20px;
@@ -299,60 +293,58 @@
   transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.desenv-card:hover .desenv-card-imagem-wrap {
+.sistemas-card:hover .sistemas-card-imagem-wrap {
   transform: translateY(-6px);
 }
 
-.desenv-card-imagem {
+.sistemas-card-imagem {
   width: 100%;
   height: 100%;
   object-fit: cover;
   display: block;
 }
 
-.desenv-card-label {
+.sistemas-card-label {
   font-family: 'DM Sans', sans-serif;
-  font-weight: 1000;
+  font-weight: 800;
   font-size: clamp(20px, 2vw, 26px);
-  letter-spacing: 0.01em;
+  letter-spacing: -0.01em;
   color: #ffffff;
   margin: 0 0 16px;
 }
 
-.desenv-card-linha {
+.sistemas-card-linha {
   height: 1px;
-  background: rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.15);
   margin-bottom: 14px;
 }
 
-.desenv-card-rodape {
+.sistemas-card-rodape {
   display: flex;
   align-items: center;
   justify-content: space-between;
 }
 
-.desenv-card-type {
+.sistemas-card-type {
   font-family: 'DM Sans', sans-serif;
   font-size: 13px;
-  color: rgba(255, 255, 255, 0.6);
+  color: rgba(255, 255, 255, 0.55);
 }
 
-.desenv-card-arrow {
+.sistemas-card-arrow {
   font-family: 'DM Sans', sans-serif;
   font-size: 15px;
-  color: rgba(255, 255, 255, 0.5);
+  color: rgba(255, 255, 255, 0.4);
   transition: color 0.3s ease, transform 0.3s ease;
 }
 
-.desenv-card:hover .desenv-card-arrow {
+.sistemas-card:hover .sistemas-card-arrow {
   color: #ffffff;
   transform: rotate(45deg) translate(1px, -1px);
 }
 
-/* ───────────────────────────────────────────
-   TRANSIÇÃO ENTRE VISÕES (lista ↔ grade)
-─────────────────────────────────────────── */
-@keyframes desenvItemSai {
+
+@keyframes sistemasItemSai {
   0% {
     opacity: 1;
     filter: blur(0px);
@@ -367,7 +359,7 @@
   }
 }
 
-@keyframes desenvItemEntra {
+@keyframes sistemasItemEntra {
   0% {
     opacity: 0;
     filter: blur(18px);
@@ -382,33 +374,33 @@
   }
 }
 
-.desenv-lista--saindo .desenv-item,
-.desenv-grade--saindo .desenv-card {
-  animation: desenvItemSai 0.85s cubic-bezier(0.65, 0, 0.35, 1) both;
+.sistemas-lista--saindo .sistemas-item,
+.sistemas-grade--saindo .sistemas-card {
+  animation: sistemasItemSai 0.85s cubic-bezier(0.65, 0, 0.35, 1) both;
   animation-delay: calc(var(--i, 0) * 60ms);
   will-change: filter, opacity;
   pointer-events: none;
 }
 
-.desenv-lista--entrando .desenv-item,
-.desenv-grade--entrando .desenv-card {
-  animation: desenvItemEntra 1s cubic-bezier(0.16, 1, 0.3, 1) both;
+.sistemas-lista--entrando .sistemas-item,
+.sistemas-grade--entrando .sistemas-card {
+  animation: sistemasItemEntra 1s cubic-bezier(0.16, 1, 0.3, 1) both;
   animation-delay: calc(var(--i, 0) * 60ms);
   will-change: filter, opacity;
   pointer-events: none;
 }
 
-.desenv-lista--saindo .desenv-cabecalho,
-.desenv-lista--saindo .desenv-hover-caixa {
-  animation: desenvItemSai 0.85s cubic-bezier(0.65, 0, 0.35, 1) both;
+.sistemas-lista--saindo .sistemas-cabecalho,
+.sistemas-lista--saindo .sistemas-hover-caixa {
+  animation: sistemasItemSai 0.85s cubic-bezier(0.65, 0, 0.35, 1) both;
 }
 
-.desenv-lista--entrando .desenv-cabecalho {
-  animation: desenvItemEntra 1s cubic-bezier(0.16, 1, 0.3, 1) both;
+.sistemas-lista--entrando .sistemas-cabecalho {
+  animation: sistemasItemEntra 1s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 /* ─── Exit overlay (transição pra Home) ─── */
-.desenv-exit-overlay {
+.sistemas-exit-overlay {
   position: fixed;
   inset: 0;
   z-index: 1000;
@@ -420,55 +412,52 @@
   transition: none;
 }
 
-.desenv-exit-overlay--go {
+.sistemas-exit-overlay--go {
   transition: clip-path 1s cubic-bezier(0.65, 0, 0.35, 1),
               -webkit-clip-path 1s cubic-bezier(0.65, 0, 0.35, 1);
 }
 
-/* ───────────────────────────────────────────
-   RESPONSIVO
-─────────────────────────────────────────── */
 @media (max-width: 900px) {
-  .desenv-page {
+  .sistemas-page {
     padding: 40px 24px 70px;
   }
 
-  .desenv-topo {
+  .sistemas-topo {
     flex-direction: column;
     align-items: flex-start;
     gap: 24px;
     margin-bottom: 40px;
   }
 
-  .desenv-cabecalho {
+  .sistemas-cabecalho {
     grid-template-columns: 1.4fr 1fr;
     padding-left: 16px;
   }
 
-  .desenv-cabecalho span:nth-child(2),
-  .desenv-cabecalho span:nth-child(4) {
+  .sistemas-cabecalho span:nth-child(2),
+  .sistemas-cabecalho span:nth-child(4) {
     display: none;
   }
 
-  .desenv-item {
+  .sistemas-item {
     grid-template-columns: 1.4fr 1fr;
     row-gap: 6px;
     padding-left: 16px;
   }
 
-  .desenv-item:hover {
+  .sistemas-item:hover {
     padding-left: 28px;
   }
 
-  .desenv-item-desc {
+  .sistemas-item-desc {
     display: none;
   }
 
-  .desenv-hover-caixa {
+  .sistemas-hover-caixa {
     display: none;
   }
 
-  .desenv-grade {
+  .sistemas-grade {
     grid-template-columns: 1fr;
   }
 }
