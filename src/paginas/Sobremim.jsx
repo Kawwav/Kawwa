@@ -1,9 +1,14 @@
 import { useEffect, useRef, useState } from "react";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import "./Sobremim.css";
+
+gsap.registerPlugin(ScrollTrigger);
 
 export default function Sobremim({ onClose }) {
     const cortinaRef = useRef(null);
     const paginaRef  = useRef(null);
+    const painelPrincipalRef = useRef(null);
     const heroRef    = useRef(null);
     const nomeRef    = useRef(null);
     const fotoWrapperRef = useRef(null);
@@ -27,31 +32,22 @@ export default function Sobremim({ onClose }) {
     const [linhaTempoVisiveis, setLinhaTempoVisiveis] = useState([]);
     const [linhaTempoAtivo, setLinhaTempoAtivo] = useState(-1);
 
-    // Fundo com imagem por item da linha do tempo: duas camadas empilhadas
-    // que alternam entre si (crossfade) — a camada "de trás" recebe a nova
-    // imagem e sobe a opacidade, enquanto a camada visível atual desce a
-    // opacidade, evitando qualquer "piscada" ao trocar de imagem.
     const [camadasFundo, setCamadasFundo] = useState([
         { src: null, visivel: false },
         { src: null, visivel: false },
     ]);
     const camadaAtivaRef = useRef(0);
-
-    // Texto de missão — cada LETRA vira um <span> que vai de "apagada" (cinza)
-    // para branca conforme a página rola (ver useEffect "Preenche o texto de
-    // missão..." abaixo). Edite a frase livremente aqui.
+    const camadaFundoRefs = useRef([]);
     const missaoTexto =
         "Minha missão é desenvolver sites e experiências digitais que fortaleçam marcas, gerem resultados e ajudem empresas a crescer com design moderno, estratégia e tecnologia.";
-
-    // Conteúdo da linha do tempo — edite número/título/descrição livremente aqui
 const BASE = import.meta.env.BASE_URL;
 
 const linhaTempo = [
-    { ano: "01.", titulo: "Descoberta", descricao: "Entendo o negócio, seus objetivos e o que precisa ser resolvido.", imagem: `${BASE}item1.jpg` },
-    { ano: "02.", titulo: "Estratégia", descricao: "Defino a estrutura, funcionalidades e a melhor experiência para o usuário.", imagem: `${BASE}item2.jpg` },
-    { ano: "03.", titulo: "Design", descricao: "Crio uma identidade visual moderna, intuitiva e alinhada à marca.", imagem: `${BASE}item3.jpg` },
-    { ano: "04.", titulo: "Desenvolvimento", descricao: "Transformo o projeto em um site ou sistema funcional, rápido e responsivo.", imagem: `${BASE}item4.jpg` },
-    { ano: "05.", titulo: "Entrega e evolução", descricao: "Testo, ajusto e entrego a solução pronta para crescer junto com o negócio.", imagem: `${BASE}item5.jpg` },
+    { ano: "01.", titulo: "Descoberta", descricao: "Entendo o negócio, seus objetivos e o que precisa ser resolvido.", imagem: `${BASE}item1.webp` },
+    { ano: "02.", titulo: "Estratégia", descricao: "Defino a estrutura, funcionalidades e a melhor experiência para o usuário.", imagem: `${BASE}item2.webp` },
+    { ano: "03.", titulo: "Design", descricao: "Crio uma identidade visual moderna, intuitiva e alinhada à marca.", imagem: `${BASE}item3.webp` },
+    { ano: "04.", titulo: "Desenvolvimento", descricao: "Transformo o projeto em um site ou sistema funcional, rápido e responsivo.", imagem: `${BASE}item4.webp` },
+    { ano: "05.", titulo: "Entrega e evolução", descricao: "Testo, ajusto e entrego a solução pronta para crescer junto com o negócio.", imagem: `${BASE}item5.webp` },
 ];
 
     useEffect(() => {
@@ -59,7 +55,18 @@ const linhaTempo = [
         return () => document.body.classList.remove("pagina-aberta");
     }, []);
 
-    // Ajusta o tamanho da fonte do nome para nunca ultrapassar a largura da tela
+    // Pré-carrega as imagens da linha do tempo assim que a página monta.
+    // Sem isso, a troca de imagem no crossfade força o navegador a
+    // decodificar o arquivo bem no momento da transição, o que é a causa
+    // mais comum da "travada" ao mudar de item.
+    useEffect(() => {
+        linhaTempo.forEach((item) => {
+            const img = new Image();
+            img.src = item.imagem;
+        });
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
     useEffect(() => {
         const TAMANHO_MAXIMO = 190;
         const TAMANHO_MINIMO = 28;
@@ -69,7 +76,6 @@ const linhaTempo = [
             const hero = heroRef.current;
             if (!nome || !hero) return;
 
-            // Em telas pequenas o nome quebra em duas linhas (regra definida no CSS)
             if (window.innerWidth <= 768) {
                 nome.style.fontSize = "";
                 return;
@@ -124,9 +130,6 @@ const linhaTempo = [
         return () => window.removeEventListener("keydown", handleKey);
     }, []);
 
-    // Efeito parallax forte na foto e nos textos do hero: cada camada se
-    // desloca em velocidade diferente do scroll (a .pagina rola internamente,
-    // não a window), criando sensação de profundidade.
     useEffect(() => {
         const pagina = paginaRef.current;
         const wrapper = fotoWrapperRef.current;
@@ -188,9 +191,6 @@ const linhaTempo = [
         };
     }, [paginaVisivel]);
 
-    // "Por trás do processo criativo": o texto rola normalmente junto com a
-    // página (sem sticky, sem ficar preso) e só o tamanho dele muda —
-    // encolhe progressivamente conforme vai subindo pela tela.
     useEffect(() => {
         const pagina = paginaRef.current;
         const grupo = processoGrupoRef.current;
@@ -245,18 +245,11 @@ const linhaTempo = [
         if (!pagina || !grupo || !linha1 || !linha2 || !linha3) return;
 
         const clamp01 = (v) => Math.min(Math.max(v, 0), 1);
-
-        // velocidades diferentes por linha (via multiplicador no progresso-alvo),
-        // criando uma leve cascata mesmo sem qualquer delay de tempo
         const VELOCIDADE_GLOBAL = 1.6;
         const VELOCIDADE_LINHA1 = 1.25; // chega primeiro
         const VELOCIDADE_LINHA2 = 1.1;
         const VELOCIDADE_LINHA3 = 1.0;  // chega por último
-        // quanto menor, mais suave e com mais atraso (a linha "arrasta" atrás
-        // do alvo); quanto maior, mais rápido e colado ao scroll
         const SUAVIZACAO = 0.05;
-
-        // valores atuais (em %), começam fora da tela — mesmo estado do CSS inicial
         let atual1 = 115;
         let atual2 = 115;
         let atual3 = 115;
@@ -289,8 +282,6 @@ const linhaTempo = [
         return () => cancelAnimationFrame(frameId);
     }, [paginaVisivel]);
 
-    // Revela o texto de missão com um fade suave quando ele entra na área
-    // visível do scroll (o root é a .pagina, que é quem rola de fato).
     useEffect(() => {
         const pagina = paginaRef.current;
         const alvo = missaoRef.current;
@@ -312,11 +303,6 @@ const linhaTempo = [
         return () => observer.disconnect();
     }, []);
 
-    // Preenche o texto de missão letra por letra: cada <span> começa
-    // "apagado" (cinza, pouca opacidade) e vai ficando branco conforme o
-    // texto sobe pela tela — como se as letras fossem "acendendo" à medida
-    // que você lê/rola. Mesmo estilo de suavização (lerp) usado no trilho da
-    // linha do tempo, para o preenchimento acompanhar o scroll com atraso suave.
     useEffect(() => {
         const pagina = paginaRef.current;
         const texto = missaoTextoRef.current;
@@ -336,9 +322,6 @@ const linhaTempo = [
             if (letras.length) {
                 const rectPagina = pagina.getBoundingClientRect();
                 const rectTexto = texto.getBoundingClientRect();
-
-                // início: topo do texto ainda perto do fundo da área visível (0%)
-                // fim: topo do texto já subiu perto do topo da área visível (100%)
                 const inicio = rectPagina.top + rectPagina.height * 0.85;
                 const fim = rectPagina.top + rectPagina.height * 0.25;
                 const alvo = clamp01((inicio - rectTexto.top) / (inicio - fim));
@@ -360,9 +343,6 @@ const linhaTempo = [
         return () => cancelAnimationFrame(frameId);
     }, [paginaVisivel]);
 
-    // Revela cada item da linha do tempo individualmente, em cascata,
-    // conforme ele entra na área visível do scroll (mesma lógica da missão,
-    // mas aplicada a vários elementos).
     useEffect(() => {
         const pagina = paginaRef.current;
         if (!pagina) return;
@@ -391,9 +371,6 @@ const linhaTempo = [
         return () => observer.disconnect();
     }, []);
 
-    // Acompanha o scroll para saber, a cada momento, qual item da linha do
-    // tempo está de fato visível na tela. Esse item fica em destaque; os
-    // demais ficam apagados/acinzentados (ver .linha-tempo-item-ativo no CSS).
     useEffect(() => {
         const pagina = paginaRef.current;
         if (!pagina) return;
@@ -403,9 +380,6 @@ const linhaTempo = [
         const atualizarAtivo = () => {
             const rectPagina = pagina.getBoundingClientRect();
 
-            // faixa central da tela usada como referência (não a tela inteira):
-            // o item só conta como "visível" pela parte dele que cai dentro
-            // dessa faixa — assim um item curto não ativa cedo demais só por
             // estar inteiro perto da borda de baixo da tela
             const faixaTopo = rectPagina.top + rectPagina.height * 0.35;
             const faixaBaixo = rectPagina.top + rectPagina.height * 0.65;
@@ -480,6 +454,23 @@ const linhaTempo = [
         });
     }, [linhaTempoAtivo]);
 
+    // Anima o crossfade das camadas de fundo com GSAP (em vez de transition
+    // no CSS): a camada que entra ("visivel: true") sobe pra opacidade 1,
+    // a que sai desce pra 0, ao mesmo tempo.
+    useEffect(() => {
+        camadasFundo.forEach((camada, i) => {
+            const el = camadaFundoRefs.current[i];
+            if (!el) return;
+
+            gsap.to(el, {
+                opacity: camada.visivel ? 1 : 0,
+                duration: 1.8,
+                ease: "sine.inOut",
+                overwrite: "auto",
+            });
+        });
+    }, [camadasFundo]);
+
     useEffect(() => {
         const pagina = paginaRef.current;
         const secao = linhaTempoSecaoRef.current;
@@ -528,151 +519,6 @@ const linhaTempo = [
         return () => cancelAnimationFrame(frameId);
     }, [paginaVisivel]);
 
-    // "Scroll-jacking" suave dentro da linha do tempo: enquanto a seção
-    // estiver ocupando a tela, cada scroll (roda do mouse/trackpad ou
-    // arraste no touch) avança ou volta exatamente UM item por vez, com uma
-    // transição extremamente suave (easing customizado via
-    // requestAnimationFrame, não o "smooth" nativo do navegador). Antes do
-    // primeiro item e depois do último o scroll volta a ser livre, para
-    // entrar/sair da seção com naturalidade.
-    useEffect(() => {
-        const pagina = paginaRef.current;
-        const secao = linhaTempoSecaoRef.current;
-        if (!pagina || !secao) return;
-
-        let animando = false;
-        let travaId = null;
-        const DURACAO_MS = 1500;
-
-        // easeInOutCubic — acelera e desacelera suavemente, sem nenhum
-        // solavanco no começo nem no fim do movimento
-        const facilitador = (t) =>
-            t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
-
-        const animarScrollPara = (destino) => {
-            animando = true;
-            const origem = pagina.scrollTop;
-            const distancia = destino - origem;
-            const inicio = performance.now();
-
-            const passo = (agora) => {
-                const decorrido = agora - inicio;
-                const progresso = Math.min(decorrido / DURACAO_MS, 1);
-                pagina.scrollTop = origem + distancia * facilitador(progresso);
-
-                if (progresso < 1) {
-                    requestAnimationFrame(passo);
-                } else {
-                    // pequena folga antes de liberar novos disparos, pra
-                    // absorver eventos de "momentum" residuais do trackpad
-                    travaId = setTimeout(() => { animando = false; }, 120);
-                }
-            };
-            requestAnimationFrame(passo);
-        };
-
-        const indiceMaisProximoDoCentro = () => {
-            const rectPagina = pagina.getBoundingClientRect();
-            const centroPagina = rectPagina.top + rectPagina.height / 2;
-            let menorDistancia = Infinity;
-            let indice = 0;
-
-            linhaTempoItensRef.current.forEach((el, i) => {
-                if (!el) return;
-                const rect = el.getBoundingClientRect();
-                const centroItem = rect.top + rect.height / 2;
-                const distancia = Math.abs(centroItem - centroPagina);
-                if (distancia < menorDistancia) {
-                    menorDistancia = distancia;
-                    indice = i;
-                }
-            });
-
-            return indice;
-        };
-
-        const scrollParaItem = (indice) => {
-            const el = linhaTempoItensRef.current[indice];
-            if (!el) return;
-            const rectPagina = pagina.getBoundingClientRect();
-            const rect = el.getBoundingClientRect();
-            const centroPagina = rectPagina.top + rectPagina.height / 2;
-            const centroItem = rect.top + rect.height / 2;
-            animarScrollPara(pagina.scrollTop + (centroItem - centroPagina));
-        };
-
-        // a seção "conta" como em uso quando parte dela está de fato visível
-        // na área da página — só aí o scroll fica "preso" andando item a item
-        const dentroDaSecao = () => {
-            const rectSecao = secao.getBoundingClientRect();
-            const rectPagina = pagina.getBoundingClientRect();
-            return rectSecao.top < rectPagina.bottom && rectSecao.bottom > rectPagina.top;
-        };
-
-        const tentarAvancar = (direcao) => {
-            const alvo = indiceMaisProximoDoCentro() + direcao;
-
-            // nas pontas (antes do 1º item / depois do último) libera o
-            // scroll normal, pra sair da seção com naturalidade
-            if (alvo < 0 || alvo > linhaTempo.length - 1) return false;
-
-            scrollParaItem(alvo);
-            return true;
-        };
-
-        const aoRodaMouse = (e) => {
-            if (!dentroDaSecao()) return;
-
-            if (animando) {
-                e.preventDefault();
-                return;
-            }
-
-            if (tentarAvancar(e.deltaY > 0 ? 1 : -1)) e.preventDefault();
-        };
-
-        let toqueInicioY = null;
-
-        const aoTocarInicio = (e) => {
-            toqueInicioY = dentroDaSecao() ? e.touches[0].clientY : null;
-        };
-
-        const aoTocarMover = (e) => {
-            if (toqueInicioY === null) return;
-
-            if (animando) {
-                e.preventDefault();
-                return;
-            }
-
-            const yAtual = e.touches[0].clientY;
-            const deslocamento = toqueInicioY - yAtual;
-            const LIMIAR = 40; // px mínimos de arraste pra contar como "um scroll"
-
-            if (Math.abs(deslocamento) > LIMIAR) {
-                if (tentarAvancar(deslocamento > 0 ? 1 : -1)) {
-                    e.preventDefault();
-                    toqueInicioY = yAtual;
-                }
-            }
-        };
-
-        const aoTocarFim = () => { toqueInicioY = null; };
-
-        pagina.addEventListener("wheel", aoRodaMouse, { passive: false });
-        pagina.addEventListener("touchstart", aoTocarInicio, { passive: true });
-        pagina.addEventListener("touchmove", aoTocarMover, { passive: false });
-        pagina.addEventListener("touchend", aoTocarFim, { passive: true });
-
-        return () => {
-            pagina.removeEventListener("wheel", aoRodaMouse);
-            pagina.removeEventListener("touchstart", aoTocarInicio);
-            pagina.removeEventListener("touchmove", aoTocarMover);
-            pagina.removeEventListener("touchend", aoTocarFim);
-            if (travaId) clearTimeout(travaId);
-        };
-    }, [paginaVisivel]);
-
     return (
         <>
             <div ref={cortinaRef} className="cortina" />
@@ -683,12 +529,13 @@ const linhaTempo = [
                 {camadasFundo.map((camada, i) => (
                     <div
                         key={i}
-                        className={"pagina-fundo" + (camada.visivel ? " pagina-fundo-visivel" : "")}
+                        ref={(el) => (camadaFundoRefs.current[i] = el)}
+                        className="pagina-fundo"
                         style={
                             camada.src
                                 ? {
                                       backgroundImage:
-                                          `linear-gradient(rgba(0,0,0,0.712), rgba(0,0,0,0.745)), url(${camada.src})`,
+                                          `linear-gradient(rgba(0,0,0,0.55), rgba(0,0,0,0.75)), url(${camada.src})`,
                                   }
                                 : undefined
                         }
@@ -700,6 +547,7 @@ const linhaTempo = [
                     <span className="botao-voltar-seta">←</span>
                 </button>
 
+                <div className="sobremim-painel" ref={painelPrincipalRef}>
                 <div className="hero" ref={heroRef}>
                     <div className="hero-topo">
                         <div className="hero-nome-wrapper" ref={nomeWrapperRef}>
@@ -714,7 +562,7 @@ const linhaTempo = [
                                 <svg
                                     className="hero-santiago-svg"
                                     viewBox="0 0 330 140"
-                                    preserveAspectRatio="xMinYMid meet"
+                                    preserveAspectRatio="xMidYMid meet"
                                 >
                                     <text x="6" y="105" className="hero-santiago-texto">
                                         Santiago
@@ -814,6 +662,7 @@ const linhaTempo = [
                             </div>
                         </div>
                     ))}
+                </div>
                 </div>
             </div>
         </>

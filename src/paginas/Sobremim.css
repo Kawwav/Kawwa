@@ -38,11 +38,6 @@
     display: flex;
     flex-direction: column;
     visibility: hidden;
-    /* padding-bottom generoso (em vh) para garantir que o ÚLTIMO item da
-       linha do tempo tenha espaço de sobra pra "subir" até a faixa central
-       da tela (35%-65%) antes do scroll acabar — sem isso, os últimos itens
-       nunca cruzam essa faixa, nunca viram "ativo" e o texto deles nunca
-       fica visível (ver .linha-tempo-item-ativo no CSS). */
     padding: 0 6vw 70vh;
     box-sizing: border-box;
 }
@@ -61,12 +56,10 @@ body.pagina-aberta { overflow: hidden; }
     background-size: cover;
     background-position: center;
     opacity: 0;
-    transition: opacity 1s ease;
     pointer-events: none;
-}
-
-.pagina-fundo-visivel {
-    opacity: 1;
+    will-change: opacity;
+    transform: translateZ(0);
+    backface-visibility: hidden;
 }
 
 /* ── BOTÃO VOLTAR ── */
@@ -101,6 +94,13 @@ body.pagina-aberta { overflow: hidden; }
 .botao-voltar:hover .botao-voltar-seta {
     transform: translateX(-3px);
     color: #fff;
+}
+
+/* ── PAINEL PRINCIPAL ── */
+.sobremim-painel {
+    position: relative;
+    z-index: 1;
+    width: 100%;
 }
 
 /* ── HERO ── */
@@ -309,6 +309,12 @@ body.pagina-aberta { overflow: hidden; }
         min-height: 58vh;
         padding-top: 70px;
         padding-bottom: 24px;
+        align-items: center;
+    }
+
+    .hero-topo {
+        width: 100%;
+        align-items: center;
     }
 
     .hero-nome-wrapper {
@@ -518,6 +524,11 @@ body.pagina-aberta { overflow: hidden; }
                 transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+/* o último item não precisa de espaço extra depois dele */
+.linha-tempo-item:last-child {
+    margin-bottom: 0;
+}
+
 .linha-tempo-item-visivel {
     opacity: 1;
     transform: translateY(0);
@@ -610,6 +621,10 @@ body.pagina-aberta { overflow: hidden; }
     padding-bottom: 292px;
 }
 
+.linha-tempo-item:last-child .linha-tempo-descricao-col {
+    padding-bottom: 400px;
+}
+
 .linha-tempo-titulo {
     font-family: 'DM Sans', sans-serif;
     font-weight: 700;
@@ -642,6 +657,10 @@ body.pagina-aberta { overflow: hidden; }
         margin-bottom: 100px;
     }
 
+    .linha-tempo-item:last-child {
+        margin-bottom: 0;
+    }
+
     .linha-tempo-ano {
         font-size: 24px;
     }
@@ -654,6 +673,10 @@ body.pagina-aberta { overflow: hidden; }
 
     .linha-tempo-descricao-col {
         padding-bottom: 116px;
+    }
+
+    .linha-tempo-item:last-child .linha-tempo-descricao-col {
+        padding-bottom: 0;
     }
 
     .linha-tempo-titulo {
