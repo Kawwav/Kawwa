@@ -38,7 +38,7 @@
     display: flex;
     flex-direction: column;
     visibility: hidden;
-    padding: 0 6vw 70vh;
+    padding: 0 6vw 0;
     box-sizing: border-box;
 }
 body.pagina-aberta { overflow: hidden; }
@@ -297,7 +297,7 @@ body.pagina-aberta { overflow: hidden; }
 
 @media (max-width: 768px) {
     .pagina {
-        padding: 0 5vw 70vh;
+        padding: 0 5vw 0;
     }
 
     .botao-voltar {
@@ -352,7 +352,7 @@ body.pagina-aberta { overflow: hidden; }
 
 @media (max-width: 400px) {
     .pagina {
-        padding: 0 4vw 70vh;
+        padding: 0 4vw 0;
     }
 }
 

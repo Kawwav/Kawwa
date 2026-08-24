@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import "./Sobremim.css";
+import Jogos from "./jogos";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -663,6 +664,8 @@ const linhaTempo = [
                         </div>
                     ))}
                 </div>
+
+                <Jogos />
                 </div>
             </div>
         </>

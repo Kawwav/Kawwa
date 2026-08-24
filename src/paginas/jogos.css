@@ -1,0 +1,112 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;700;800&display=swap');
+
+.jogos-secao {
+    position: relative;
+    width: 100vw;
+    margin: -180px calc(-50vw + 50%) 0;
+    min-height: 100vh;
+    overflow: hidden;
+    z-index: 10;
+}
+
+@media (max-width: 768px) {
+    .jogos-secao {
+        margin-top: -90px;
+        border-radius: 24px 24px 0 0;
+        box-shadow: 0 -24px 48px rgba(0, 0, 0, 0.5);
+    }
+}
+
+.jogos-mascara {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+    will-change: clip-path;
+}
+
+.jogos-fundo {
+    position: absolute;
+    inset: -20px;
+    background-size: cover;
+    background-position: center;
+    filter: blur(3px) brightness(0.6);
+    z-index: 0;
+}
+
+.jogos-modelos {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0; 
+}
+
+
+
+.jogos-modelo {
+    position: relative;
+    height: 100%;
+    width: 60%; /* área ampla o suficiente para o modelo não ser cortado */
+    max-width: 700px;
+    background: transparent;
+    opacity: 0;
+    will-change: opacity, transform;
+}
+
+.jogos-modelo canvas {
+    background: transparent !important;
+    position: relative;
+    z-index: 2; /* modelo 3D na frente do título */
+}
+
+.jogos-favoritos-titulo {
+    position: absolute;
+    top: 24px;
+    left: 50%;
+    transform: translate(-50%, 0);
+    z-index: 5;
+    margin: 0;
+    opacity: 0; /* controlado via JS conforme o scroll (só aparece com o efeito totalmente aberto) */
+    font-family: 'Block Berthold', sans-serif !important;
+    font-size: 56px;
+    color: #fff;
+    letter-spacing: 0.05em;
+    text-align: center;
+    pointer-events: none;
+    white-space: nowrap;
+    will-change: opacity, transform;
+}
+
+@media (max-width: 768px) {
+    .jogos-favoritos-titulo {
+        font-size: 30px;
+        top: 14px;
+    }
+}
+
+.jogos-fallout-titulo {
+    position: absolute;
+    top: 42%; 
+    left: 50%;
+    transform: translate(-50%, -100%); 
+    z-index: 1; /* atrás do modelo 3D */
+    margin: 0;
+    font-family: 'Overseer', sans-serif !important;
+    font-style: italic !important;
+    font-size: 248px;
+    color: #fff;
+    letter-spacing: 0.05em;
+    text-align: center;
+    pointer-events: none;
+    white-space: nowrap;
+}
+
+@media (max-width: 768px) {
+    .jogos-fallout-titulo {
+        font-size: 28px;
+        top: 30%;
+    }
+}
