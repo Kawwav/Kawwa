@@ -7,6 +7,13 @@ import "./jogos.css";
 
 gsap.registerPlugin(ScrollTrigger);
 
+// O assasins.glb foi otimizado com o gltf-transform (simplificação de malha +
+// texturas WebP + compressão de geometria via EXT_meshopt_compression),
+// caindo de ~12,9 MB pra ~944 KB. O useGLTF do drei já vem com o decoder do
+// Meshopt embutido e ativado por padrão (3º parâmetro "useMeshopt", default
+// true) — não precisa instalar nada nem registrar decoder manualmente, só
+// trocar o arquivo .glb mesmo.
+
 const AMPLITUDE_X = 0.3; // quanto o modelo inclina no eixo X ao mover o mouse verticalmente
 const AMPLITUDE_Y = 0.5; // quanto o modelo gira no eixo Y ao mover o mouse horizontalmente
 const SUAVIZACAO = 0.05; // velocidade de interpolação (0 a 1) — menor = mais suave/lento

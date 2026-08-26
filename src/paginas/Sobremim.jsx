@@ -32,40 +32,20 @@ export default function Sobremim({ onClose }) {
     const pontoRefs = useRef([]);
     const [linhaTempoVisiveis, setLinhaTempoVisiveis] = useState([]);
     const [linhaTempoAtivo, setLinhaTempoAtivo] = useState(-1);
-
-    const [camadasFundo, setCamadasFundo] = useState([
-        { src: null, visivel: false },
-        { src: null, visivel: false },
-    ]);
-    const camadaAtivaRef = useRef(0);
-    const camadaFundoRefs = useRef([]);
     const missaoTexto =
         "Minha missão é desenvolver sites e experiências digitais que fortaleçam marcas, gerem resultados e ajudem empresas a crescer com design moderno, estratégia e tecnologia.";
-const BASE = import.meta.env.BASE_URL;
 
 const linhaTempo = [
-    { ano: "01.", titulo: "Descoberta", descricao: "Entendo o negócio, seus objetivos e o que precisa ser resolvido.", imagem: `${BASE}item1.webp` },
-    { ano: "02.", titulo: "Estratégia", descricao: "Defino a estrutura, funcionalidades e a melhor experiência para o usuário.", imagem: `${BASE}item2.webp` },
-    { ano: "03.", titulo: "Design", descricao: "Crio uma identidade visual moderna, intuitiva e alinhada à marca.", imagem: `${BASE}item3.webp` },
-    { ano: "04.", titulo: "Desenvolvimento", descricao: "Transformo o projeto em um site ou sistema funcional, rápido e responsivo.", imagem: `${BASE}item4.webp` },
-    { ano: "05.", titulo: "Entrega e evolução", descricao: "Testo, ajusto e entrego a solução pronta para crescer junto com o negócio.", imagem: `${BASE}item5.webp` },
+    { ano: "01.", titulo: "Descoberta", descricao: "Entendo o negócio, seus objetivos e o que precisa ser resolvido." },
+    { ano: "02.", titulo: "Estratégia", descricao: "Defino a estrutura, funcionalidades e a melhor experiência para o usuário." },
+    { ano: "03.", titulo: "Design", descricao: "Crio uma identidade visual moderna, intuitiva e alinhada à marca." },
+    { ano: "04.", titulo: "Desenvolvimento", descricao: "Transformo o projeto em um site ou sistema funcional, rápido e responsivo." },
+    { ano: "05.", titulo: "Entrega e evolução", descricao: "Testo, ajusto e entrego a solução pronta para crescer junto com o negócio." },
 ];
 
     useEffect(() => {
         document.body.classList.add("pagina-aberta");
         return () => document.body.classList.remove("pagina-aberta");
-    }, []);
-
-    // Pré-carrega as imagens da linha do tempo assim que a página monta.
-    // Sem isso, a troca de imagem no crossfade força o navegador a
-    // decodificar o arquivo bem no momento da transição, o que é a causa
-    // mais comum da "travada" ao mudar de item.
-    useEffect(() => {
-        linhaTempo.forEach((item) => {
-            const img = new Image();
-            img.src = item.imagem;
-        });
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     useEffect(() => {
@@ -428,50 +408,6 @@ const linhaTempo = [
         };
     }, [paginaVisivel]);
 
-    // Troca a imagem de fundo conforme o item ativo da linha do tempo muda.
-    // Usa a camada "inativa" para carregar a nova imagem e a traz para
-    // frente; a camada anterior fica por baixo com opacidade zero.
-    useEffect(() => {
-        const imagem = linhaTempoAtivo >= 0 ? linhaTempo[linhaTempoAtivo]?.imagem ?? null : null;
-
-        setCamadasFundo((prev) => {
-            const ativa = camadaAtivaRef.current;
-
-            if (!imagem) {
-                if (!prev[ativa].visivel) return prev;
-                const proximo = [...prev];
-                proximo[ativa] = { ...proximo[ativa], visivel: false };
-                return proximo;
-            }
-
-            if (prev[ativa].src === imagem && prev[ativa].visivel) return prev;
-
-            const outra = ativa === 0 ? 1 : 0;
-            const proximo = [...prev];
-            proximo[outra] = { src: imagem, visivel: true };
-            proximo[ativa] = { ...proximo[ativa], visivel: false };
-            camadaAtivaRef.current = outra;
-            return proximo;
-        });
-    }, [linhaTempoAtivo]);
-
-    // Anima o crossfade das camadas de fundo com GSAP (em vez de transition
-    // no CSS): a camada que entra ("visivel: true") sobe pra opacidade 1,
-    // a que sai desce pra 0, ao mesmo tempo.
-    useEffect(() => {
-        camadasFundo.forEach((camada, i) => {
-            const el = camadaFundoRefs.current[i];
-            if (!el) return;
-
-            gsap.to(el, {
-                opacity: camada.visivel ? 1 : 0,
-                duration: 1.8,
-                ease: "sine.inOut",
-                overwrite: "auto",
-            });
-        });
-    }, [camadasFundo]);
-
     useEffect(() => {
         const pagina = paginaRef.current;
         const secao = linhaTempoSecaoRef.current;
@@ -527,23 +463,6 @@ const linhaTempo = [
                 ref={paginaRef}
                 className={"pagina" + (paginaVisivel ? " pagina-visivel" : "")}
             >
-                {camadasFundo.map((camada, i) => (
-                    <div
-                        key={i}
-                        ref={(el) => (camadaFundoRefs.current[i] = el)}
-                        className="pagina-fundo"
-                        style={
-                            camada.src
-                                ? {
-                                      backgroundImage:
-                                          `linear-gradient(rgba(0,0,0,0.55), rgba(0,0,0,0.75)), url(${camada.src})`,
-                                  }
-                                : undefined
-                        }
-                        aria-hidden="true"
-                    />
-                ))}
-
                 <button className="botao-voltar" onClick={handleVoltar}>
                     <span className="botao-voltar-seta">←</span>
                 </button>
