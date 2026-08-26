@@ -1,17 +1,47 @@
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;700;800&display=swap');
 
-.jogos-secao {
-    position: relative;
+/* Wrapper só cuida da "sangria" (sobrepor a seção anterior). O GSAP nunca
+   deve pinar um elemento com margin negativa: o spacer que ele insere ao
+   pinar não sabe lidar bem com isso e gera aqueles vãos pretos piscando.
+   Por isso a margin negativa fica aqui fora, e quem é pinado (.jogos-secao)
+   é um bloco "normal", sem margin. */
+.jogos-secao-wrapper {
     width: 100vw;
     margin: -180px calc(-50vw + 50%) 0;
-    min-height: 100vh;
+}
+
+@media (max-width: 768px) {
+    .jogos-secao-wrapper {
+        margin-top: -90px;
+    }
+}
+
+/* Wrapper "trilho": mais alto que a tela pra dar espaço de scroll às fases
+   2, 3, 4, 5 e 6. A altura exata é definida via JS (mesma constante usada no
+   ScrollTrigger), então não tem número mágico duplicado aqui. */
+.jogos-secao-trilho {
+    position: relative;
+    width: 100%;
+}
+
+/* Gruda no topo do scroller (.pagina) via CSS nativo — nada de pin do GSAP.
+   Isso evita todo aquele tipo de bug de spacer/flicker que pin + scroller
+   customizado costuma causar. O GSAP só lê o scroll pra animar valores. */
+.jogos-secao {
+    position: sticky;
+    top: 0;
+    width: 100%;
+    height: 100vh;
     overflow: hidden;
     z-index: 10;
 }
 
+/* No mobile, cantos arredondados e sombra ficam na própria seção visível
+   (.jogos-secao, que já tem overflow:hidden), NÃO no wrapper. Se o wrapper
+   tiver overflow:hidden ele vira o scrollport do sticky e "desliga" o
+   travamento — a seção passa direto e a tela fica preta depois do Fallout. */
 @media (max-width: 768px) {
     .jogos-secao {
-        margin-top: -90px;
         border-radius: 24px 24px 0 0;
         box-shadow: 0 -24px 48px rgba(0, 0, 0, 0.5);
     }
@@ -25,29 +55,56 @@
     will-change: clip-path;
 }
 
-.jogos-fundo {
+/* Fundo agora é feito de três "camadas" (Fallout, Minecraft e Assassin's
+   Creed), cada uma recortada em N fatias verticais. Na fase 4, as fatias do
+   Fallout sobem e saem, e as do Minecraft sobem e entram por baixo, cada uma
+   com um pequeno atraso (stagger) — criando o efeito de "cortina" abrindo da
+   direita pra esquerda. Na fase 6 o mesmo acontece: as do Minecraft sobem e
+   saem, e as do Assassin's sobem e entram. O truque de cada fatia mostrar
+   só o pedaço certo da imagem: a fatia (.jogos-fundo-fatia) tem largura 1/N
+   do contêiner e overflow hidden; dentro dela, .jogos-fundo-fatia-img é
+   largura N×100% (ou seja, do tamanho do contêiner inteiro) deslocada pra
+   esquerda em i×100% (da sua própria largura) — assim o background-size:
+   cover dela cobre o contêiner inteiro, mas só a fatia i fica visível. */
+.jogos-fundo-camada {
     position: absolute;
     inset: -20px;
+    z-index: 0;
+    display: flex;
+    overflow: hidden;
+}
+
+.jogos-fundo-fatia {
+    position: relative;
+    flex: 1 1 0;
+    height: 100%;
+    overflow: hidden;
+    will-change: transform;
+}
+
+.jogos-fundo-fatia-img {
+    position: absolute;
+    top: 0;
+    height: 100%;
     background-size: cover;
     background-position: center;
     filter: blur(3px) brightness(0.6);
-    z-index: 0;
 }
 
+/* Os três modelos (Fallout, Minecraft e Assassin's Creed) ficam sobrepostos
+   no mesmo lugar — quem centraliza cada um agora é o próprio JS
+   (transform: translate(-50%, ...)), já que nas trocas um sobe pra sair
+   enquanto o outro sobe pra entrar por baixo, exatamente na mesma posição. */
 .jogos-modelos {
     position: absolute;
     inset: 0;
     z-index: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0; 
 }
 
-
-
 .jogos-modelo {
-    position: relative;
+    position: absolute;
+    top: 0;
+    left: 50%;
     height: 100%;
     width: 60%; /* área ampla o suficiente para o modelo não ser cortado */
     max-width: 700px;
@@ -56,10 +113,20 @@
     will-change: opacity, transform;
 }
 
+/* Notebook (telas ~1366/1440, entre o mobile e o desktop de 1920): modelo
+   um pouco menor pra não colar nos títulos/descrições, que também ficam
+   mais discretos nessa faixa. */
+@media (min-width: 769px) and (max-width: 1440px) {
+    .jogos-modelo {
+        width: 52%;
+        max-width: 520px;
+    }
+}
+
 .jogos-modelo canvas {
     background: transparent !important;
     position: relative;
-    z-index: 2; /* modelo 3D na frente do título */
+    z-index: 2; /* modelo 3D na frente dos títulos */
 }
 
 .jogos-favoritos-titulo {
@@ -71,7 +138,10 @@
     margin: 0;
     opacity: 0; /* controlado via JS conforme o scroll (só aparece com o efeito totalmente aberto) */
     font-family: 'Block Berthold', sans-serif !important;
-    font-size: 56px;
+    /* Tipografia fluida: escala suavemente com a largura da tela (vw),
+       em vez de pular entre valores fixos nos breakpoints. Mínimo 24px,
+       máximo 56px. */
+    font-size: clamp(24px, calc(23.69px + 1.68vw), 56px);
     color: #fff;
     letter-spacing: 0.05em;
     text-align: center;
@@ -80,9 +150,14 @@
     will-change: opacity, transform;
 }
 
+@media (min-width: 769px) and (max-width: 1440px) {
+    .jogos-favoritos-titulo {
+        top: 18px;
+    }
+}
+
 @media (max-width: 768px) {
     .jogos-favoritos-titulo {
-        font-size: 30px;
         top: 14px;
     }
 }
@@ -96,7 +171,10 @@
     margin: 0;
     font-family: 'Overseer', sans-serif !important;
     font-style: italic !important;
-    font-size: 248px;
+    /* Tipografia fluida: escala suavemente com a largura da tela (vw),
+       em vez de pular entre valores fixos nos breakpoints. Mínimo 110px,
+       máximo 248px. */
+    font-size: clamp(110px, calc(76.51px + 8.93vw), 248px);
     color: #fff;
     letter-spacing: 0.05em;
     text-align: center;
@@ -104,9 +182,225 @@
     white-space: nowrap;
 }
 
+@media (min-width: 769px) and (max-width: 1440px) {
+    .jogos-fallout-titulo {
+        top: 40%;
+    }
+}
+
 @media (max-width: 768px) {
     .jogos-fallout-titulo {
-        font-size: 28px;
         top: 30%;
+    }
+}
+
+/* Mesma posição do título do Fallout — na fase 4, "MINECRAFT" sobe letra
+   por letra por baixo e ocupa exatamente esse lugar. O elemento em si fica
+   estático; quem se move é cada <span> de letra (.jogos-letra), via JS. */
+.jogos-minecraft-titulo {
+    position: absolute;
+    top: 31%;
+    left: 50%;
+    transform: translate(-50%, -100%);
+    z-index: 1; /* atrás do modelo 3D */
+    margin: 0;
+    font-family: 'Minecrafter', sans-serif !important;
+    /* Tipografia fluida: escala suavemente com a largura da tela (vw),
+       em vez de pular entre valores fixos nos breakpoints. Mínimo 70px,
+       máximo 220px. */
+    font-size: clamp(70px, calc(33.59px + .71vw), 220px);
+    color: #fff;
+    letter-spacing: 0.02em;
+    text-align: center;
+    pointer-events: none;
+    white-space: nowrap;
+}
+
+@media (min-width: 769px) and (max-width: 1440px) {
+    .jogos-minecraft-titulo {
+        top: 29%;
+    }
+}
+
+@media (max-width: 768px) {
+    .jogos-minecraft-titulo {
+        top: 30%;
+    }
+}
+
+/* Mesma posição do título do Minecraft — na fase 6, "ASSASSINS CREED"
+   sobe letra por letra por baixo e ocupa exatamente esse lugar. O texto é
+   mais longo que "MINECRAFT", então o tamanho da fonte é menor pra caber
+   na tela. O elemento em si fica estático; quem se move é cada <span> de
+   letra (.jogos-letra), via JS. */
+.jogos-assassins-titulo {
+    position: absolute;
+    top: 31%;
+    left: 50%;
+    transform: translate(-50%, -100%);
+    z-index: 1; /* atrás do modelo 3D */
+    margin: 0;
+    font-family: 'Assassin Creed', sans-serif !important;
+    /* Tipografia fluida: escala suavemente com a largura da tela (vw),
+       em vez de pular entre valores fixos nos breakpoints. Mínimo 60px,
+       máximo 140px. */
+    font-size: clamp(60px, calc(40.58px + 5.18vw), 140px);
+    color: #fff;
+    letter-spacing: 0.02em;
+    text-align: center;
+    pointer-events: none;
+    white-space: nowrap;
+}
+
+@media (min-width: 769px) and (max-width: 1440px) {
+    .jogos-assassins-titulo {
+        top: 29%;
+    }
+}
+
+@media (max-width: 768px) {
+    .jogos-assassins-titulo {
+        top: 30%;
+    }
+}
+
+/* Cada letra dos títulos "FALLOUT"/"MINECRAFT"/"ASSASSINS CREED" é animada
+   individualmente (translateY + opacity) via JS nas fases 4 e 6, criando o
+   efeito de subir/entrar letra por letra. display: inline-block é
+   necessário pro transform funcionar por letra sem quebrar o alinhamento do
+   texto. */
+.jogos-letra {
+    display: inline-block;
+    will-change: transform, opacity;
+}
+
+.jogos-descricao {
+    position: absolute;
+    top: 50%;
+    right: 8%;
+    z-index: 3;
+    max-width: 360px;
+    text-align: left;
+    color: #fff;
+    font-family: 'Overseer', sans-serif !important;
+    opacity: 0;
+    pointer-events: none;
+    will-change: opacity, transform;
+}
+
+.jogos-descricao p {
+    margin: 0;
+    font-size: 33px;
+    line-height: 1.5;
+}
+
+@media (min-width: 769px) and (max-width: 1440px) {
+    .jogos-descricao {
+        right: 7%;
+        max-width: 300px;
+    }
+
+    .jogos-descricao p {
+        font-size: 22px;
+    }
+}
+
+@media (max-width: 768px) {
+    .jogos-descricao {
+        right: 6%;
+        max-width: 60%;
+    }
+
+    .jogos-descricao p {
+        font-size: 14px;
+    }
+}
+
+/* Espelho de .jogos-descricao: mesma ideia, mas do lado esquerdo e com a
+   fonte do Minecraft. Aparece na fase 5, quando o modelo já parou na
+   posição padrão à direita. */
+.jogos-descricao-minecraft {
+    position: absolute;
+    top: 52%;
+    left: 16%;
+    z-index: 3;
+    max-width: 360px;
+    text-align: left;
+    color: #fff;
+    font-family: 'Minecrafter', sans-serif !important;
+    opacity: 0;
+    pointer-events: none;
+    will-change: opacity, transform;
+}
+
+.jogos-descricao-minecraft p {
+    margin: 0;
+    font-size: 28px;
+    line-height: 1.5;
+}
+
+@media (min-width: 769px) and (max-width: 1440px) {
+    .jogos-descricao-minecraft {
+        left: 8%;
+        max-width: 300px;
+    }
+
+    .jogos-descricao-minecraft p {
+        font-size: 19px;
+    }
+}
+
+@media (max-width: 768px) {
+    .jogos-descricao-minecraft {
+        left: 6%;
+        max-width: 60%;
+    }
+
+    .jogos-descricao-minecraft p {
+        font-size: 13px;
+    }
+}
+
+/* Espelho de .jogos-descricao (lado direito), com a fonte do Assassin's
+   Creed. Aparece na fase 6, quando o modelo já subiu e parou no centro. */
+.jogos-descricao-assassins {
+    position: absolute;
+    top: 50%;
+    right: 8%;
+    z-index: 3;
+    max-width: 360px;
+    text-align: left;
+    color: #fff;
+    font-family: 'Assassin Creed', sans-serif !important;
+    opacity: 0;
+    pointer-events: none;
+    will-change: opacity, transform;
+}
+
+.jogos-descricao-assassins p {
+    margin: 0;
+    font-size: 28px;
+    line-height: 1.5;
+}
+
+@media (min-width: 769px) and (max-width: 1440px) {
+    .jogos-descricao-assassins {
+        right: 7%;
+        max-width: 300px;
+    }
+
+    .jogos-descricao-assassins p {
+        font-size: 19px;
+    }
+}
+
+@media (max-width: 768px) {
+    .jogos-descricao-assassins {
+        right: 6%;
+        max-width: 60%;
+    }
+
+    .jogos-descricao-assassins p {
+        font-size: 13px;
     }
 }

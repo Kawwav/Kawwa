@@ -689,3 +689,151 @@ body.pagina-aberta { overflow: hidden; }
         line-height: 1.5;
     }
 }
+
+/* ── FALLOUT: imagem cilíndrica que cresce até tela cheia ──
+   .fallout-secao é o "trilho" de rolagem (mais alto que a tela) para dar
+   espaço ao efeito; .fallout-secao-sticky gruda no topo enquanto a seção
+   passa, fazendo a imagem crescer visualmente na mesma posição, como se
+   estivesse "vindo pra frente" até tomar a tela toda. */
+.fallout-secao {
+    position: relative;
+    width: 100%;
+    height: 260vh;
+    margin: 220px 0 0;
+}
+
+.fallout-secao-sticky {
+    position: sticky;
+    top: 0;
+    left: 0;
+    width: calc(100% + 12vw);
+    margin-left: -6vw;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.fallout-imagem-wrapper {
+    position: relative;
+    width: 300px;
+    height: 560px;
+    max-width: none;
+    overflow: hidden;
+    border-radius: 150px;
+    will-change: width, height, border-radius;
+    box-shadow: 0 40px 100px rgba(0, 0, 0, 0.5);
+}
+
+.fallout-imagem {
+    position: absolute;
+    inset: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: brightness(0.6) blur(3px);
+}
+
+/* ── overlay: título "JOGOS FAVORITOS" + "FALLOUT" + modelo 3D ──
+   só ficam visíveis (opacidade controlada via JS) quando a imagem já
+   está em tela cheia */
+.fallout-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    will-change: opacity;
+}
+
+.fallout-titulo-favoritos {
+    position: absolute;
+    top: 24px;
+    left: 50%;
+    transform: translate(-50%, 0);
+    z-index: 5;
+    margin: 0;
+    font-family: 'Block Berthold', sans-serif;
+    font-size: 56px;
+    color: #fff;
+    letter-spacing: 0.05em;
+    text-align: center;
+    pointer-events: none;
+    white-space: nowrap;
+}
+
+.fallout-modelos {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.fallout-modelo {
+    position: relative;
+    height: 100%;
+    width: 60%;
+    max-width: 700px;
+}
+
+.fallout-titulo-fallout {
+    position: absolute;
+    top: 36%;
+    left: 50%;
+    transform: translate(-50%, -100%);
+    z-index: 1; /* atrás do modelo 3D */
+    margin: 0;
+    font-family: 'Overseer', sans-serif;
+    font-style: italic;
+    font-size: 215px;
+    color: #fff;
+    letter-spacing: 0.05em;
+    text-align: center;
+    pointer-events: none;
+    white-space: nowrap;
+}
+
+.fallout-modelo-canvas {
+    position: relative;
+    z-index: 2; /* modelo 3D na frente do título FALLOUT */
+    width: 100%;
+    height: 100%;
+}
+
+.fallout-modelo-canvas canvas {
+    background: transparent !important;
+}
+
+@media (max-width: 768px) {
+    .fallout-secao {
+        height: 220vh;
+        margin-top: 140px;
+    }
+
+    .fallout-imagem-wrapper {
+        width: 190px;
+        height: 340px;
+        border-radius: 95px;
+    }
+
+    .fallout-titulo-favoritos {
+        font-size: 28px;
+        top: 14px;
+    }
+
+    .fallout-titulo-fallout {
+        font-size: 40px;
+        top: 34%;
+    }
+
+    .fallout-modelo {
+        width: 85%;
+    }
+}
