@@ -123,6 +123,16 @@
     }
 }
 
+/* No mobile o container é bem mais estreito, então a % de largura sozinha
+   já resulta num modelo pequeno mesmo sem o max-width entrar em jogo —
+   aumentamos a % pra ele ocupar mais espaço da tela. */
+@media (max-width: 768px) {
+    .jogos-modelo {
+        width: 90%;
+        max-width: none;
+    }
+}
+
 .jogos-modelo canvas {
     background: transparent !important;
     position: relative;
@@ -208,7 +218,7 @@
     /* Tipografia fluida: escala suavemente com a largura da tela (vw),
        em vez de pular entre valores fixos nos breakpoints. Mínimo 70px,
        máximo 220px. */
-    font-size: clamp(70px, calc(33.59px + .71vw), 220px);
+    font-size: clamp(70px, calc(33.59px + 9.71vw), 220px);
     color: #fff;
     letter-spacing: 0.02em;
     text-align: center;
@@ -290,8 +300,12 @@
 
 .jogos-descricao p {
     margin: 0;
-    font-size: 33px;
+    /* Tipografia fluida: no mobile o texto ficava minúsculo (14px) e some
+       no meio do fundo. Agora o mínimo é bem maior (22px) e escala suave
+       até o tamanho de desktop, sempre com sombra pra garantir contraste. */
+    font-size: clamp(22px, calc(19.33px + 0.71vw), 33px);
     line-height: 1.5;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.75), 0 0 2px rgba(0, 0, 0, 0.6);
 }
 
 @media (min-width: 769px) and (max-width: 1440px) {
@@ -299,20 +313,12 @@
         right: 7%;
         max-width: 300px;
     }
-
-    .jogos-descricao p {
-        font-size: 22px;
-    }
 }
 
 @media (max-width: 768px) {
     .jogos-descricao {
-        right: 6%;
-        max-width: 60%;
-    }
-
-    .jogos-descricao p {
-        font-size: 14px;
+        right: 3%;
+        max-width: 42%;
     }
 }
 
@@ -335,8 +341,10 @@
 
 .jogos-descricao-minecraft p {
     margin: 0;
-    font-size: 28px;
+    /* Tipografia fluida: mínimo bem maior no mobile (20px, era 13px). */
+    font-size: clamp(20px, calc(18.06px + 0.52vw), 28px);
     line-height: 1.5;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.75), 0 0 2px rgba(0, 0, 0, 0.6);
 }
 
 @media (min-width: 769px) and (max-width: 1440px) {
@@ -344,20 +352,12 @@
         left: 8%;
         max-width: 300px;
     }
-
-    .jogos-descricao-minecraft p {
-        font-size: 19px;
-    }
 }
 
 @media (max-width: 768px) {
     .jogos-descricao-minecraft {
-        left: 6%;
-        max-width: 60%;
-    }
-
-    .jogos-descricao-minecraft p {
-        font-size: 13px;
+        left: 3%;
+        max-width: 42%;
     }
 }
 
@@ -379,8 +379,10 @@
 
 .jogos-descricao-assassins p {
     margin: 0;
-    font-size: 28px;
+    /* Tipografia fluida: mínimo bem maior no mobile (20px, era 13px). */
+    font-size: clamp(20px, calc(18.06px + 0.52vw), 28px);
     line-height: 1.5;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.75), 0 0 2px rgba(0, 0, 0, 0.6);
 }
 
 @media (min-width: 769px) and (max-width: 1440px) {
@@ -388,19 +390,11 @@
         right: 7%;
         max-width: 300px;
     }
-
-    .jogos-descricao-assassins p {
-        font-size: 19px;
-    }
 }
 
 @media (max-width: 768px) {
     .jogos-descricao-assassins {
-        right: 6%;
-        max-width: 60%;
-    }
-
-    .jogos-descricao-assassins p {
-        font-size: 13px;
+        right: 3%;
+        max-width: 42%;
     }
 }

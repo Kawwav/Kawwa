@@ -141,15 +141,41 @@ export default function Jogos() {
         const secao = secaoRef.current;
         if (!secao) return;
 
-        const aoMoverMouse = (e) => {
+        // Converte uma coordenada de tela (clientX/clientY, venha de mouse ou
+        // de dedo) pra coordenadas normalizadas (-1 a 1) relativas ao centro
+        // da seção — mesma conta usada tanto pro mouse quanto pro touch.
+        const atualizarPosicao = (clientX, clientY) => {
             const rect = secao.getBoundingClientRect();
-            const x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
-            const y = ((e.clientY - rect.top) / rect.height) * 2 - 1;
+            const x = ((clientX - rect.left) / rect.width) * 2 - 1;
+            const y = ((clientY - rect.top) / rect.height) * 2 - 1;
             mouseRef.current = { x, y };
         };
 
+        const aoMoverMouse = (e) => {
+            atualizarPosicao(e.clientX, e.clientY);
+        };
+
+        // No touch, quem substitui o "mousemove" é o "touchmove" (só dispara
+        // enquanto o dedo está na tela, exatamente durante o arrasto/esfrega).
+        // O touchstart atualiza a posição assim que o dedo encosta, pra o
+        // modelo não "pular" da última posição do mouse pro ponto do toque.
+        const aoTocar = (e) => {
+            const toque = e.touches[0];
+            if (!toque) return;
+            atualizarPosicao(toque.clientX, toque.clientY);
+        };
+
         window.addEventListener("mousemove", aoMoverMouse);
-        return () => window.removeEventListener("mousemove", aoMoverMouse);
+        // passive: true porque só lemos a posição do dedo, sem bloquear o
+        // scroll da página (o scroll continua funcionando normalmente).
+        window.addEventListener("touchstart", aoTocar, { passive: true });
+        window.addEventListener("touchmove", aoTocar, { passive: true });
+
+        return () => {
+            window.removeEventListener("mousemove", aoMoverMouse);
+            window.removeEventListener("touchstart", aoTocar);
+            window.removeEventListener("touchmove", aoTocar);
+        };
     }, []);
 
     useEffect(() => {
