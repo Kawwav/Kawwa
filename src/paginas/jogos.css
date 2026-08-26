@@ -235,6 +235,12 @@
 @media (max-width: 768px) {
     .jogos-minecraft-titulo {
         top: 30%;
+        /* No mobile o tamanho da fonte base (clamp acima) ainda ficava
+           grande pro gosto — essa regra sobrescreve só o font-size dentro
+           desse breakpoint, ~20% menor em toda a faixa mobile, sem afetar
+           notebook/desktop. Mínimo 56px, máximo 86px (era 70/108 nessa
+           mesma faixa de largura). */
+        font-size: clamp(56px, calc(27.39px + 7.63vw), 86px);
     }
 }
 

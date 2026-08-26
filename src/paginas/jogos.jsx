@@ -14,6 +14,7 @@ const STAGGER_LETRAS = 0.055;
 const NUM_FATIAS_FUNDO = 10;
 const STAGGER_FATIAS_FUNDO = 0.06;
 const clamp01 = (v) => Math.min(Math.max(v, 0), 1);
+const clampSigned = (v) => Math.min(Math.max(v, -1), 1); // limita entre -1 e 1 (giro do celular)
 function Modelo({ caminho, mouseRef, giroRef, rotacaoBaseInicial }) {
     const { scene } = useGLTF(caminho);
     const grupoRef = useRef();
@@ -141,6 +142,11 @@ export default function Jogos() {
         const secao = secaoRef.current;
         if (!secao) return;
 
+        // Detecta mobile pela largura da viewport, mesmo critério usado no
+        // resto do componente (obterEstadoInicial). Recalculado a cada
+        // chamada porque o usuário pode girar o aparelho ou redimensionar.
+        const ehMobile = () => window.innerWidth <= 768;
+
         // Converte uma coordenada de tela (clientX/clientY, venha de mouse ou
         // de dedo) pra coordenadas normalizadas (-1 a 1) relativas ao centro
         // da seção — mesma conta usada tanto pro mouse quanto pro touch.
@@ -165,16 +171,75 @@ export default function Jogos() {
             atualizarPosicao(toque.clientX, toque.clientY);
         };
 
+        // --- Giroscópio (só no mobile): além do dedo arrastando na tela,
+        // inclinar o próprio celular também mexe no modelo 3D. A orientação
+        // "neutra" é a que o aparelho já está quando o primeiro evento
+        // chega — o tilt é medido a partir dela, então não importa em que
+        // ângulo a pessoa está segurando o celular, o modelo começa parado
+        // e só reage ao desvio a partir dali.
+        const AMPLITUDE_GIRO_GRAUS = 35; // graus de inclinação que já levam x/y ao máximo (-1/1)
+        let orientacaoBase = null;
+
+        const aoMoverDispositivo = (e) => {
+            const { beta, gamma } = e; // beta: frente/trás, gamma: esquerda/direita
+            if (beta === null || gamma === null) return;
+
+            if (!orientacaoBase) {
+                orientacaoBase = { beta, gamma };
+            }
+
+            const deltaGamma = gamma - orientacaoBase.gamma;
+            const deltaBeta = beta - orientacaoBase.beta;
+
+            mouseRef.current = {
+                x: clampSigned(deltaGamma / AMPLITUDE_GIRO_GRAUS),
+                y: clampSigned(deltaBeta / AMPLITUDE_GIRO_GRAUS),
+            };
+        };
+
+        let giroAtivo = false;
+        const ativarGiro = () => {
+            if (giroAtivo || !ehMobile()) return;
+            giroAtivo = true;
+            window.addEventListener("deviceorientation", aoMoverDispositivo, true);
+        };
+
+        // No iOS 13+, ler o giroscópio só é permitido depois de um gesto do
+        // usuário confirmando a permissão — por isso ela é pedida no
+        // primeiro toque na seção. Em Android e navegadores mais antigos
+        // (sem esse requestPermission), o giro é ativado direto.
+        const precisaPedirPermissaoIOS =
+            typeof DeviceOrientationEvent !== "undefined" &&
+            typeof DeviceOrientationEvent.requestPermission === "function";
+
+        const aoPrimeiroToque = () => {
+            if (!ehMobile() || giroAtivo) return;
+            if (precisaPedirPermissaoIOS) {
+                DeviceOrientationEvent.requestPermission()
+                    .then((resposta) => {
+                        if (resposta === "granted") ativarGiro();
+                    })
+                    .catch(() => {});
+            } else {
+                ativarGiro();
+            }
+        };
+
         window.addEventListener("mousemove", aoMoverMouse);
         // passive: true porque só lemos a posição do dedo, sem bloquear o
         // scroll da página (o scroll continua funcionando normalmente).
         window.addEventListener("touchstart", aoTocar, { passive: true });
         window.addEventListener("touchmove", aoTocar, { passive: true });
+        window.addEventListener("touchstart", aoPrimeiroToque, { passive: true, once: true });
+
+        if (!precisaPedirPermissaoIOS) ativarGiro();
 
         return () => {
             window.removeEventListener("mousemove", aoMoverMouse);
             window.removeEventListener("touchstart", aoTocar);
             window.removeEventListener("touchmove", aoTocar);
+            window.removeEventListener("touchstart", aoPrimeiroToque);
+            window.removeEventListener("deviceorientation", aoMoverDispositivo, true);
         };
     }, []);
 
