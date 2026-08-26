@@ -462,26 +462,52 @@ body.pagina-aberta { overflow: hidden; }
     }
 }
 
-/* ── LINHA DO TEMPO ── */
-.linha-tempo-secao {
+/* ── LINHA DO TEMPO (HORIZONTAL) ──
+   Mesmo padrão do jogos.jsx: o wrapper "trilho" é mais alto que a tela (a
+   altura exata é definida via JS = 1 tela + a distância horizontal da
+   lista) pra dar espaço de scroll, e a seção gruda no topo via position:
+   sticky — sem pin do GSAP, então a animação de entrada do jogos continua
+   intacta. O JS só lê o scroll e desliza a .linha-tempo-lista na horizontal. */
+.linha-tempo-trilho-scroll {
     position: relative;
+    width: 100vw;
+    margin: 220px calc(-50vw + 50%) 0;
+}
+
+.linha-tempo-secao {
+    position: sticky;
+    top: 0;
     width: 100%;
-    max-width: 1100px;
-    margin: 220px auto 0;
-    padding: 0 10px;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
     box-sizing: border-box;
 }
 
-/* ── TRILHA ÚNICA (acompanha o scroll) ──
-   Substitui os traços fixos entre os itens por uma única barra vertical
-   contínua: o fundo cinza cobre do primeiro ao último ponto, e o trecho
-   colorido por cima cresce (via JS, controlando a altura em %) conforme
-   a página é rolada, como uma barra de progresso de leitura. */
+.linha-tempo-lista {
+    position: relative;
+    display: flex;
+    align-items: flex-start;
+    gap: 120px;
+    width: max-content;
+    padding: 0 12vw;
+    box-sizing: border-box;
+    will-change: transform;
+}
+
+/* ── TRILHA HORIZONTAL ÚNICA ──
+   Barra contínua que cruza o centro dos pontos: o fundo cinza cobre do
+   primeiro ao último item, e o trecho colorido cresce em largura (via JS)
+   conforme o scroll horizontal avança, como uma barra de progresso. */
 .linha-tempo-trilho {
     position: absolute;
-    width: 1.5px;
+    left: 12vw;
+    right: 12vw;
+    /* alinhada ao centro dos pontos: altura do ano (44px) + margem (48px) + metade do ponto (7px) */
+    top: 99px;
+    height: 1.5px;
     background: rgba(255, 255, 255, 0.18);
-    transform: translateX(-50%);
     pointer-events: none;
     z-index: 0;
 }
@@ -490,25 +516,20 @@ body.pagina-aberta { overflow: hidden; }
     position: absolute;
     top: 0;
     left: 0;
-    width: 100%;
-    height: 0%;
+    width: 0%;
+    height: 100%;
     background: #e2482f;
 }
 
 .linha-tempo-item {
-    display: grid;
-    grid-template-columns: 160px 40px 1fr;
-    column-gap: 40px;
-    margin-bottom: 160px;
+    display: flex;
+    flex-direction: column;
+    width: 440px;
+    flex-shrink: 0;
     opacity: 0;
     transform: translateY(30px);
     transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
                 transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-/* o último item não precisa de espaço extra depois dele */
-.linha-tempo-item:last-child {
-    margin-bottom: 0;
 }
 
 .linha-tempo-item-visivel {
@@ -565,13 +586,6 @@ body.pagina-aberta { overflow: hidden; }
     color: rgba(255, 255, 255, 0.85);
 }
 
-.linha-tempo-ano-col {
-    display: flex;
-    align-items: flex-start;
-    justify-content: flex-end;
-    padding-top: 4px;
-}
-
 .linha-tempo-ano {
     font-family: 'DM Sans', sans-serif;
     font-weight: 800;
@@ -582,29 +596,15 @@ body.pagina-aberta { overflow: hidden; }
     white-space: nowrap;
 }
 
-.linha-tempo-eixo-col {
-    position: relative;
-    display: flex;
-    justify-content: center;
-}
-
 .linha-tempo-ponto {
     position: relative;
     width: 14px;
     height: 14px;
     border-radius: 50%;
     background: #e2482f;
-    margin-top: 10px;
+    margin: 48px 0;
     flex-shrink: 0;
     z-index: 1;
-}
-
-.linha-tempo-descricao-col {
-    padding-bottom: 292px;
-}
-
-.linha-tempo-item:last-child .linha-tempo-descricao-col {
-    padding-bottom: 400px;
 }
 
 .linha-tempo-titulo {
@@ -629,36 +629,35 @@ body.pagina-aberta { overflow: hidden; }
 }
 
 @media (max-width: 768px) {
-    .linha-tempo-secao {
-        margin: 140px auto 0;
+    .linha-tempo-trilho-scroll {
+        margin-top: 140px;
+    }
+
+    .linha-tempo-lista {
+        gap: 64px;
+        padding: 0 10vw;
+    }
+
+    /* trilho realinhado ao centro dos pontos menores:
+       ano (28px) + margem (36px) + metade do ponto (5px) */
+    .linha-tempo-trilho {
+        left: 10vw;
+        right: 10vw;
+        top: 69px;
     }
 
     .linha-tempo-item {
-        grid-template-columns: 80px 28px 1fr;
-        column-gap: 18px;
-        margin-bottom: 100px;
-    }
-
-    .linha-tempo-item:last-child {
-        margin-bottom: 0;
+        width: 76vw;
     }
 
     .linha-tempo-ano {
-        font-size: 24px;
+        font-size: 28px;
     }
 
     .linha-tempo-ponto {
         width: 10px;
         height: 10px;
-        margin-top: 6px;
-    }
-
-    .linha-tempo-descricao-col {
-        padding-bottom: 116px;
-    }
-
-    .linha-tempo-item:last-child .linha-tempo-descricao-col {
-        padding-bottom: 0;
+        margin: 36px 0;
     }
 
     .linha-tempo-titulo {

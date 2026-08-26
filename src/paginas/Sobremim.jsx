@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState } from "react";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
 import "./Sobremim.css";
 import Jogos from "./jogos";
 
-gsap.registerPlugin(ScrollTrigger);
+// clamp01 precisa existir em escopo de módulo: o loop da linha do tempo usa
+// essa função e, sem ela, o requestAnimationFrame quebrava no 1º frame — por
+// isso a seção "passava reto" (sem scroll horizontal nem item ativo).
+const clamp01 = (v) => Math.min(Math.max(v, 0), 1);
 
 export default function Sobremim({ onClose }) {
     const cortinaRef = useRef(null);
@@ -29,6 +30,8 @@ export default function Sobremim({ onClose }) {
     const linhaTempoSecaoRef = useRef(null);
     const trilhoRef = useRef(null);
     const trilhoProgressoRef = useRef(null);
+    const listaRef = useRef(null); // trilha horizontal que desliza com o scroll
+    const trilhoScrollRef = useRef(null); // wrapper alto que dá espaço de scroll à seção sticky
     const pontoRefs = useRef([]);
     const [linhaTempoVisiveis, setLinhaTempoVisiveis] = useState([]);
     const [linhaTempoAtivo, setLinhaTempoAtivo] = useState(-1);
@@ -178,7 +181,6 @@ const linhaTempo = [
         if (!pagina || !grupo) return;
 
         const ESCALA_MINIMA = 0.45; // tamanho final, em relação ao tamanho original
-        const clamp01 = (v) => Math.min(Math.max(v, 0), 1);
 
         let ticking = false;
 
@@ -225,7 +227,6 @@ const linhaTempo = [
         const linha3 = processoLinha3Ref.current;
         if (!pagina || !grupo || !linha1 || !linha2 || !linha3) return;
 
-        const clamp01 = (v) => Math.min(Math.max(v, 0), 1);
         const VELOCIDADE_GLOBAL = 1.6;
         const VELOCIDADE_LINHA1 = 1.25; // chega primeiro
         const VELOCIDADE_LINHA2 = 1.1;
@@ -289,7 +290,6 @@ const linhaTempo = [
         const texto = missaoTextoRef.current;
         if (!pagina || !texto) return;
 
-        const clamp01 = (v) => Math.min(Math.max(v, 0), 1);
         const ALCANCE = 10;     // nº de letras "acendendo" ao mesmo tempo (suaviza a transição)
         const OPACIDADE_APAGADA = 0.22;
         const SUAVIZACAO = 0.15; // menor = mais atraso/suavidade atrás do scroll
@@ -330,130 +330,79 @@ const linhaTempo = [
 
         setLinhaTempoVisiveis(new Array(linhaTempo.length).fill(false));
 
+        // revela todos os itens de uma vez quando a seção da linha do tempo entra na tela
         const observer = new IntersectionObserver(
             (entries) => {
                 entries.forEach((entry) => {
                     if (entry.isIntersecting) {
-                        const index = Number(entry.target.dataset.index);
-                        setLinhaTempoVisiveis((prev) => {
-                            if (prev[index]) return prev;
-                            const proximo = [...prev];
-                            proximo[index] = true;
-                            return proximo;
-                        });
-                        observer.unobserve(entry.target);
+                        setLinhaTempoVisiveis(new Array(linhaTempo.length).fill(true));
+                        observer.disconnect();
                     }
                 });
             },
-            { root: pagina, threshold: 0.25 }
+            { root: pagina, threshold: 0.15 }
         );
 
-        linhaTempoItensRef.current.forEach((el) => el && observer.observe(el));
+        if (linhaTempoSecaoRef.current) observer.observe(linhaTempoSecaoRef.current);
         return () => observer.disconnect();
     }, []);
 
+    // ── LINHA DO TEMPO HORIZONTAL ──
+    // Mesmo padrão do jogos.jsx: um wrapper alto ("trilho") dá espaço de
+    // scroll e a seção fica grudada no topo via position: sticky (NADA de
+    // pin do GSAP — pin + scroller customizado causava vãos pretos e
+    // quebrava a animação de entrada do jogos). Aqui só lemos o scroll e
+    // convertemos em deslocamento horizontal da lista, com suavização.
     useEffect(() => {
+        if (!paginaVisivel) return;
         const pagina = paginaRef.current;
-        if (!pagina) return;
-
-        let ticking = false;
-
-        const atualizarAtivo = () => {
-            const rectPagina = pagina.getBoundingClientRect();
-
-            // estar inteiro perto da borda de baixo da tela
-            const faixaTopo = rectPagina.top + rectPagina.height * 0.35;
-            const faixaBaixo = rectPagina.top + rectPagina.height * 0.65;
-            const alturaFaixa = faixaBaixo - faixaTopo;
-
-            let maiorVisibilidade = 0;
-            let indiceMaisVisivel = -1;
-
-            linhaTempoItensRef.current.forEach((el, index) => {
-                if (!el) return;
-                const rect = el.getBoundingClientRect();
-
-                const topoVisivel = Math.max(rect.top, faixaTopo);
-                const baixoVisivel = Math.min(rect.bottom, faixaBaixo);
-                const alturaVisivel = Math.max(0, baixoVisivel - topoVisivel);
-                const referencia = Math.min(rect.height, alturaFaixa);
-                const proporcaoVisivel = referencia > 0 ? alturaVisivel / referencia : 0;
-
-                if (proporcaoVisivel > maiorVisibilidade) {
-                    maiorVisibilidade = proporcaoVisivel;
-                    indiceMaisVisivel = index;
-                }
-            });
-
-            // só ativa quando o item está de fato tomando a faixa central da
-            // tela — não basta estar visível em algum canto da tela
-            const dentroDoAlcance = maiorVisibilidade > 0.8;
-            setLinhaTempoAtivo(dentroDoAlcance ? indiceMaisVisivel : -1);
-            ticking = false;
-        };
-
-        const aoRolar = () => {
-            if (!ticking) {
-                window.requestAnimationFrame(atualizarAtivo);
-                ticking = true;
-            }
-        };
-
-        atualizarAtivo();
-        pagina.addEventListener("scroll", aoRolar, { passive: true });
-        window.addEventListener("resize", aoRolar);
-        return () => {
-            pagina.removeEventListener("scroll", aoRolar);
-            window.removeEventListener("resize", aoRolar);
-        };
-    }, [paginaVisivel]);
-
-    useEffect(() => {
-        const pagina = paginaRef.current;
-        const secao = linhaTempoSecaoRef.current;
-        const trilho = trilhoRef.current;
+        const trilhoScroll = trilhoScrollRef.current;
+        const lista = listaRef.current;
         const progresso = trilhoProgressoRef.current;
-        if (!pagina || !secao || !trilho || !progresso) return;
+        if (!pagina || !trilhoScroll || !lista || !progresso) return;
 
-        const clamp01 = (v) => Math.min(Math.max(v, 0), 1);
-        let progressoAtual = 0;
+        let atual = 0;
         let frameId;
 
+        // distância que a lista precisa andar na horizontal
+        const distancia = () => Math.max(lista.scrollWidth - pagina.clientWidth, 1);
+
+        // altura do trilho = 1 tela parada + a distância horizontal convertida em scroll
+        const ajustarAltura = () => {
+            trilhoScroll.style.height = (pagina.clientHeight + distancia()) + "px";
+        };
+
         const passo = () => {
-            const pontos = pontoRefs.current.filter(Boolean);
+            const rectPagina = pagina.getBoundingClientRect();
+            const rectTrilho = trilhoScroll.getBoundingClientRect();
 
-            if (pontos.length >= 2) {
-                const rectPagina = pagina.getBoundingClientRect();
-                const rectSecao = secao.getBoundingClientRect();
-                const rectPrimeiro = pontos[0].getBoundingClientRect();
-                const rectUltimo = pontos[pontos.length - 1].getBoundingClientRect();
+            // 0 quando o topo do trilho encosta no topo da página;
+            // 1 quando rolamos toda a "sobra" do trilho
+            const alvo = clamp01((rectPagina.top - rectTrilho.top) / distancia());
 
-                const topoAbsoluto = rectPrimeiro.top + rectPrimeiro.height / 2;
-                const baseAbsoluta = rectUltimo.top + rectUltimo.height / 2;
-                const alturaTrilho = Math.max(baseAbsoluta - topoAbsoluto, 1);
+            // suaviza o deslize (mesmo estilo de interpolação do resto da página)
+            atual += (alvo - atual) * 0.12;
 
-                // posiciona e dimensiona a trilha para encostar exatamente no
-                // centro do primeiro e do último ponto
-                trilho.style.top = (topoAbsoluto - rectSecao.top) + "px";
-                trilho.style.left = (rectPrimeiro.left + rectPrimeiro.width / 2 - rectSecao.left) + "px";
-                trilho.style.height = alturaTrilho + "px";
+            lista.style.transform = "translate3d(" + (-atual * distancia()) + "px, 0, 0)";
+            progresso.style.width = (atual * 100) + "%";
 
-                // linha de referência: centro da área visível da .pagina —
-                // quando ela cruza o primeiro ponto, progresso = 0; quando
-                // cruza o último, progresso = 1
-                const linhaReferencia = rectPagina.top + rectPagina.height * 0.5;
-                const alvo = clamp01((linhaReferencia - topoAbsoluto) / alturaTrilho);
-
-                // suaviza o preenchimento (mesmo estilo do "por trás do processo criativo")
-                progressoAtual += (alvo - progressoAtual) * 0.12;
-                progresso.style.height = (progressoAtual * 100) + "%";
-            }
+            // item ativo = o mais próximo do progresso atual
+            const indice = Math.min(
+                linhaTempo.length - 1,
+                Math.round(atual * (linhaTempo.length - 1))
+            );
+            setLinhaTempoAtivo(indice);
 
             frameId = requestAnimationFrame(passo);
         };
 
+        ajustarAltura();
+        window.addEventListener("resize", ajustarAltura);
         frameId = requestAnimationFrame(passo);
-        return () => cancelAnimationFrame(frameId);
+        return () => {
+            cancelAnimationFrame(frameId);
+            window.removeEventListener("resize", ajustarAltura);
+        };
     }, [paginaVisivel]);
 
     return (
@@ -546,42 +495,43 @@ const linhaTempo = [
                     </h2>
                 </div>
 
-                {/* ── LINHA DO TEMPO ── */}
+                {/* ── LINHA DO TEMPO (horizontal) ──
+                    o wrapper alto dá espaço de scroll; a seção fica sticky no
+                    topo e o scroll vertical vira deslocamento horizontal da
+                    .linha-tempo-lista (mesmo padrão sticky do jogos.jsx) */}
+                <div className="linha-tempo-trilho-scroll" ref={trilhoScrollRef}>
                 <div className="linha-tempo-secao" ref={linhaTempoSecaoRef}>
-                    {/* trilha única que acompanha o scroll: o trecho cinza é fixo,
-                        o trecho colorido cresce conforme a página rola */}
-                    <div className="linha-tempo-trilho" ref={trilhoRef} aria-hidden="true">
-                        <div className="linha-tempo-trilho-progresso" ref={trilhoProgressoRef} />
-                    </div>
+                    <div className="linha-tempo-lista" ref={listaRef}>
+                        {/* trilha horizontal única: o trecho colorido cresce
+                            em largura conforme o scroll horizontal avança */}
+                        <div className="linha-tempo-trilho" ref={trilhoRef} aria-hidden="true">
+                            <div className="linha-tempo-trilho-progresso" ref={trilhoProgressoRef} />
+                        </div>
 
-                    {linhaTempo.map((item, index) => (
-                        <div
-                            key={item.ano}
-                            ref={(el) => (linhaTempoItensRef.current[index] = el)}
-                            data-index={index}
-                            className={
-                                "linha-tempo-item" +
-                                (linhaTempoVisiveis[index] ? " linha-tempo-item-visivel" : "") +
-                                (linhaTempoAtivo === index ? " linha-tempo-item-ativo" : "")
-                            }
-                        >
-                            <div className="linha-tempo-ano-col">
+                        {linhaTempo.map((item, index) => (
+                            <div
+                                key={item.ano}
+                                ref={(el) => (linhaTempoItensRef.current[index] = el)}
+                                data-index={index}
+                                className={
+                                    "linha-tempo-item" +
+                                    (linhaTempoVisiveis[index] ? " linha-tempo-item-visivel" : "") +
+                                    (linhaTempoAtivo === index ? " linha-tempo-item-ativo" : "")
+                                }
+                            >
                                 <span className="linha-tempo-ano">{item.ano}</span>
-                            </div>
 
-                            <div className="linha-tempo-eixo-col">
                                 <span
                                     className="linha-tempo-ponto"
                                     ref={(el) => (pontoRefs.current[index] = el)}
                                 />
-                            </div>
 
-                            <div className="linha-tempo-descricao-col">
                                 <h3 className="linha-tempo-titulo">{item.titulo}</h3>
                                 <p className="linha-tempo-descricao">{item.descricao}</p>
                             </div>
-                        </div>
-                    ))}
+                        ))}
+                    </div>
+                </div>
                 </div>
 
                 <Jogos />
