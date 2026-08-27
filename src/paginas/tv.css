@@ -1,0 +1,166 @@
+/* Wrapper alto: dá espaço de scroll pra entrada + trecho do vídeo.
+   A altura e o margin-top são definidos via JS (mesmas constantes do componente).
+
+   IMPORTANTE: o margin-top negativo é -100vh MENOS a altura da entrada +
+   vídeo (-100vh - ALTURA_ENTRADA - ALTURA_VIDEO). Assim todo esse scroll cai
+   ainda DENTRO do trecho pinado do jogos.jsx — o GTA fica parado na tela e o
+   painel do TV apenas desliza e depois "toca" o vídeo por cima dele, sem o
+   jogos subir. */
+.tv-trilho-scroll {
+    position: relative;
+    width: 100vw;
+    margin: -100vh calc(-50vw + 50%) 0;
+    z-index: 20; /* acima do .jogos-secao (z-index: 10) */
+}
+
+
+/* Gruda no topo do scroller (.pagina) via CSS nativo, igual ao jogos.jsx.
+   Fundo TRANSPARENTE e pointer-events:none: antes/durante a entrada quem
+   aparece por baixo é o jogos, e só o painel (que entra da direita) pinta a
+   tela e recebe cliques. overflow:hidden fica aqui (não no wrapper) pra não
+   desligar o sticky. */
+.tv-secao {
+    position: sticky;
+    top: 0;
+    width: 100%;
+    height: 100vh;
+    overflow: hidden;
+    background: transparent;
+    pointer-events: none;
+    z-index: 20;
+}
+
+
+/* Painel que entra da direita pra esquerda (transform vem do JS). O
+   gradiente fica como base/moldura atrás do canvas — só aparece nas bordas
+   caso o "cover fit" do frame deixe alguma sobra, ou por um instante antes
+   dos frames terminarem de carregar. */
+.tv-painel {
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(120% 90% at 85% 15%, rgba(120, 190, 255, 0.16), transparent 60%),
+        linear-gradient(160deg, #0b0b0d 0%, #000 55%, #0a0a0c 100%);
+    opacity: 0;
+    pointer-events: auto;
+    touch-action: pan-y; /* o toque continua rolando a página normalmente */
+    box-shadow: -40px 0 80px rgba(0, 0, 0, 0.65); /* sombra da "folha" entrando por cima do jogos */
+    will-change: transform, opacity;
+}
+
+/* Canvas onde cada frame do breaking.mp4 é desenhado conforme o scroll
+   (técnica de frame-sequence: nada de <video>/currentTime, só troca de
+   imagem — fica bem mais suave). width/height 100% acompanha o tamanho
+   real do .tv-painel; o "cover fit" de fato é feito no desenho (JS). */
+.tv-canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+/* Título "BREAKING BAD": aparece por cima do vídeo (fade-in via JS,
+   opacity controlada conforme o frame atual) a partir do frame 40, nasce
+   desfocado (como se saísse da fumaça) e depois sobe pro topo da tela —
+   top/transform/filter são controlados pelo JS. Fonte dedicada
+   (breakingbad.otf) declarada via @font-face. */
+.tv-breakingbad-titulo {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 3;
+    margin: 0;
+    font-family: 'Breaking Bad', sans-serif;
+    font-size: clamp(48px, calc(28px + 5vw), 140px);
+    color: #ffffff;
+    letter-spacing: 0.04em;
+    text-align: center;
+    text-shadow:
+        0 4px 24px rgba(0, 0, 0, 0.7),
+        0 0 42px rgba(190, 205, 220, 0.35);
+    pointer-events: none;
+    white-space: nowrap;
+    opacity: 0;
+    will-change: opacity, top, transform, filter;
+}
+
+@media (max-width: 768px) {
+    .tv-breakingbad-titulo {
+        font-size: clamp(36px, calc(22px + 6vw), 64px);
+        white-space: normal;
+        max-width: 90%;
+    }
+}
+
+/* Declaração da fonte — ajuste o caminho se breakingbad.otf estiver em
+   outra pasta (ex.: /public/fonts/breakingbad.otf). Se essa fonte já for
+   declarada em outro CSS global do projeto, pode remover este bloco pra
+   não duplicar. */
+@font-face {
+    font-family: 'Breaking Bad';
+    src: url('/fonts/breakingbad.otf') format('opentype');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+/* Aviso "role para continuar": aparece só quando o painel termina de
+   encostar na parede esquerda (opacity controlada via JS) e some assim
+   que o vídeo começa a avançar. Fica por cima do canvas, centralizado
+   embaixo da tela, com o ícone de mouse "pulando" pra sugerir scroll. */
+.tv-aviso-scroll {
+    position: absolute;
+    left: 50%;
+    bottom: 6%;
+    transform: translateX(-50%);
+    z-index: 3;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s linear;
+    will-change: opacity;
+}
+
+.tv-aviso-scroll-icone {
+    display: block;
+    width: 26px;
+    height: 42px;
+    border: 2px solid rgba(255, 255, 255, 0.85);
+    border-radius: 14px;
+    position: relative;
+    animation: tv-aviso-flutuar 1.6s ease-in-out infinite;
+}
+
+.tv-aviso-scroll-icone::before {
+    content: "";
+    position: absolute;
+    top: 6px;
+    left: 50%;
+    width: 4px;
+    height: 8px;
+    background: rgba(255, 255, 255, 0.85);
+    border-radius: 2px;
+    transform: translateX(-50%);
+    animation: tv-aviso-rolinha 1.6s ease-in-out infinite;
+}
+
+.tv-aviso-scroll-texto {
+    font-size: 13px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.85);
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
+}
+
+@keyframes tv-aviso-flutuar {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(6px); }
+}
+
+@keyframes tv-aviso-rolinha {
+    0% { opacity: 1; top: 6px; }
+    60% { opacity: 0; top: 18px; }
+    100% { opacity: 0; top: 6px; }
+}

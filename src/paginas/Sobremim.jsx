@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import "./Sobremim.css";
 import Jogos from "./jogos";
-
+import Tv from "./tv";
 // clamp01 precisa existir em escopo de módulo: o loop da linha do tempo usa
 // essa função e, sem ela, o requestAnimationFrame quebrava no 1º frame — por
 // isso a seção "passava reto" (sem scroll horizontal nem item ativo).
@@ -533,8 +533,8 @@ const linhaTempo = [
                     </div>
                 </div>
                 </div>
-
-                <Jogos />
+                <Jogos linhaTempoTrilhoRef={trilhoScrollRef} />
+                <Tv />
                 </div>
             </div>
         </>

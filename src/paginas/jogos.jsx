@@ -22,7 +22,7 @@ const NUM_FATIAS_FUNDO = 10;
 const STAGGER_FATIAS_FUNDO = 0.06;
 const clamp01 = (v) => Math.min(Math.max(v, 0), 1);
 const clampSigned = (v) => Math.min(Math.max(v, -1), 1); // limita entre -1 e 1 (giro do celular)
-function Modelo({ caminho, mouseRef, giroRef, rotacaoBaseInicial }) {
+function Modelo({ caminho, mouseRef, giroRef, rotacaoBaseInicial, escala = 1 }) {
     const { scene } = useGLTF(caminho);
     const grupoRef = useRef();
 
@@ -87,7 +87,16 @@ function Modelo({ caminho, mouseRef, giroRef, rotacaoBaseInicial }) {
         // ponto fora dele em vez de girar no próprio lugar.
         <group ref={grupoRef} rotation={rotacaoBase.current}>
             <Center>
-                <primitive object={scene} />
+                {/* escala compensa modelos que já vêm com escala embutida no
+                    próprio .glb (comum em conversões FBX→glTF do Sketchfab).
+                    Sem isso o objeto fica minúsculo e o auto-fit da câmera
+                    (Bounds) fica tão sensível que qualquer variação de
+                    proporção de tela ou tilt do mouse joga o modelo pra
+                    fora do campo de visão. O gta.glb já vem em escala normal
+                    (~1.8 unidades de altura, igual aos outros modelos), então
+                    não precisa de fator de correção — só os que realmente
+                    vierem minúsculos do Sketchfab devem receber essa prop. */}
+                <primitive object={scene} scale={escala} />
             </Center>
         </group>
     );
@@ -110,7 +119,7 @@ function PalavraEmLetras({ texto, refsArray }) {
     ));
 }
 
-export default function Jogos() {
+export default function Jogos({ linhaTempoTrilhoRef } = {}) {
     const BASE = import.meta.env.BASE_URL;
     const secaoTrilhoRef = useRef(null); // wrapper alto que dá espaço de scroll pras fases 2, 3, 4, 5 e 6
     const secaoRef = useRef(null);
@@ -118,17 +127,21 @@ export default function Jogos() {
     const modeloWrapperRef = useRef(null); // sobe do "chão" conforme o cilindro abre; some na fase 4
     const modeloMinecraftWrapperRef = useRef(null); // entra de baixo na fase 4 e desliza pra direita na fase 5
     const modeloAssassinsWrapperRef = useRef(null); // entra de baixo na fase 6, quando o Minecraft sobe e sai
+    const modeloGtaWrapperRef = useRef(null); // entra de baixo na fase 8, quando o Assassin's sobe e sai
     const tituloRef = useRef(null); // desce do "teto" conforme o cilindro abre
     const tituloFavoritosRef = useRef(null); // só aparece quando o efeito termina de abrir
     const descricaoRef = useRef(null); // mini descrição que aparece ao lado do modelo, na fase 2
     const descricaoMinecraftRef = useRef(null); // mini descrição do Minecraft, na fase 5
     const descricaoAssassinsRef = useRef(null); // mini descrição do Assassin's Creed, na fase 6
+    const descricaoGtaRef = useRef(null); // mini descrição do GTA, na fase 9
     const letrasFalloutRef = useRef([]); // spans de cada letra de "FALLOUT", pra fase 4 (saída)
     const letrasMinecraftRef = useRef([]); // spans de cada letra de "MINECRAFT", pra fase 4 (entrada) e fase 6 (saída)
-    const letrasAssassinsRef = useRef([]); // spans de cada letra de "ASSASSINS CREED", pra fase 6 (entrada)
+    const letrasAssassinsRef = useRef([]); // spans de cada letra de "ASSASSINS CREED", pra fase 6 (entrada) e fase 8 (saída)
+    const letrasGtaRef = useRef([]); // spans de cada letra de "GTA V", pra fase 8 (entrada)
     const fatiasFundoFalloutRef = useRef([]); // fatias verticais do fundo do Fallout, pra fase 4 (sobem e saem)
     const fatiasFundoMinecraftRef = useRef([]); // fatias verticais do fundo do Minecraft, pra fase 4 (entrada) e fase 6 (saída)
-    const fatiasFundoAssassinsRef = useRef([]); // fatias verticais do fundo do Assassin's Creed, pra fase 6 (entrada)
+    const fatiasFundoAssassinsRef = useRef([]); // fatias verticais do fundo do Assassin's Creed, pra fase 6 (entrada) e fase 8 (saída)
+    const fatiasFundoGtaRef = useRef([]); // fatias verticais do fundo do GTA, pra fase 8 (entrada)
     const modeloGiroRef = useRef({ p2: 0, p3: 0 }); // progresso das fases 2 e 3, lido pelo Modelo do Fallout
     // Reaproveita o campo "p2" da lógica de giro do Modelo (rotação no eixo
     // Y) pra fase 5 do Minecraft: ao contrário do Fallout (que na volta pro
@@ -141,6 +154,10 @@ export default function Jogos() {
     // horizontal, no mesmo estilo do Minecraft na fase 5 — então "p3" fica
     // sempre 0 aqui.
     const modeloAssassinsGiroRef = useRef({ p2: 0, p3: 0 });
+    // Mesma ideia do Minecraft/Assassin's: o GTA entra de baixo sem girar
+    // (fase 8) e só gira no eixo horizontal na fase 9 (ida pra direita e
+    // volta pro centro), então "p3" fica sempre 0 aqui.
+    const modeloGtaGiroRef = useRef({ p2: 0, p3: 0 });
     // Coordenadas normalizadas do mouse (-1 a 1) relativas ao centro da seção.
     // Usar um ref (em vez de state) evita re-render a cada movimento do mouse.
     const mouseRef = useRef({ x: 0, y: 0 });
@@ -262,6 +279,8 @@ export default function Jogos() {
         const descricao = descricaoRef.current;
         const descricaoMinecraft = descricaoMinecraftRef.current;
         const descricaoAssassins = descricaoAssassinsRef.current;
+        const modeloGta = modeloGtaWrapperRef.current;
+        const descricaoGta = descricaoGtaRef.current;
         if (!secao || !trilho || !mascara) return;
 
         // A rolagem real acontece dentro do container ".pagina" (Sobremim.jsx
@@ -278,13 +297,17 @@ export default function Jogos() {
         const ALTURA_FASE_5 = 800; // Minecraft desliza pra direita e volta pro centro, girando
         const ALTURA_FASE_6 = 800; // Minecraft sobe e sai; Assassin's Creed entra no lugar
         const ALTURA_FASE_7 = 800; // Assassin's desliza pra esquerda e volta pro centro, girando
-        const ALTURA_TOTAL = ALTURA_FASE_2 + ALTURA_FASE_3 + ALTURA_FASE_4 + ALTURA_FASE_5 + ALTURA_FASE_6 + ALTURA_FASE_7;
+        const ALTURA_FASE_8 = 800; // Assassin's sobe e sai; GTA entra no lugar
+        const ALTURA_FASE_9 = 800; // GTA desliza pra direita e volta pro centro, girando
+        const ALTURA_TOTAL = ALTURA_FASE_2 + ALTURA_FASE_3 + ALTURA_FASE_4 + ALTURA_FASE_5 + ALTURA_FASE_6 + ALTURA_FASE_7 + ALTURA_FASE_8 + ALTURA_FASE_9;
         const FRACAO_FASE_2 = ALTURA_FASE_2 / ALTURA_TOTAL;
         const FRACAO_FASE_3 = ALTURA_FASE_3 / ALTURA_TOTAL;
         const FRACAO_FASE_4 = ALTURA_FASE_4 / ALTURA_TOTAL;
         const FRACAO_FASE_5 = ALTURA_FASE_5 / ALTURA_TOTAL;
         const FRACAO_FASE_6 = ALTURA_FASE_6 / ALTURA_TOTAL;
         const FRACAO_FASE_7 = ALTURA_FASE_7 / ALTURA_TOTAL;
+        const FRACAO_FASE_8 = ALTURA_FASE_8 / ALTURA_TOTAL;
+        const FRACAO_FASE_9 = ALTURA_FASE_9 / ALTURA_TOTAL;
         trilho.style.height = `calc(100vh + ${ALTURA_TOTAL}px)`;
 
         // Dimensões do "cilindro" inicial (fase 1: abertura), em % de inset
@@ -304,6 +327,8 @@ export default function Jogos() {
                     deslocamentoModeloMinecraft: 140,
                     saidaModeloMinecraft: 220, entradaModeloAssassins: 220,
                     deslocamentoModeloAssassins: 140,
+                    saidaModeloAssassins: 220, entradaModeloGta: 220,
+                    deslocamentoModeloGta: 140,
                 };
             }
             if (largura <= 1440) {
@@ -314,6 +339,8 @@ export default function Jogos() {
                     deslocamentoModeloMinecraft: 380,
                     saidaModeloMinecraft: 460, entradaModeloAssassins: 460,
                     deslocamentoModeloAssassins: 380,
+                    saidaModeloAssassins: 460, entradaModeloGta: 460,
+                    deslocamentoModeloGta: 380,
                 };
             }
             return {
@@ -323,9 +350,10 @@ export default function Jogos() {
                 deslocamentoModeloMinecraft: 520,
                 saidaModeloMinecraft: 620, entradaModeloAssassins: 620,
                 deslocamentoModeloAssassins: 520,
+                saidaModeloAssassins: 620, entradaModeloGta: 620,
+                deslocamentoModeloGta: 520,
             };
         };
-
         let estadoInicial = obterEstadoInicial();
         const progresso = { p: 0 }; // fase 1: abertura do cilindro
         const progressoFases = { p: 0 }; // fases 2+3+4+5+6 juntas (0→1): ida, volta, troca Fallout→Minecraft, saída/retorno do Minecraft e troca Minecraft→Assassin's
@@ -394,10 +422,37 @@ export default function Jogos() {
                 (pTotal - FRACAO_FASE_2 - FRACAO_FASE_3 - FRACAO_FASE_4 - FRACAO_FASE_5 - FRACAO_FASE_6) /
                 FRACAO_FASE_7
             );
+            const p8 = clamp01(
+                (pTotal - FRACAO_FASE_2 - FRACAO_FASE_3 - FRACAO_FASE_4 - FRACAO_FASE_5 - FRACAO_FASE_6 - FRACAO_FASE_7) /
+                FRACAO_FASE_8
+            );
+            const p9 = clamp01(
+                (pTotal - FRACAO_FASE_2 - FRACAO_FASE_3 - FRACAO_FASE_4 - FRACAO_FASE_5 - FRACAO_FASE_6 - FRACAO_FASE_7 - FRACAO_FASE_8) /
+                FRACAO_FASE_9
+            );
+            const p9a = clamp01(p9 / 0.5);
+            const p9b = clamp01((p9 - 0.5) / 0.5);
             // Assim como a fase 5 do Minecraft, a fase 7 é dividida em duas
             // metades: p7a (ida, esquerda) e p7b (volta, centro).
             const p7a = clamp01(p7 / 0.5);
             const p7b = clamp01((p7 - 0.5) / 0.5);
+
+            // Cursor personalizado (rosto do Vault Boy) enquanto o Fallout
+            // ainda está em cena — inclusive durante a transição de saída
+            // (fase 4). Assim que o Minecraft assume por completo (p4 chega
+            // a 1), o cursor volta ao padrão do sistema. Aplicado direto na
+            // .jogos-secao (que cobre a tela inteira via sticky), então
+            // funciona também sobre o modelo 3D e os textos.
+            //
+            // "32 32" é o hotspot (ponto que conta como o "clique" do
+            // cursor): como o PNG é 64x64, isso centraliza o ponto de
+            // clique no meio do rosto. "auto" no final é o fallback caso o
+            // navegador não consiga carregar a imagem por algum motivo.
+            if (secao) {
+                secao.style.cursor = p4 < 1
+                    ? `url(${BASE}cursorfallout.png) 32 32, auto`
+                    : "auto";
+            }
 
             // 1) recorte crescendo (só depende da fase 1)
             const topo = estadoInicial.topo * restante;
@@ -458,13 +513,28 @@ export default function Jogos() {
                 const entradaAssassins = estadoInicial.entradaModeloAssassins * (1 - p6);
                 const deslocamentoEsquerda =
                     estadoInicial.deslocamentoModeloAssassins * p7a * (1 - p7b);
+                const saidaAssassins = estadoInicial.saidaModeloAssassins * p8;
                 modeloAssassins.style.transform =
-                    `translate(calc(-50% + ${-deslocamentoEsquerda}px), ${entradaAssassins}px)`;
-                modeloAssassins.style.opacity = p6;
+                    `translate(calc(-50% + ${-deslocamentoEsquerda}px), ${entradaAssassins - saidaAssassins}px)`;
+                modeloAssassins.style.opacity = p6 * (1 - p8);
+            }
+
+            // 3c) modelo do GTA: mesma mecânica do Minecraft — fica escondido
+            // embaixo até a fase 8 começar, aí sobe e entra exatamente no
+            // lugar onde o Assassin's estava; na fase 9 desliza pra direita
+            // girando na horizontal (p9a) e volta pro centro (p9b).
+            if (modeloGta) {
+                const entradaGta = estadoInicial.entradaModeloGta * (1 - p8);
+                const deslocamentoDireitaGta =
+                    estadoInicial.deslocamentoModeloGta * p9a * (1 - p9b);
+                modeloGta.style.transform =
+                    `translate(calc(-50% + ${deslocamentoDireitaGta}px), ${entradaGta}px)`;
+                modeloGta.style.opacity = p8;
             }
             modeloGiroRef.current = { p2, p3 };
             modeloMinecraftGiroRef.current = { p2: p5a + p5b, p3: 0 };
             modeloAssassinsGiroRef.current = { p2: p7a + p7b, p3: 0 };
+            modeloGtaGiroRef.current = { p2: p9a + p9b, p3: 0 };
 
             // 4) título "FALLOUT" desce do teto na fase 1, permanece parado
             // na fase 2/3 e, na fase 4, some letra por letra subindo (ver
@@ -493,6 +563,18 @@ export default function Jogos() {
             if (p6 > 0) {
                 aplicarLetras(letrasMinecraftRef, p6, "saida");
                 aplicarFatiasFundo(fatiasFundoMinecraftRef, p6, "saida");
+            }
+
+            // fase 8: o GTA entra (letras + fundo) exatamente como o
+            // Minecraft entrou na fase 4 e o Assassin's na fase 6. Isso roda
+            // sempre, pra manter o GTA escondido (p8 = 0) até a fase 8.
+            aplicarLetras(letrasGtaRef, p8, "entrada");
+            aplicarFatiasFundo(fatiasFundoGtaRef, p8, "entrada");
+            // e o Assassin's sobe e sai — só sobrescrevemos o estado de
+            // "entrada" da fase 6 depois que a fase 8 realmente começou.
+            if (p8 > 0) {
+                aplicarLetras(letrasAssassinsRef, p8, "saida");
+                aplicarFatiasFundo(fatiasFundoAssassinsRef, p8, "saida");
             }
 
             // 5) "JOGOS FAVORITOS": aparece no fim da fase 1 e, na fase 2,
@@ -554,25 +636,51 @@ export default function Jogos() {
                     (p7a - inicioDescricaoAssassins) / (1 - inicioDescricaoAssassins)
                 );
                 const SUBIDA_SAIDA_ASSASSINS = 60; // px que ela sobe ao sumir na fase 7b
-                descricaoAssassins.style.opacity = progressoEntradaAssassins * (1 - p7b);
+                descricaoAssassins.style.opacity = progressoEntradaAssassins * (1 - p7b) * (1 - p8);
                 descricaoAssassins.style.transform =
                     `translate(${(1 - progressoEntradaAssassins) * -40}px, calc(-50% - ${SUBIDA_SAIDA_ASSASSINS * p7b}px))`;
+            }
+
+            // 9) mini descrição do GTA: espelho da do Minecraft (lado
+            // esquerdo). Aparece na 2ª metade da fase 9a, quando o modelo já
+            // deslizou pra direita, e sobe/some na fase 9b.
+            if (descricaoGta) {
+                const inicioDescricaoGta = 0.5;
+                const progressoEntradaGta = Math.max(
+                    0,
+                    (p9a - inicioDescricaoGta) / (1 - inicioDescricaoGta)
+                );
+                const SUBIDA_SAIDA_GTA = 60;
+                descricaoGta.style.opacity = progressoEntradaGta * (1 - p9b);
+                descricaoGta.style.transform =
+                    `translate(${(1 - progressoEntradaGta) * 40}px, calc(-50% - ${SUBIDA_SAIDA_GTA * p9b}px))`;
             }
         };
 
         aplicarProgresso();
 
         const ctx = gsap.context(() => {
-            // fase 1: abertura do cilindro enquanto a seção entra na tela
+            // fase 1: abertura do cilindro. Se vier a ref do trilho da linha
+            // do tempo (linhaTempoTrilhoRef), o gatilho é a BASE desse
+            // trilho encostando na base da tela — que é exatamente o
+            // instante em que o sticky da linha do tempo solta (ou seja,
+            // quando o item 5/índice 4 já está ativo). Isso amarra a
+            // abertura do Jogos de verdade ao fim da linha do tempo, em vez
+            // de depender da margem negativa do jogos-secao-wrapper
+            // coincidir por acaso com esse ponto. Sem a ref (uso do Jogos
+            // fora do contexto da Sobremim), cai no comportamento antigo:
+            // dispara pela posição do próprio trilho do Jogos.
+            const trilhoLinhaTempo = linhaTempoTrilhoRef?.current ?? null;
+            const gatilhoAbertura = trilhoLinhaTempo ?? trilho;
             gsap.to(progresso, {
                 p: 1,
                 ease: "none",
                 onUpdate: aplicarProgresso,
                 scrollTrigger: {
-                    trigger: trilho,
+                    trigger: gatilhoAbertura,
                     scroller,
-                    start: "top bottom",
-                    end: "top top",
+                    start: trilhoLinhaTempo ? "bottom bottom" : "top bottom",
+                    end: trilhoLinhaTempo ? "bottom top" : "top top",
                     scrub: 0.6,
                 },
             });
@@ -604,10 +712,58 @@ export default function Jogos() {
             };
             window.addEventListener("resize", aoRedimensionar);
 
-            return () => window.removeEventListener("resize", aoRedimensionar);
+            // O "resize" da window só dispara quando a JANELA muda de
+            // tamanho (ex.: abrir o DevTools) — mas a altura real da
+            // página (".pagina", o scroller) pode mudar sozinha por outros
+            // motivos que não mexem na janela: uma fonte custom (Overseer,
+            // Minecrafter, Pricedown...) terminando de carregar, uma
+            // imagem de fundo resolvendo, ou um dos 4 modelos 3D demorando
+            // mais que os outros pra resolver o Suspense. Se isso acontece
+            // DEPOIS do primeiro ScrollTrigger.refresh(), o trigger fica
+            // com uma altura de scroll "curta" guardada em cache — e a
+            // última fase (8/9, a entrada do GTA) simplesmente nunca é
+            // alcançável, porque o scroll acaba antes de chegar lá. É
+            // exatamente o que some quando abrir o DevTools "conserta":
+            // ele dispara um resize, que força um refresh, que remede a
+            // altura certa.
+            //
+            // Pra não depender de abrir o DevTools, um ResizeObserver no
+            // próprio scroller cobre qualquer mudança de altura da página
+            // (não só da janela), e refresca o ScrollTrigger sempre que
+            // ela muda de fato.
+            const alvoObservado = scroller === window ? document.body : scroller;
+            let alturaAnterior = alvoObservado.scrollHeight;
+            const resizeObserver = new ResizeObserver(() => {
+                const alturaAtual = alvoObservado.scrollHeight;
+                if (alturaAtual !== alturaAnterior) {
+                    alturaAnterior = alturaAtual;
+                    ScrollTrigger.refresh();
+                }
+            });
+            resizeObserver.observe(alvoObservado);
+
+            // Reforço extra: garante um refresh depois que TODAS as fontes
+            // (@font-face acima) terminarem de carregar, e depois do
+            // "load" da página (imagens, etc.) — cobrindo casos em que
+            // nada mais dispara um ResizeObserver (a altura do scroller
+            // pode não mudar visivelmente, mas o layout interno sim).
+            const refrescarUmaVez = () => requestAnimationFrame(() => ScrollTrigger.refresh());
+            if (document.fonts && document.fonts.ready) {
+                document.fonts.ready.then(refrescarUmaVez).catch(() => {});
+            }
+            window.addEventListener("load", refrescarUmaVez);
+
+            return () => {
+                window.removeEventListener("resize", aoRedimensionar);
+                window.removeEventListener("load", refrescarUmaVez);
+                resizeObserver.disconnect();
+            };
         }, secao);
 
-        return () => ctx.revert();
+        return () => {
+            ctx.revert();
+            if (secao) secao.style.cursor = "auto";
+        };
     }, []);
 
     return (
@@ -633,6 +789,13 @@ export default function Jogos() {
                 @font-face {
                     font-family: 'Minecrafter';
                     src: url('${BASE}Minecrafter.Reg.ttf') format('truetype');
+                    font-style: normal;
+                    font-weight: 400;
+                    font-display: swap;
+                }
+                @font-face {
+                    font-family: 'Pricedown';
+                    src: url('${BASE}gta.otf') format('opentype');
                     font-style: normal;
                     font-weight: 400;
                     font-display: swap;
@@ -710,6 +873,27 @@ export default function Jogos() {
                     ))}
                 </div>
 
+                <div className="jogos-fundo-camada jogos-fundo-camada-gta" aria-hidden="true">
+                    {Array.from({ length: NUM_FATIAS_FUNDO }).map((_, i) => (
+                        <div
+                            className="jogos-fundo-fatia"
+                            key={`fundo-gta-${i}`}
+                            ref={(el) => {
+                                fatiasFundoGtaRef.current[i] = el;
+                            }}
+                        >
+                            <div
+                                className="jogos-fundo-fatia-img"
+                                style={{
+                                    backgroundImage: `url(${BASE}gta.webp)`,
+                                    width: `${NUM_FATIAS_FUNDO * 100}%`,
+                                    left: `${-i * 100}%`,
+                                }}
+                            />
+                        </div>
+                    ))}
+                </div>
+
                 <h2 className="jogos-favoritos-titulo" ref={tituloFavoritosRef}>
                     JOGOS FAVORITOS
                 </h2>
@@ -724,6 +908,10 @@ export default function Jogos() {
 
                 <h3 className="jogos-assassins-titulo">
                     <PalavraEmLetras texto="Assassin's Creed" refsArray={letrasAssassinsRef} />
+                </h3>
+
+                <h3 className="jogos-gta-titulo">
+                    <PalavraEmLetras texto="grand theft auto" refsArray={letrasGtaRef} />
                 </h3>
 
                 <div className="jogos-modelos">
@@ -775,6 +963,22 @@ export default function Jogos() {
                             </Suspense>
                         </Canvas>
                     </div>
+                    <div className="jogos-modelo" ref={modeloGtaWrapperRef}>
+                        <Canvas camera={{ fov: 45 }}>
+                            <ambientLight intensity={3.8} />
+                            <directionalLight position={[720, 45, 55]} intensity={1.5} />
+                            <Suspense fallback={null}>
+                                <Bounds fit observe margin={1.2}>
+                                    <Modelo
+                                        caminho={`${BASE}gta.glb`}
+                                        mouseRef={mouseRef}
+                                        giroRef={modeloGtaGiroRef}
+                                        rotacaoBaseInicial={[0, -1.5, 0]}
+                                    />
+                                </Bounds>
+                            </Suspense>
+                        </Canvas>
+                    </div>
                 </div>
 
                 <div className="jogos-descricao" ref={descricaoRef}>
@@ -797,6 +1001,14 @@ export default function Jogos() {
                         onde cada sombra esconde uma oportunidade.
                     </p>
                 </div>
+
+                <div className="jogos-descricao-gta" ref={descricaoGtaRef}>
+                    <p>
+                        Um mundo aberto de diversão sem limites,
+                        desde assaltar uma lojinha de esquina até roubar um jato e sair explodindo tudo pela cidade.
+                    </p>
+                </div>
+
             </div>
         </div>
         </div>
