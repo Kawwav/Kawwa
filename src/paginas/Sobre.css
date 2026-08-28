@@ -129,10 +129,37 @@
   pointer-events: none;
   transition: transform 0.45s cubic-bezier(0.23, 1, 0.32, 1), color 0.3s ease;
   will-change: transform;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.sobre-btn-main {
+  display: inline-flex;
+  align-items: center;
 }
 
 .sobre-about-btn:hover .sobre-btn-label {
   color: rgba(0, 0, 0, 0.9);
+}
+
+.sobre-btn-arrow {
+  display: inline-block;
+  margin-left: 8px;
+  transition: transform 0.35s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.sobre-about-btn:hover .sobre-btn-arrow {
+  transform: translateX(6px);
+}
+
+.sobre-btn-sublabel {
+  font-size: 13px;
+  letter-spacing: 0.1em;
+  color: rgba(5, 5, 5, 0.55);
+  text-transform: none;
+  margin-right: 18px;
 }
 
 /* ── MODAL ── */

@@ -140,10 +140,10 @@ const FILMES = [
 // Os arquivos ficam junto dos outros assets em /public (mesmo esquema dos
 // vídeos do THE OFFICE, que são referenciados direto pelo nome).
 const MODELOS_FILMES = [
-    "Devoltaparaofuturo.glb", // De volta para o futuro
-    "oprofissional.glb",      // o profissional
-    "ToyStory.glb",           // Toy Story
-    "Homemaranha.glb",       // Homem aranha
+    "Devoltaparaofuturo.glb", 
+    "oprofissional.glb",     
+    "ToyStory.glb",         
+    "Homemaranha.glb",      
 ];
 
 // Tamanho (maior lado) que cada modelo ocupa depois de centralizado, em

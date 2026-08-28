@@ -97,7 +97,8 @@ export default function Sobre() {
                             onClick={() => setSobreMounted(true)}
                         >
                             <span className="sobre-btn-label" ref={labelRef}>
-                                Sobre mim
+                                <span className="sobre-btn-main">Sobre mim <span className="sobre-btn-arrow">→</span></span>
+                                <span className="sobre-btn-sublabel">clique aqui</span>
                             </span>
                         </button>
                     </div>

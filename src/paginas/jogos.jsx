@@ -843,7 +843,7 @@ export default function Jogos({ linhaTempoTrilhoRef } = {}) {
                             <div
                                 className="jogos-fundo-fatia-img"
                                 style={{
-                                    backgroundImage: `url(${BASE}minecraft.png)`,
+                                    backgroundImage: `url(${BASE}minecraft.webp)`,
                                     width: `${NUM_FATIAS_FUNDO * 100}%`,
                                     left: `${-i * 100}%`,
                                 }}
