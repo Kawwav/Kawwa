@@ -37,7 +37,8 @@ const easeInOut = (t) => (t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2)
 const SUAVIZACAO_SCROLL = 7;
 
 const FRAME_COUNT = 253;
-const FRAME_PATH = (i) => `/frames/frame_${String(i).padStart(4, "0")}.jpg`;
+const FRAME_PATH = (i) =>
+    `${import.meta.env.BASE_URL}frames/frame_${String(i).padStart(4, "0")}.jpg`;
 
 // A partir deste frame o título gigante entra e o scroll vira horizontal.
 const FRAME_MASCARA = 183;
