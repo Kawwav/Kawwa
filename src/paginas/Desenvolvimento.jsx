@@ -28,18 +28,11 @@ const PROJECTS = [
   },
 
   {
-    label: "Site Bolsa (em construção)",
+    label: "Site Bolsa",
     desc: "Plataforma web com painel dinâmico e integração de dados em tempo real",
     type: "Web App",
-    image: "desenvolvimento/sitebolsa.PNG",
-    link: "https://kawwav.github.io/Viviart-Croch-v1.2/",
-  },
-  {
-    label: "Souza",
-    desc: "Site institucional com foco industrial, desenvolvido para apresentar a empresa Souza e seus serviços de manutenção e montagem industrial",
-    type: "Corporativo",
-    image: "desenvolvimento/souza (1).PNG",
-    link: "https://souzaindustria.netlify.app/",
+    image: "desenvolvimento/viviart.v2.png",
+    link: "https://kawwav.github.io/Viviar-Croch-/",
   },
 
   {

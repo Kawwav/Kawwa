@@ -44,7 +44,7 @@
 body.pagina-aberta { overflow: hidden; }
 .pagina.pagina-visivel { visibility: visible; }
 
-/* ── BOTÃO VOLTAR ── */
+
 .botao-voltar {
     position: sticky;
     top: 32px;
@@ -78,14 +78,13 @@ body.pagina-aberta { overflow: hidden; }
     color: #fff;
 }
 
-/* ── PAINEL PRINCIPAL ── */
 .sobremim-painel {
     position: relative;
     z-index: 1;
     width: 100%;
 }
 
-/* ── HERO ── */
+
 .hero {
     position: relative;
     width: 100%;
@@ -121,22 +120,17 @@ body.pagina-aberta { overflow: hidden; }
     font-weight: 800;
     text-transform: uppercase;
     color: #ffffff;
-    font-size: 190px; /* tamanho máximo; ajustado dinamicamente via JS */
+    font-size: 190px; 
     line-height: 0.92;
     letter-spacing: -0.03em;
     white-space: nowrap;
     margin: 0;
 }
 
-/* Quebra "VINÍCIUS / KAWASUGUI" usada só no mobile (ver media query abaixo) */
 .hero-nome-quebra {
     display: none;
 }
 
-/* ── ASSINATURA "Santiago" — efeito de escrita à mão ── */
-/* A palavra é renderizada como SVG e o contorno das letras é "desenhado"
-   animando stroke-dashoffset (como uma caneta traçando o texto).
-   Depois, a tinta preenche o traço para dar o acabamento de caligrafia. */
 .hero-santiago {
     position: absolute;
     top: 76%;
@@ -188,9 +182,6 @@ body.pagina-aberta { overflow: hidden; }
     will-change: transform, opacity;
 }
 
-/* ── "Web Designer e Desenvolvedor" — surge do chão ── */
-/* A máscara esconde tudo abaixo da linha de base; o texto começa deslocado
-   para baixo (como se estivesse enterrado no chão) e sobe até a posição final. */
 .hero-cargo-mascara {
     overflow: hidden;
 }
@@ -228,7 +219,6 @@ body.pagina-aberta { overflow: hidden; }
     }
 }
 
-/* ── FOTO COM PARALLAX ── */
 .foto-secao {
     position: relative;
     width: 720px;
@@ -315,8 +305,6 @@ body.pagina-aberta { overflow: hidden; }
         display: block;
     }
 
-    /* Assinatura sai da sobreposição e passa a ficar no fluxo normal,
-       abaixo de "KAWASUGUI", centralizada */
     .hero-santiago {
         position: static;
         display: block;
@@ -338,7 +326,7 @@ body.pagina-aberta { overflow: hidden; }
     }
 }
 
-/* ── TEXTO DE MISSÃO ── */
+
 .missao-secao {
     width: 100%;
     max-width: 1200px;
@@ -372,11 +360,6 @@ body.pagina-aberta { overflow: hidden; }
     color: #e2482f;
 }
 
-/* cada letra começa "apagada" (cinza) — a opacidade é atualizada via JS,
-   frame a frame, conforme o scroll avança (ver useEffect no componente).
-   Sem transition aqui de propósito: o efeito de suavidade já vem do lerp
-   em JS, então uma transition CSS por cima só deixaria o preenchimento
-   "atrasado" e borrado. */
 .missao-letra {
     opacity: 0.22;
 }
@@ -398,10 +381,6 @@ body.pagina-aberta { overflow: hidden; }
     }
 }
 
-/* ── "POR TRÁS DO PROCESSO CRIATIVO" — texto normal, sem posição fixa.
-   Ele rola junto com a página como qualquer outro elemento; o único efeito
-   é o tamanho (escala), controlado via JS conforme a seção passa pela tela
-   (ver useEffect correspondente no componente). ── */
 .processo-secao {
     width: 100%;
     margin: 220px auto 0;
@@ -416,16 +395,12 @@ body.pagina-aberta { overflow: hidden; }
     margin: 0;
 }
 
-/* cada linha ocupa a largura toda para não quebrar o alinhamento central
-   quando ela se desloca lateralmente na entrada */
 .processo-linha {
     display: block;
     width: 100%;
     will-change: transform;
 }
 
-/* estado inicial (antes do JS assumir): linhas fora da tela, cada uma do
-   lado pelo qual "chegam" conforme o scroll avança */
 .processo-linha-esquerda {
     transform: translateX(-115%);
 }
@@ -462,12 +437,6 @@ body.pagina-aberta { overflow: hidden; }
     }
 }
 
-/* ── LINHA DO TEMPO (HORIZONTAL) ──
-   Mesmo padrão do jogos.jsx: o wrapper "trilho" é mais alto que a tela (a
-   altura exata é definida via JS = 1 tela + a distância horizontal da
-   lista) pra dar espaço de scroll, e a seção gruda no topo via position:
-   sticky — sem pin do GSAP, então a animação de entrada do jogos continua
-   intacta. O JS só lê o scroll e desliza a .linha-tempo-lista na horizontal. */
 .linha-tempo-trilho-scroll {
     position: relative;
     width: 100vw;
@@ -496,15 +465,10 @@ body.pagina-aberta { overflow: hidden; }
     will-change: transform;
 }
 
-/* ── TRILHA HORIZONTAL ÚNICA ──
-   Barra contínua que cruza o centro dos pontos: o fundo cinza cobre do
-   primeiro ao último item, e o trecho colorido cresce em largura (via JS)
-   conforme o scroll horizontal avança, como uma barra de progresso. */
 .linha-tempo-trilho {
     position: absolute;
     left: 12vw;
     right: 12vw;
-    /* alinhada ao centro dos pontos: altura do ano (44px) + margem (48px) + metade do ponto (7px) */
     top: 99px;
     height: 1.5px;
     background: rgba(255, 255, 255, 0.18);
@@ -537,8 +501,6 @@ body.pagina-aberta { overflow: hidden; }
     transform: translateY(0);
 }
 
-/* Apenas o item mais próximo do centro da tela (o "ativo", controlado via
-   JS a partir do scroll) fica com cor cheia; os demais ficam apagados/cinza. */
 .linha-tempo-ano,
 .linha-tempo-ponto {
     transition: color 0.5s ease, background 0.5s ease;
@@ -557,7 +519,6 @@ body.pagina-aberta { overflow: hidden; }
     background: rgba(255, 255, 255, 0.22);
 }
 
-/* título e descrição só são revelados quando o item vira o "ativo" da linha do tempo */
 .linha-tempo-item:not(.linha-tempo-item-ativo) .linha-tempo-titulo,
 .linha-tempo-item:not(.linha-tempo-item-ativo) .linha-tempo-descricao {
     opacity: 0;
@@ -638,8 +599,6 @@ body.pagina-aberta { overflow: hidden; }
         padding: 0 10vw;
     }
 
-    /* trilho realinhado ao centro dos pontos menores:
-       ano (28px) + margem (36px) + metade do ponto (5px) */
     .linha-tempo-trilho {
         left: 10vw;
         right: 10vw;
@@ -668,153 +627,5 @@ body.pagina-aberta { overflow: hidden; }
     .linha-tempo-descricao {
         font-size: 18px;
         line-height: 1.5;
-    }
-}
-
-/* ── FALLOUT: imagem cilíndrica que cresce até tela cheia ──
-   .fallout-secao é o "trilho" de rolagem (mais alto que a tela) para dar
-   espaço ao efeito; .fallout-secao-sticky gruda no topo enquanto a seção
-   passa, fazendo a imagem crescer visualmente na mesma posição, como se
-   estivesse "vindo pra frente" até tomar a tela toda. */
-.fallout-secao {
-    position: relative;
-    width: 100%;
-    height: 260vh;
-    margin: 220px 0 0;
-}
-
-.fallout-secao-sticky {
-    position: sticky;
-    top: 0;
-    left: 0;
-    width: calc(100% + 12vw);
-    margin-left: -6vw;
-    height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
-}
-
-.fallout-imagem-wrapper {
-    position: relative;
-    width: 300px;
-    height: 560px;
-    max-width: none;
-    overflow: hidden;
-    border-radius: 150px;
-    will-change: width, height, border-radius;
-    box-shadow: 0 40px 100px rgba(0, 0, 0, 0.5);
-}
-
-.fallout-imagem {
-    position: absolute;
-    inset: 0;
-    display: block;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    filter: brightness(0.6) blur(3px);
-}
-
-/* ── overlay: título "JOGOS FAVORITOS" + "FALLOUT" + modelo 3D ──
-   só ficam visíveis (opacidade controlada via JS) quando a imagem já
-   está em tela cheia */
-.fallout-overlay {
-    position: absolute;
-    inset: 0;
-    z-index: 2;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    opacity: 0;
-    pointer-events: none;
-    will-change: opacity;
-}
-
-.fallout-titulo-favoritos {
-    position: absolute;
-    top: 24px;
-    left: 50%;
-    transform: translate(-50%, 0);
-    z-index: 5;
-    margin: 0;
-    font-family: 'Block Berthold', sans-serif;
-    font-size: 56px;
-    color: #fff;
-    letter-spacing: 0.05em;
-    text-align: center;
-    pointer-events: none;
-    white-space: nowrap;
-}
-
-.fallout-modelos {
-    position: absolute;
-    inset: 0;
-    z-index: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.fallout-modelo {
-    position: relative;
-    height: 100%;
-    width: 60%;
-    max-width: 700px;
-}
-
-.fallout-titulo-fallout {
-    position: absolute;
-    top: 36%;
-    left: 50%;
-    transform: translate(-50%, -100%);
-    z-index: 1; /* atrás do modelo 3D */
-    margin: 0;
-    font-family: 'Overseer', sans-serif;
-    font-style: italic;
-    font-size: 215px;
-    color: #fff;
-    letter-spacing: 0.05em;
-    text-align: center;
-    pointer-events: none;
-    white-space: nowrap;
-}
-
-.fallout-modelo-canvas {
-    position: relative;
-    z-index: 2; /* modelo 3D na frente do título FALLOUT */
-    width: 100%;
-    height: 100%;
-}
-
-.fallout-modelo-canvas canvas {
-    background: transparent !important;
-}
-
-@media (max-width: 768px) {
-    .fallout-secao {
-        height: 220vh;
-        margin-top: 140px;
-    }
-
-    .fallout-imagem-wrapper {
-        width: 190px;
-        height: 340px;
-        border-radius: 95px;
-    }
-
-    .fallout-titulo-favoritos {
-        font-size: 28px;
-        top: 14px;
-    }
-
-    .fallout-titulo-fallout {
-        font-size: 40px;
-        top: 34%;
-    }
-
-    .fallout-modelo {
-        width: 85%;
     }
 }

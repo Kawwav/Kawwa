@@ -1,311 +1,336 @@
-import { useEffect, useState, useRef, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
-import "./Sistemas.css";
+import { useEffect, useRef, useState, useCallback } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+import "./Servicos.css";
 
-const PROJECTS = [
+const GALLERY_IMAGES = {
+  designer: [
+    "designer/barbearia.PNG",
+    "designer/petshop.PNG",
+    "designer/roupa.png",
+    "designer/souza.PNG",
+    "designer/viviart.PNG",
+  ],
+  desenvolvimento: [
+    "desenvolvimento/marinho.PNG",
+    "desenvolvimento/zero.PNG",
+    "desenvolvimento/sitebolsa.PNG",
+    "desenvolvimento/souza (1).PNG",
+    "desenvolvimento/barbearia (1).PNG",
+    "desenvolvimento/souza.PNG"
+  ],
+  sistemas: [
+    "sistemas/barbearia.png",
+  ],
+};
+
+const ITEMS = [
   {
-    label: "Sistema Barbearia",
-    desc: "Sistema completo para barbearias, com agendamento online, cadastro de clientes e barbeiros, customização do site, acompanhamento financeiro e clube de assinatura para clientes",
-    type: "Sistema Web",
-    image: "sistemas/barbearia.png",
-    link: "https://kawwav.github.io/sistemabarbearia/",
+    title: "WEB DESIGNER",
+    num: "01",
+    hasGallery: true,
+    folder: "designer",
+    hasSplit: true,
+    route: "/designer",
+  },
+  {
+    title: "DESENVOLVIMENTO",
+    num: "02",
+    hasGallery: true,
+    folder: "desenvolvimento",
+    hasSplit: true,
+    route: "/desenvolvimento",
+  },
+  {
+    title: "SISTEMAS",
+    num: "03",
+    hasGallery: true,
+    folder: "sistemas",
+    hasSplit: true,
+    route: "/sistemas",
   },
 ];
 
-function IconLista() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <line x1="4" y1="6" x2="20" y2="6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-      <line x1="4" y1="12" x2="20" y2="12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-      <line x1="4" y1="18" x2="20" y2="18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-    </svg>
-  );
-}
 
-function IconGrade() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <rect x="4" y="4" width="7" height="7" rx="1.5" stroke="currentColor" strokeWidth="2" />
-      <rect x="13" y="4" width="7" height="7" rx="1.5" stroke="currentColor" strokeWidth="2" />
-      <rect x="4" y="13" width="7" height="7" rx="1.5" stroke="currentColor" strokeWidth="2" />
-      <rect x="13" y="13" width="7" height="7" rx="1.5" stroke="currentColor" strokeWidth="2" />
-    </svg>
-  );
-}
-
-// Faz o ícone dentro do botão "seguir" o cursor com um leve efeito magnético
-function useMouseFollow(strength = 0.35) {
-  const handleMouseMove = (e) => {
-    const btn = e.currentTarget;
-    const icon = btn.querySelector("svg");
-    if (!icon) return;
-    const rect = btn.getBoundingClientRect();
-    const x = e.clientX - rect.left - rect.width / 2;
-    const y = e.clientY - rect.top - rect.height / 2;
-    icon.style.transform = `translate(${x * strength}px, ${y * strength}px)`;
-  };
-
-  const handleMouseLeave = (e) => {
-    const icon = e.currentTarget.querySelector("svg");
-    if (!icon) return;
-    icon.style.transform = "translate(0px, 0px)";
-  };
-
-  return { onMouseMove: handleMouseMove, onMouseLeave: handleMouseLeave };
-}
-
-const DURACAO_SAIDA = 850;
-const DURACAO_ENTRADA = 1000;
-const ATRASO_POR_ITEM = 60;
-
-export default function Sistemas() {
-  const [visible, setVisible] = useState(false);
-  const navigate = useNavigate();
-  const exitRef = useRef(null);
+function CursorGallery({ mousePos, visible, images }) {
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [prevIndex, setPrevIndex] = useState(null);
+  const intervalRef = useRef(null);
   const baseUrl = import.meta.env.BASE_URL;
 
-  const [visao, setVisao] = useState("lista");
-  const [visaoExibida, setVisaoExibida] = useState("lista");
-  const [fase, setFase] = useState("idle"); // "idle" | "saindo" | "entrando"
-  const mouseFollow = useMouseFollow(0.3);
-  const transicaoTimers = useRef([]);
+  const containerRef = useRef(null);
+  const targetPos = useRef(mousePos);
+  const smoothPos = useRef(mousePos);
+  useEffect(() => {
+    targetPos.current = mousePos;
+  }, [mousePos]);
 
   useEffect(() => {
-    const t = setTimeout(() => setVisible(true), 100);
-    return () => clearTimeout(t);
+    let raf;
+    const EASE = 0.1; 
+
+    const animate = () => {
+      smoothPos.current = {
+        x: smoothPos.current.x + (targetPos.current.x - smoothPos.current.x) * EASE,
+        y: smoothPos.current.y + (targetPos.current.y - smoothPos.current.y) * EASE,
+      };
+
+      if (containerRef.current) {
+        containerRef.current.style.left = `${smoothPos.current.x}px`;
+        containerRef.current.style.top = `${smoothPos.current.y}px`;
+      }
+
+      raf = requestAnimationFrame(animate);
+    };
+
+    raf = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(raf);
   }, []);
-
-  const trocarVisao = (nova) => {
-    if (nova === visao || fase !== "idle") return;
-
-    setVisao(nova);
-    setFase("saindo");
-
-    const maiorAtraso = (PROJECTS.length - 1) * ATRASO_POR_ITEM;
-    const t1 = setTimeout(() => {
-      setVisaoExibida(nova);
-      setFase("entrando");
-
-      const t2 = setTimeout(() => {
-        setFase("idle");
-      }, DURACAO_ENTRADA + maiorAtraso);
-      transicaoTimers.current.push(t2);
-    }, DURACAO_SAIDA + maiorAtraso);
-    transicaoTimers.current.push(t1);
-  };
 
   useEffect(() => {
-    return () => transicaoTimers.current.forEach(clearTimeout);
-  }, []);
-
-  const listaRef = useRef(null);
-  const caixaRef = useRef(null);
-  const imagemRefA = useRef(null);
-  const imagemRefB = useRef(null);
-  const imagemAtivaRef = useRef(null);
-
-  const handleListaMouseMove = (e) => {
-    const container = listaRef.current;
-    const caixa = caixaRef.current;
-    if (!container || !caixa) return;
-    const rect = container.getBoundingClientRect();
-    caixa.style.left = `${e.clientX - rect.left}px`;
-    caixa.style.top = `${e.clientY - rect.top}px`;
-  };
-
-  const handleItemMouseEnter = (src) => {
-    const caixa = caixaRef.current;
-    const imgA = imagemRefA.current;
-    const imgB = imagemRefB.current;
-    if (!caixa || !imgA || !imgB) return;
-
-    caixa.classList.add("sistemas-hover-caixa--ativa");
-
-    const atual = imagemAtivaRef.current;
-
-    if (!atual) {
-      imgA.src = src;
-      imgA.classList.remove("sistemas-hover-imagem--saindo", "sistemas-hover-imagem--entrando");
-      imgA.classList.add("sistemas-hover-imagem--ativa");
-      imagemAtivaRef.current = imgA;
+    if (!visible) {
+      if (intervalRef.current) clearInterval(intervalRef.current);
       return;
     }
+    intervalRef.current = setInterval(() => {
+      setPrevIndex(currentIndex);
+      setCurrentIndex((i) => (i + 1) % images.length);
+    }, 2000);
+    return () => clearInterval(intervalRef.current);
+  }, [visible, currentIndex, images]);
 
-    const proxima = atual === imgA ? imgB : imgA;
-
-    atual.classList.remove("sistemas-hover-imagem--ativa");
-    atual.classList.add("sistemas-hover-imagem--saindo");
-
-    proxima.src = src;
-    proxima.classList.remove("sistemas-hover-imagem--saindo");
-    proxima.classList.add("sistemas-hover-imagem--entrando");
-
-    void proxima.offsetWidth;
-
-    proxima.classList.remove("sistemas-hover-imagem--entrando");
-    proxima.classList.add("sistemas-hover-imagem--ativa");
-
-    imagemAtivaRef.current = proxima;
-  };
-
-  const handleListaMouseLeave = () => {
-    const caixa = caixaRef.current;
-    if (caixa) caixa.classList.remove("sistemas-hover-caixa--ativa");
-    const atual = imagemAtivaRef.current;
-    if (atual) {
-      atual.classList.remove("sistemas-hover-imagem--ativa", "sistemas-hover-imagem--entrando", "sistemas-hover-imagem--saindo");
+  useEffect(() => {
+    if (visible) {
+      setCurrentIndex(0);
+      setPrevIndex(null);
     }
-    imagemAtivaRef.current = null;
-  };
+  }, [visible]);
 
-  const handleBack = useCallback((e) => {
-    const el = exitRef.current;
-    if (!el) { navigate(-1); return; }
+  return (
+    <div
+      ref={containerRef}
+      className={"cursor" + (visible ? " visivel" : "")}
+      style={{ left: smoothPos.current.x, top: smoothPos.current.y }}
+    >
+      <div className="camada" />
+      {images.map((caminhoDaImagem, i) => {
 
-    const origin = e
-      ? { x: e.clientX, y: e.clientY }
+        const urlCompleta = `${baseUrl}${caminhoDaImagem}`;
+
+        return (
+          <img
+            key={caminhoDaImagem}
+            src={urlCompleta}
+            alt=""
+            className={[
+              "imagem",
+              i === currentIndex ? "ativa"    : "",
+              i === prevIndex    ? "anterior" : "",
+            ].join(" ")}
+          />
+        );
+      })}
+    </div>
+  );
+}
+
+function SplitItem({ item, index, onMouseEnter, onMouseLeave, onMouseMove, onSplitClick }) {
+  const [split, setSplit] = useState(false);
+  const itemRef = useRef(null);
+  const isTouchDevice = typeof window !== "undefined" && window.matchMedia("(hover: none)").matches;
+
+  const handleClick = (e) => {
+    if (!item.hasSplit || split) return;
+    setSplit(true);
+    onMouseLeave(item);
+
+    const rect = itemRef.current?.getBoundingClientRect();
+    const origin = rect
+      ? { x: e.clientX || rect.left + rect.width / 2, y: rect.top + rect.height / 2 }
       : { x: window.innerWidth / 2, y: window.innerHeight / 2 };
 
+    setTimeout(() => onSplitClick(item.route, origin), 500);
+  };
+
+  return (
+    <li
+      ref={itemRef}
+      className={[
+        "item",
+        item.hasGallery && !split && !isTouchDevice ? "galeria"  : "",
+        item.hasSplit             ? "clicavel" : "",
+        split                     ? "dividido" : "",
+      ].join(" ")}
+      style={{ "--item-delay": `${index * 0.12}s` }}
+      onMouseEnter={() => { if (!split && !isTouchDevice) onMouseEnter(item); }}
+      onMouseLeave={() => { if (!split && !isTouchDevice) onMouseLeave(item); }}
+      onMouseMove={item.hasGallery && !split && !isTouchDevice ? onMouseMove : undefined}
+      onClick={handleClick}
+    >
+      <div className="linha">
+        <div className="metade topo">
+          <h2 className="titulo">{item.title}</h2>
+          <div className="meta">
+            <span className="numero">{item.num}</span>
+            {item.hasSplit && (
+              <span className="cta">
+                Clique para ver
+                <span className="seta">→</span>
+              </span>
+            )}
+          </div>
+        </div>
+        <div className="metade baixo">
+          <h2 className="titulo">{item.title}</h2>
+          <div className="meta">
+            <span className="numero">{item.num}</span>
+            {item.hasSplit && (
+              <span className="cta">
+                Clique para ver
+                <span className="seta">→</span>
+              </span>
+            )}
+          </div>
+        </div>
+        <div className="fundo" />
+      </div>
+    </li>
+  );
+}
+
+export default function Servicos() {
+  const sectionRef  = useRef(null);
+  const navigate    = useNavigate();
+  const location    = useLocation();
+  const zoomRef     = useRef(null);   
+  const revealRef   = useRef(null);   
+
+  const [galleryVisible, setGalleryVisible] = useState(false);
+  const [activeFolder,   setActiveFolder]   = useState("designer");
+  const [mousePos,       setMousePos]       = useState({ x: 0, y: 0 });
+  const [zoomTarget,     setZoomTarget]     = useState(null);
+
+  const rafRef = useRef(null);
+
+  useEffect(() => {
+
+    const from = location.state?.from;
+    if (!from) return;
+
+    const section = sectionRef.current;
+    if (section) {
+      if (window.__lenis) {
+        window.__lenis.scrollTo(section.offsetTop, { immediate: true });
+      } else {
+        window.scrollTo({ top: section.offsetTop, behavior: "instant" });
+      }
+    }
+
+    const el = revealRef.current;
+    if (!el) return;
+
+    const origin = location.state?.origin ?? {
+      x: window.innerWidth / 2,
+      y: window.innerHeight / 2,
+    };
+
     const maxRadius = Math.hypot(
-      Math.max(origin.x, window.innerWidth - origin.x),
+      Math.max(origin.x, window.innerWidth  - origin.x),
       Math.max(origin.y, window.innerHeight - origin.y)
     );
 
-    el.style.setProperty("--exit-x", `${origin.x}px`);
-    el.style.setProperty("--exit-y", `${origin.y}px`);
-    el.style.setProperty("--exit-r", `0px`);
-    el.classList.remove("sistemas-exit-overlay--go");
+    // começa grande (cobrindo tudo) e fecha até raio 0
+    el.style.setProperty("--reveal-x", `${origin.x}px`);
+    el.style.setProperty("--reveal-y", `${origin.y}px`);
+    el.style.setProperty("--reveal-r", `${maxRadius}px`);
+    el.classList.remove("ir");
+
+    // força reflow
+    void el.offsetWidth;
+
+
+    requestAnimationFrame(() => {
+      el.style.setProperty("--reveal-r", `0px`);
+      el.classList.add("ir");
+    });
+  }, []);
+
+  useEffect(() => {
+    const section = sectionRef.current;
+    if (!section) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) section.classList.add("visivel");
+        else section.classList.remove("visivel");
+      },
+      { threshold: 0.15 }
+    );
+    observer.observe(section);
+    return () => observer.disconnect();
+  }, []);
+
+  const handleMouseMove = useCallback((e) => {
+    if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    rafRef.current = requestAnimationFrame(() => {
+      setMousePos({ x: e.clientX, y: e.clientY });
+    });
+  }, []);
+
+  const handleSplitClick = useCallback((route, origin) => {
+    const el = zoomRef.current;
+    if (!el) return;
+
+    const maxRadius = Math.hypot(
+      Math.max(origin.x, window.innerWidth  - origin.x),
+      Math.max(origin.y, window.innerHeight - origin.y)
+    );
+
+    el.style.setProperty("--zoom-x", `${origin.x}px`);
+    el.style.setProperty("--zoom-y", `${origin.y}px`);
+    el.style.setProperty("--zoom-r", `0px`);
+    el.classList.remove("ir");
+    setZoomTarget(route);
     void el.offsetWidth;
 
     requestAnimationFrame(() => {
-      el.style.setProperty("--exit-r", `${maxRadius}px`);
-      el.classList.add("sistemas-exit-overlay--go");
+      el.style.setProperty("--zoom-r", `${maxRadius}px`);
+      el.classList.add("ir");
     });
 
-    setTimeout(() => {
-      navigate("/", { state: { from: "/sistemas", origin } });
-    }, 1000);
+    setTimeout(() => navigate(route), 1000);
   }, [navigate]);
-
-  useEffect(() => {
-    const onKey = (e) => { if (e.key === "Escape") handleBack(null); };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [handleBack]);
-
-  const abrirProjeto = (link) => window.open(link, "_blank", "noopener,noreferrer");
 
   return (
     <>
-      <div className="sistemas-page">
-        <button
-          className={`sistemas-back${visible ? " is-visible" : ""}`}
-          onClick={handleBack}
-          aria-label="Voltar para Serviços"
-        >
-          ← Voltar
-        </button>
+      <section className="servicos" ref={sectionRef}>
+        <p className="label">Serviços</p>
 
-        <div className={`sistemas-topo${visible ? " is-visible" : ""}`}>
-          <h1 className="sistemas-title">Sistemas</h1>
+        <ul className="lista">
+          {ITEMS.map((item, i) => (
+            <SplitItem
+              key={item.title}
+              item={item}
+              index={i}
+              onMouseEnter={(it) => {
+                if (it.hasGallery) { setActiveFolder(it.folder); setGalleryVisible(true); }
+              }}
+              onMouseLeave={(it) => { if (it.hasGallery) setGalleryVisible(false); }}
+              onMouseMove={handleMouseMove}
+              onSplitClick={handleSplitClick}
+            />
+          ))}
+        </ul>
 
-          <div className="sistemas-toggle">
-            <button
-              type="button"
-              className={`sistemas-toggle-btn ${visao === "lista" ? "sistemas-toggle-btn--ativo" : ""}`}
-              onClick={() => trocarVisao("lista")}
-              onMouseMove={mouseFollow.onMouseMove}
-              onMouseLeave={mouseFollow.onMouseLeave}
-              aria-label="Ver como lista"
-              aria-pressed={visao === "lista"}
-              disabled={fase !== "idle"}
-            >
-              <IconLista />
-            </button>
-            <button
-              type="button"
-              className={`sistemas-toggle-btn ${visao === "grade" ? "sistemas-toggle-btn--ativo" : ""}`}
-              onClick={() => trocarVisao("grade")}
-              onMouseMove={mouseFollow.onMouseMove}
-              onMouseLeave={mouseFollow.onMouseLeave}
-              aria-label="Ver como grade"
-              aria-pressed={visao === "grade"}
-              disabled={fase !== "idle"}
-            >
-              <IconGrade />
-            </button>
-          </div>
-        </div>
+        <CursorGallery
+          mousePos={mousePos}
+          visible={galleryVisible}
+          images={GALLERY_IMAGES[activeFolder]}
+        />
+      </section>
 
-        {visaoExibida === "lista" && (
-          <>
-            <div className="sistemas-cabecalho">
-              <span>Sistema</span>
-              <span>Descrição</span>
-              <span>Tipo</span>
-              <span />
-            </div>
+      <div className="zoom" ref={zoomRef} aria-hidden={zoomTarget === null} />
 
-            <div
-              className={`sistemas-lista ${fase === "saindo" ? "sistemas-lista--saindo" : ""} ${fase === "entrando" ? "sistemas-lista--entrando" : ""}`}
-              ref={listaRef}
-              onMouseMove={handleListaMouseMove}
-              onMouseLeave={handleListaMouseLeave}
-            >
-              {PROJECTS.map((p, i) => (
-                <div
-                  className="sistemas-item"
-                  key={p.label}
-                  style={{ "--i": i }}
-                  onMouseEnter={() => handleItemMouseEnter(`${baseUrl}${p.image}`)}
-                  onClick={() => abrirProjeto(p.link)}
-                  role="link"
-                  tabIndex={0}
-                  onKeyDown={(e) => e.key === "Enter" && abrirProjeto(p.link)}
-                >
-                  <h3 className="sistemas-item-label">{p.label}</h3>
-                  <span className="sistemas-item-desc">{p.desc}</span>
-                  <span className="sistemas-item-type">{p.type}</span>
-                  <span className="sistemas-item-arrow">↗</span>
-                </div>
-              ))}
 
-              <div className="sistemas-hover-caixa" ref={caixaRef}>
-                <img src={`${baseUrl}${PROJECTS[0].image}`} alt="" className="sistemas-hover-imagem" ref={imagemRefA} />
-                <img src={`${baseUrl}${PROJECTS[0].image}`} alt="" className="sistemas-hover-imagem" ref={imagemRefB} />
-              </div>
-            </div>
-          </>
-        )}
-
-        {visaoExibida === "grade" && (
-          <div className={`sistemas-grade ${fase === "saindo" ? "sistemas-grade--saindo" : ""} ${fase === "entrando" ? "sistemas-grade--entrando" : ""}`}>
-            {PROJECTS.map((p, i) => (
-              <div
-                className="sistemas-card"
-                key={p.label}
-                style={{ "--i": i }}
-                onClick={() => abrirProjeto(p.link)}
-                role="link"
-                tabIndex={0}
-                onKeyDown={(e) => e.key === "Enter" && abrirProjeto(p.link)}
-              >
-                <div className="sistemas-card-imagem-wrap">
-                  <img src={`${baseUrl}${p.image}`} alt={p.label} className="sistemas-card-imagem" />
-                </div>
-                <h3 className="sistemas-card-label">{p.label}</h3>
-                <div className="sistemas-card-linha" />
-                <div className="sistemas-card-rodape">
-                  <span className="sistemas-card-type">{p.type}</span>
-                  <span className="sistemas-card-arrow">↗</span>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-
-      <div className="sistemas-exit-overlay" ref={exitRef} />
+      <div className="revelar" ref={revealRef} />
     </>
   );
 }

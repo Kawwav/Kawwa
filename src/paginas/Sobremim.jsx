@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState } from "react";
+import Lenis from "lenis";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import "./Sobremim.css";
-import Jogos from "./jogos";
-import Tv from "./tv";
-// clamp01 precisa existir em escopo de módulo: o loop da linha do tempo usa
-// essa função e, sem ela, o requestAnimationFrame quebrava no 1º frame — por
-// isso a seção "passava reto" (sem scroll horizontal nem item ativo).
+
+gsap.registerPlugin(ScrollTrigger);
+
 const clamp01 = (v) => Math.min(Math.max(v, 0), 1);
 
 export default function Sobremim({ onClose }) {
@@ -51,6 +52,39 @@ const linhaTempo = [
         return () => document.body.classList.remove("pagina-aberta");
     }, []);
 
+    // Scroll suave (Lenis) dentro do painel do "Sobre mim".
+    // O scroll real acontece em .pagina (position: fixed + overflow auto),
+    // por isso o Lenis usa esse elemento como wrapper e não a window.
+    useEffect(() => {
+        const pagina = paginaRef.current;
+        const conteudo = painelPrincipalRef.current;
+        if (!pagina || !conteudo) return;
+
+        // pausa o Lenis global da home enquanto este painel está aberto
+        window.__lenis?.stop();
+
+        const lenis = new Lenis({
+            wrapper: pagina,
+            content: conteudo,
+            lerp: 0.065,
+            wheelMultiplier: 0.9,
+            smoothWheel: true,
+        });
+
+        let rafId;
+        const raf = (time) => {
+            lenis.raf(time);
+            rafId = requestAnimationFrame(raf);
+        };
+        rafId = requestAnimationFrame(raf);
+
+        return () => {
+            cancelAnimationFrame(rafId);
+            lenis.destroy();
+            window.__lenis?.start();
+        };
+    }, []);
+
     useEffect(() => {
         const TAMANHO_MAXIMO = 190;
         const TAMANHO_MINIMO = 28;
@@ -76,7 +110,6 @@ const linhaTempo = [
         };
 
         ajustarFonte();
-        // Garante recálculo após a fonte DM Sans carregar (evita medir com fonte de fallback)
         if (document.fonts && document.fonts.ready) {
             document.fonts.ready.then(ajustarFonte);
         }
@@ -122,10 +155,10 @@ const linhaTempo = [
         const rodape = rodapeRef.current;
         if (!pagina || !wrapper || !img) return;
 
-        const INTENSIDADE = 0.55;       // parallax da foto
-        const INTENSIDADE_NOME = 0.42;  // parallax do nome + assinatura (camada de trás)
-        const INTENSIDADE_CARGO = 0.75; // parallax do cargo (camada da frente, mais rápida)
-        const DISTANCIA_FADE = 420;     // px de scroll até o texto sumir por completo
+        const INTENSIDADE = 0.55;       
+        const INTENSIDADE_NOME = 0.42;
+        const INTENSIDADE_CARGO = 0.75
+        const DISTANCIA_FADE = 420;    
 
         let ticking = false;
 
@@ -134,7 +167,6 @@ const linhaTempo = [
             const rectWrapper = wrapper.getBoundingClientRect();
             const scrollTop = pagina.scrollTop;
 
-            // posição do centro do wrapper relativa ao centro da área visível da .pagina
             const centroWrapper = rectWrapper.top + rectWrapper.height / 2;
             const centroPagina  = rectPagina.top + rectPagina.height / 2;
             const distancia = centroWrapper - centroPagina;
@@ -188,11 +220,7 @@ const linhaTempo = [
             const rectPagina = pagina.getBoundingClientRect();
             const rectGrupo = grupo.getBoundingClientRect();
 
-            // posição do topo do texto relativa ao topo da área visível da .pagina
             const topoRelativo = rectGrupo.top - rectPagina.top;
-
-            // 0 = texto ainda embaixo, entrando pela parte de baixo da tela (tamanho cheio)
-            // 1 = texto já subiu bastante e atingiu o tamanho mínimo
             const progresso = clamp01(
                 (rectPagina.height - topoRelativo) / (rectPagina.height * 1.3)
             );
@@ -219,6 +247,9 @@ const linhaTempo = [
         };
     }, [paginaVisivel]);
 
+    // "Por trás do processo criativo": linhas entram pelos lados com GSAP + ScrollTrigger.
+    // O scroller é o .pagina (não a window). O trigger é o wrapper .processo-secao
+    // (o h2 interno sofre scale em outro efeito, o que bagunçaria as posições).
     useEffect(() => {
         const pagina = paginaRef.current;
         const grupo = processoGrupoRef.current;
@@ -227,41 +258,29 @@ const linhaTempo = [
         const linha3 = processoLinha3Ref.current;
         if (!pagina || !grupo || !linha1 || !linha2 || !linha3) return;
 
-        const VELOCIDADE_GLOBAL = 1.6;
-        const VELOCIDADE_LINHA1 = 1.25; // chega primeiro
-        const VELOCIDADE_LINHA2 = 1.1;
-        const VELOCIDADE_LINHA3 = 1.0;  // chega por último
-        const SUAVIZACAO = 0.05;
-        let atual1 = 115;
-        let atual2 = 115;
-        let atual3 = 115;
-        let frameId;
+        const ctx = gsap.context(() => {
+            const tl = gsap.timeline({
+                defaults: { ease: "power3.out", duration: 1 },
+                scrollTrigger: {
+                    trigger: grupo.parentElement,
+                    scroller: pagina,
+                    start: "top bottom",
+                    end: "top 15%",
+                    scrub: 1.2, // atraso suave entre o scroll e a animação
+                    invalidateOnRefresh: true,
+                },
+            });
 
-        const passo = () => {
-            const rectPagina = pagina.getBoundingClientRect();
-            const rectGrupo = grupo.getBoundingClientRect();
-            const topoRelativo = rectGrupo.top - rectPagina.top;
-            const progresso = clamp01(
-                (rectPagina.height - topoRelativo) / (rectPagina.height * 1.1)
-            );
+            // x: 0 zera o translateX vindo do CSS; xPercent faz o movimento
+            tl.fromTo(linha1, { xPercent: -115, x: 0 }, { xPercent: 0 }, 0)
+              .fromTo(linha2, { xPercent: 115,  x: 0 }, { xPercent: 0 }, 0.12)
+              .fromTo(linha3, { xPercent: -115, x: 0 }, { xPercent: 0 }, 0.24);
+        }, pagina);
 
-            const alvo1 = (1 - clamp01(progresso * VELOCIDADE_GLOBAL * VELOCIDADE_LINHA1)) * 115;
-            const alvo2 = (1 - clamp01(progresso * VELOCIDADE_GLOBAL * VELOCIDADE_LINHA2)) * 115;
-            const alvo3 = (1 - clamp01(progresso * VELOCIDADE_GLOBAL * VELOCIDADE_LINHA3)) * 115;
+        const refrescar = () => ScrollTrigger.refresh();
+        if (document.fonts && document.fonts.ready) document.fonts.ready.then(refrescar);
 
-            atual1 += (alvo1 - atual1) * SUAVIZACAO;
-            atual2 += (alvo2 - atual2) * SUAVIZACAO;
-            atual3 += (alvo3 - atual3) * SUAVIZACAO;
-
-            linha1.style.transform = `translateX(${-atual1}%)`;
-            linha2.style.transform = `translateX(${atual2}%)`;
-            linha3.style.transform = `translateX(${-atual3}%)`;
-
-            frameId = requestAnimationFrame(passo);
-        };
-
-        frameId = requestAnimationFrame(passo);
-        return () => cancelAnimationFrame(frameId);
+        return () => ctx.revert();
     }, [paginaVisivel]);
 
     useEffect(() => {
@@ -290,9 +309,9 @@ const linhaTempo = [
         const texto = missaoTextoRef.current;
         if (!pagina || !texto) return;
 
-        const ALCANCE = 10;     // nº de letras "acendendo" ao mesmo tempo (suaviza a transição)
+        const ALCANCE = 10; 
         const OPACIDADE_APAGADA = 0.22;
-        const SUAVIZACAO = 0.15; // menor = mais atraso/suavidade atrás do scroll
+        const SUAVIZACAO = 0.15;
 
         let progressoAtual = 0;
         let frameId;
@@ -330,7 +349,6 @@ const linhaTempo = [
 
         setLinhaTempoVisiveis(new Array(linhaTempo.length).fill(false));
 
-        // revela todos os itens de uma vez quando a seção da linha do tempo entra na tela
         const observer = new IntersectionObserver(
             (entries) => {
                 entries.forEach((entry) => {
@@ -347,12 +365,6 @@ const linhaTempo = [
         return () => observer.disconnect();
     }, []);
 
-    // ── LINHA DO TEMPO HORIZONTAL ──
-    // Mesmo padrão do jogos.jsx: um wrapper alto ("trilho") dá espaço de
-    // scroll e a seção fica grudada no topo via position: sticky (NADA de
-    // pin do GSAP — pin + scroller customizado causava vãos pretos e
-    // quebrava a animação de entrada do jogos). Aqui só lemos o scroll e
-    // convertemos em deslocamento horizontal da lista, com suavização.
     useEffect(() => {
         if (!paginaVisivel) return;
         const pagina = paginaRef.current;
@@ -364,10 +376,8 @@ const linhaTempo = [
         let atual = 0;
         let frameId;
 
-        // distância que a lista precisa andar na horizontal
         const distancia = () => Math.max(lista.scrollWidth - pagina.clientWidth, 1);
 
-        // altura do trilho = 1 tela parada + a distância horizontal convertida em scroll
         const ajustarAltura = () => {
             trilhoScroll.style.height = (pagina.clientHeight + distancia()) + "px";
         };
@@ -376,17 +386,12 @@ const linhaTempo = [
             const rectPagina = pagina.getBoundingClientRect();
             const rectTrilho = trilhoScroll.getBoundingClientRect();
 
-            // 0 quando o topo do trilho encosta no topo da página;
-            // 1 quando rolamos toda a "sobra" do trilho
             const alvo = clamp01((rectPagina.top - rectTrilho.top) / distancia());
-
-            // suaviza o deslize (mesmo estilo de interpolação do resto da página)
             atual += (alvo - atual) * 0.12;
 
             lista.style.transform = "translate3d(" + (-atual * distancia()) + "px, 0, 0)";
             progresso.style.width = (atual * 100) + "%";
 
-            // item ativo = o mais próximo do progresso atual
             const indice = Math.min(
                 linhaTempo.length - 1,
                 Math.round(atual * (linhaTempo.length - 1))
@@ -423,10 +428,6 @@ const linhaTempo = [
                             <h1 className="hero-nome" ref={nomeRef}>
                                 VINÍCIUS <br className="hero-nome-quebra" />KAWASUGUI
                             </h1>
-
-                            {/* Assinatura "Santiago" desenhada como se fosse escrita à mão:
-                                o SVG traça o contorno das letras (stroke-dashoffset) e,
-                                em seguida, a tinta preenche o traço. */}
                             <div className={"hero-santiago" + (paginaVisivel ? " hero-santiago-escrevendo" : "")}>
                                 <svg
                                     className="hero-santiago-svg"
@@ -494,16 +495,9 @@ const linhaTempo = [
                         </span>
                     </h2>
                 </div>
-
-                {/* ── LINHA DO TEMPO (horizontal) ──
-                    o wrapper alto dá espaço de scroll; a seção fica sticky no
-                    topo e o scroll vertical vira deslocamento horizontal da
-                    .linha-tempo-lista (mesmo padrão sticky do jogos.jsx) */}
                 <div className="linha-tempo-trilho-scroll" ref={trilhoScrollRef}>
                 <div className="linha-tempo-secao" ref={linhaTempoSecaoRef}>
                     <div className="linha-tempo-lista" ref={listaRef}>
-                        {/* trilha horizontal única: o trecho colorido cresce
-                            em largura conforme o scroll horizontal avança */}
                         <div className="linha-tempo-trilho" ref={trilhoRef} aria-hidden="true">
                             <div className="linha-tempo-trilho-progresso" ref={trilhoProgressoRef} />
                         </div>
@@ -533,8 +527,6 @@ const linhaTempo = [
                     </div>
                 </div>
                 </div>
-                <Jogos linhaTempoTrilhoRef={trilhoScrollRef} />
-                <Tv />
                 </div>
             </div>
         </>

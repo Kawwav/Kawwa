@@ -1,5 +1,7 @@
-import { useState } from "react";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
+import Lenis from "lenis";
+import "lenis/dist/lenis.css";
 import Header from "./paginas/Header";
 import Entrada from "./paginas/Entrada";
 import Sobre from "./paginas/Sobre";
@@ -18,6 +20,37 @@ npm run deploy*/
 //git commit -m "....."
 //git push
 
+
+function SmoothScroll() {
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    if (pathname !== "/") return;
+
+    const lenis = new Lenis({
+      lerp: 0.065,          
+      wheelMultiplier: 0.9,
+      smoothWheel: true,
+    });
+    window.__lenis = lenis; 
+
+    let rafId;
+    const raf = (time) => {
+      lenis.raf(time);
+      rafId = requestAnimationFrame(raf);
+    };
+    rafId = requestAnimationFrame(raf);
+
+    return () => {
+      cancelAnimationFrame(rafId);
+      lenis.destroy();
+      delete window.__lenis;
+    };
+  }, [pathname]);
+
+  return null;
+}
+
 function App() {
 
   const base = import.meta.env.DEV ? "/" : "/Kawwa";
@@ -27,6 +60,7 @@ function App() {
 
   return (
     <BrowserRouter basename={base}>
+      <SmoothScroll />
       <Routes>
         <Route
           path="/"

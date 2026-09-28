@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, Suspense, useMemo } from "react";
+import { Component, useEffect, useRef, useState, Suspense, useMemo } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { useGLTF } from "@react-three/drei";
 import { FaWhatsapp, FaInstagram } from "react-icons/fa";
@@ -38,9 +38,25 @@ function EarthModel() {
     return <primitive ref={ref} object={centeredScene} />;
 }
 
+// Se o modelo 3D não carregar (arquivo ausente, erro de rede etc.), o globo
+// simplesmente some em vez de derrubar a página inteira.
+class GlobeErrorBoundary extends Component {
+    state = { falhou: false };
+    static getDerivedStateFromError() {
+        return { falhou: true };
+    }
+    componentDidCatch(erro) {
+        console.warn("Globo 3D não carregou:", erro?.message);
+    }
+    render() {
+        return this.state.falhou ? null : this.props.children;
+    }
+}
+
 function Globe() {
     return (
         <div className="globe-canvas">
+            <GlobeErrorBoundary>
             <Canvas
                 camera={{ position: [0, 0, 3], fov: 45 }}
                 gl={{ alpha: true, antialias: true }}
@@ -54,6 +70,7 @@ function Globe() {
                     <EarthModel />
                 </Suspense>
             </Canvas>
+            </GlobeErrorBoundary>
         </div>
     );
 }
