@@ -10,6 +10,7 @@ import Servicos from "./paginas/Servicos";
 import Designer from "./paginas/Designer";
 import Desenvolvimento from "./paginas/Desenvolvimento";
 import Sistemas from "./paginas/Sistemas";
+import Museum from "./paginas/museum";
 import "./App.css";
 import Footer from "./componentes/Footer";
 
@@ -78,6 +79,7 @@ function App() {
         <Route path="/designer" element={<Designer />} />
         <Route path="/desenvolvimento" element={<Desenvolvimento />} />
         <Route path="/sistemas" element={<Sistemas />} />
+        <Route path="/museum" element={<Museum />} />
       </Routes>
     </BrowserRouter>
   );

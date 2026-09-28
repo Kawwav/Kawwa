@@ -1,52 +1,77 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useLayoutEffect, useRef } from "react";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import "./Footer.css";
 
-const Footer = () => {
-  const footerRef = useRef(null);
-  const [scrollProgress, setScrollProgress] = useState(0);
-  const [isMobile, setIsMobile] = useState(
-    typeof window !== "undefined" && window.innerWidth <= 768
-  );
+gsap.registerPlugin(ScrollTrigger);
 
-  useEffect(() => {
-    const onResize = () => setIsMobile(window.innerWidth <= 768);
-    window.addEventListener("resize", onResize);
-    return () => window.removeEventListener("resize", onResize);
+const Footer = () => {
+  const containerRef = useRef(null);
+  const footerRef = useRef(null);
+
+  // Entrada em "bolha": o footer nasce estreito com o topo em cúpula e se abre
+  // até a largura total, junto com um scale suave. Tudo preso ao scroll
+  // (scrub) para acompanhar o Lenis com um atraso bem macio.
+  useLayoutEffect(() => {
+    const footer = footerRef.current;
+    const container = containerRef.current;
+    if (!footer || !container) return;
+
+    const ctx = gsap.context(() => {
+      const mobile = window.matchMedia("(max-width: 768px)").matches;
+      const larguraInicial = mobile ? 0.7 : 0.5;   // fração da largura da tela
+      const RAIO_FINAL = mobile ? 40 : 70;         // topo continua arredondado no fim
+
+      // cúpula inicial: raio horizontal = metade da largura, vertical = quase a altura toda
+      const raioH = () => (container.offsetWidth * larguraInicial) / 2;
+      const raioV = () => footer.offsetHeight * 0.9;
+
+      const tl = gsap.timeline({
+        defaults: { ease: "sine.inOut" },
+        scrollTrigger: {
+          trigger: container,
+          start: "top 100%",     // footer começa a aparecer na base da tela
+          end: "bottom bottom",  // termina quando a página chega ao fim
+          scrub: 3.5,            // quanto maior, mais lenta/atrasada a bolha
+          invalidateOnRefresh: true,
+        },
+      });
+
+      // Bolha: nasce estreita com o topo em cúpula e se abre até a largura total,
+      // mantendo um topo redondo visível em vez de "bater na parede".
+      tl.fromTo(
+        footer,
+        {
+          width: `${larguraInicial * 100}%`,
+          borderTopLeftRadius: () => `${raioH()}px ${raioV()}px`,
+          borderTopRightRadius: () => `${raioH()}px ${raioV()}px`,
+          scale: mobile ? 0.85 : 0.8,
+          transformOrigin: "50% 100%",
+        },
+        {
+          width: "100%",
+          borderTopLeftRadius: `${RAIO_FINAL}px ${RAIO_FINAL}px`,
+          borderTopRightRadius: `${RAIO_FINAL}px ${RAIO_FINAL}px`,
+          scale: 1,
+          duration: 1,
+        },
+        0
+      ).fromTo(
+        footer.querySelectorAll(".rodape__topo > *, .rodape__coluna"),
+        { y: 50, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.7, stagger: 0.1, ease: "power2.out" },
+        0.4
+      );
+    }, container);
+
+    return () => ctx.revert();
   }, []);
 
-  useEffect(() => {
-    const handleScroll = () => {
-      const el = footerRef.current;
-      if (!el) return;
-      const rect = el.getBoundingClientRect();
-      const windowHeight = window.innerHeight;
-      const triggerDistance = isMobile ? 200 : 400;
-      const start = windowHeight;
-      const end = windowHeight - triggerDistance;
-      const raw = (start - rect.top) / (start - end);
-      const progress = Math.min(Math.max(raw, 0), 1);
-      setScrollProgress(progress);
-    };
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    handleScroll();
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, [isMobile]);
-
-  const radius = 50 * (1 - scrollProgress);
-  const width = isMobile ? 60 + 40 * scrollProgress : 40 + 60 * scrollProgress;
-  const scale = isMobile ? 0.7 + 0.3 * scrollProgress : 0.85 + 0.15 * scrollProgress;
-  const borderRadiusValue = `50% 50% 0 0 / ${radius}% ${radius}% 0 0`;
-
   return (
-    <div className="rodape__container">
+    <div className="rodape__container" ref={containerRef}>
       <footer
         ref={footerRef}
         className="rodape"
-        style={{
-          borderRadius: borderRadiusValue,
-          width: `${width}%`,
-          transform: `scale(${scale})`,
-        }}
       >
         <div className="rodape__topo">
           <div className="rodape__esquerda">

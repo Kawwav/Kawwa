@@ -365,6 +365,9 @@ const linhaTempo = [
         return () => observer.disconnect();
     }, []);
 
+    // Linha do tempo horizontal com GSAP + ScrollTrigger.
+    // O wrapper alto (.linha-tempo-trilho-scroll) dá o espaço de scroll e a seção
+    // sticky fica parada na tela; o scroll vertical do wrapper vira x da lista.
     useEffect(() => {
         if (!paginaVisivel) return;
         const pagina = paginaRef.current;
@@ -373,40 +376,49 @@ const linhaTempo = [
         const progresso = trilhoProgressoRef.current;
         if (!pagina || !trilhoScroll || !lista || !progresso) return;
 
-        let atual = 0;
-        let frameId;
-
         const distancia = () => Math.max(lista.scrollWidth - pagina.clientWidth, 1);
 
+        // define a altura antes de cada medição do ScrollTrigger (inclusive no resize)
         const ajustarAltura = () => {
             trilhoScroll.style.height = (pagina.clientHeight + distancia()) + "px";
         };
-
-        const passo = () => {
-            const rectPagina = pagina.getBoundingClientRect();
-            const rectTrilho = trilhoScroll.getBoundingClientRect();
-
-            const alvo = clamp01((rectPagina.top - rectTrilho.top) / distancia());
-            atual += (alvo - atual) * 0.12;
-
-            lista.style.transform = "translate3d(" + (-atual * distancia()) + "px, 0, 0)";
-            progresso.style.width = (atual * 100) + "%";
-
-            const indice = Math.min(
-                linhaTempo.length - 1,
-                Math.round(atual * (linhaTempo.length - 1))
-            );
-            setLinhaTempoAtivo(indice);
-
-            frameId = requestAnimationFrame(passo);
-        };
-
         ajustarAltura();
-        window.addEventListener("resize", ajustarAltura);
-        frameId = requestAnimationFrame(passo);
+        ScrollTrigger.addEventListener("refreshInit", ajustarAltura);
+
+        let indiceAtual = -1;
+
+        const ctx = gsap.context(() => {
+            const tl = gsap.timeline({
+                defaults: { ease: "none" },
+                scrollTrigger: {
+                    trigger: trilhoScroll,
+                    scroller: pagina,
+                    start: "top top",
+                    end: "bottom bottom",
+                    scrub: 1, // atraso suave (substitui o antigo * 0.12)
+                    invalidateOnRefresh: true,
+                    onUpdate: (self) => {
+                        const indice = Math.min(
+                            linhaTempo.length - 1,
+                            Math.round(self.progress * (linhaTempo.length - 1))
+                        );
+                        if (indice !== indiceAtual) {
+                            indiceAtual = indice;
+                            setLinhaTempoAtivo(indice);
+                        }
+                    },
+                },
+            });
+
+            tl.to(lista, { x: () => -distancia() }, 0)
+              .fromTo(progresso, { width: "0%" }, { width: "100%" }, 0);
+        }, pagina);
+
+        ScrollTrigger.refresh();
+
         return () => {
-            cancelAnimationFrame(frameId);
-            window.removeEventListener("resize", ajustarAltura);
+            ScrollTrigger.removeEventListener("refreshInit", ajustarAltura);
+            ctx.revert();
         };
     }, [paginaVisivel]);
 

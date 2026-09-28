@@ -48,6 +48,13 @@ const ITEMS = [
     hasSplit: true,
     route: "/sistemas",
   },
+  {
+    title: "MUSEUM",
+    num: "04",
+    hasGallery: false,
+    hasSplit: true,
+    route: "/museum",
+  },
 ];
 
 
