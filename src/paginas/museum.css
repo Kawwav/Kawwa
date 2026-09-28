@@ -90,9 +90,8 @@
 /* ─── Dica no celular ─── */
 .museum-dica-touch {
   position: absolute;
-  bottom: 32px;
-  left: 50%;
-  transform: translateX(-50%);
+  bottom: 60px;
+  right: 24px;
   margin: 0;
   z-index: 10;
   font-size: 13px;
@@ -107,6 +106,40 @@
 
 .museum-dica-touch.is-visible {
   opacity: 1;
+}
+
+/* ─── Joystick (celular) ─── */
+.museum-joystick {
+  position: absolute;
+  left: 28px;
+  bottom: 40px;
+  z-index: 10;
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background: rgba(10, 10, 10, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(4px);
+  touch-action: none;
+  opacity: 0;
+  transition: opacity 0.8s ease;
+}
+
+.museum-joystick.is-visible {
+  opacity: 1;
+}
+
+.museum-joystick-knob {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 52px;
+  height: 52px;
+  margin: -26px 0 0 -26px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.55);
+  pointer-events: none;
+  will-change: transform;
 }
 
 /* ─── Exit overlay (transição pra Home) ─── */
