@@ -12,20 +12,42 @@ import "./museum.css";
 
 const MODEL_FILE = "sala_classica.glb";
 
-// ─── Medidas reais da sala (tiradas do .glb) ───
-// Interior: x de -4 a 4, z de -3 a 3. O tapete (x ±1.8, z ±1.1) é só decoração: NÃO tem colisão.
-const RAIO = 0.28; // "largura" do corpo: evita encostar a câmera na parede/banco
+const RAIO = 0.28; 
 const MARGEM_PAREDE = 0.35;
 const LIMITE_X = 4.0 - MARGEM_PAREDE;
 const LIMITE_Z = 3.0 - MARGEM_PAREDE;
 const ALTURA_OLHOS = 1.6;
 
-// Único móvel no chão: o banco encostado na parede do fundo
+const VIDEOS = [
+  { id: "viviart", titulo: "Viviart", arquivo: "viviart.mp4" },
+  { id: "bar", titulo: "Bar", arquivo: "bar.mp4" },
+  { id: "redbull", titulo: "Red Bull", arquivo: "redbull.mp4" },
+];
+
+const TELA_L = 0.9;
+const TELA_A = 1.6;
+const TELA_ESPACO = 1.2; // distância entre os centros
+const TELA_Y = 2.4; // altura do centro
+const TELA_Z = -3.0; // face da parede do fundo
+const ORIGINAIS_MIN = 101;
+const ORIGINAIS_MAX = 118;
+
+const alternar = (el) => {
+  if (el.paused || el.ended) el.play().catch(() => {});
+  else el.pause();
+};
+const fmt = (t) => {
+  if (!isFinite(t)) return "0:00";
+  const m = Math.floor(t / 60);
+  const seg = Math.floor(t % 60);
+  return `${m}:${String(seg).padStart(2, "0")}`;
+};
+
 const OBSTACULOS = [
   { xMin: -0.9, xMax: 0.9, zMin: -2.65, zMax: -2.15 },
 ];
 
-// ─── Caminhada ───
+// caminhada
 const VELOCIDADE = 2.6; // andando
 const MULT_CORRIDA = 1.8; // segurando Shift
 const ACEL = 9; // quanto maior, mais rápido acelera/para
@@ -41,10 +63,7 @@ const batendoEmObstaculo = (x, z) =>
       z < o.zMax + RAIO
   );
 
-// ─── Modelo ───
-// Cena estática: congelamos as matrizes (menos CPU por frame) e as sombras
-// são calculadas UMA vez só (em vez de re-renderizar 131 meshes a cada frame).
-function Sala() {
+function Sala({ videos, telas }) {
   const url = `${import.meta.env.BASE_URL}3d/${MODEL_FILE}`;
   const { scene } = useGLTF(url);
   const { gl } = useThree();
@@ -70,16 +89,95 @@ function Sala() {
       });
     });
 
-    // sombras estáticas: gera uma vez e para
+
+    const escondidos = [];
+    scene.traverse((obj) => {
+      const m = /^(?:part|geom)_(\d+)$/.exec(obj.name);
+      if (!m) return;
+      const n = Number(m[1]);
+      if (n >= ORIGINAIS_MIN && n <= ORIGINAIS_MAX && obj.visible) {
+        obj.visible = false;
+        escondidos.push(obj);
+      }
+    });
+
+
+    const grupo = new THREE.Group();
+    const geoMoldura = new THREE.BoxGeometry(TELA_L + 0.08, TELA_A + 0.08, 0.04);
+    const geoTela = new THREE.PlaneGeometry(TELA_L, TELA_A);
+    const matMoldura = new THREE.MeshStandardMaterial({ color: "#0b0b0b", roughness: 0.4, metalness: 0.2 });
+    const limpar = [];
+    const lista = [];
+
+    VIDEOS.forEach((v, i) => {
+      const el = videos[v.id];
+      const x = (i - (VIDEOS.length - 1) / 2) * TELA_ESPACO;
+
+      const moldura = new THREE.Mesh(geoMoldura, matMoldura);
+      moldura.position.set(x, TELA_Y, TELA_Z + 0.02);
+      grupo.add(moldura);
+
+      const tex = new THREE.VideoTexture(el);
+      tex.colorSpace = THREE.SRGBColorSpace;
+      const atualizar = () => { tex.needsUpdate = true; };
+      el.addEventListener("loadeddata", atualizar);
+      el.addEventListener("seeked", atualizar);
+      if (el.readyState >= 2) atualizar();
+      const mat = new THREE.MeshBasicMaterial({ map: tex, toneMapped: false });
+      const tela = new THREE.Mesh(geoTela, mat);
+      tela.position.set(x, TELA_Y, TELA_Z + 0.045);
+      tela.userData.videoId = v.id;
+      grupo.add(tela);
+
+      lista.push(tela);
+      limpar.push(() => {
+        el.removeEventListener("loadeddata", atualizar);
+        el.removeEventListener("seeked", atualizar);
+        tex.dispose();
+        mat.dispose();
+      });
+    });
+
+    scene.add(grupo);
+    telas.current = lista;
+
     gl.shadowMap.autoUpdate = false;
     gl.shadowMap.needsUpdate = true;
-  }, [scene, gl]);
+
+    return () => {
+      scene.remove(grupo);
+      escondidos.forEach((o) => { o.visible = true; });
+      limpar.forEach((f) => f());
+      geoMoldura.dispose();
+      geoTela.dispose();
+      matMoldura.dispose();
+      telas.current = [];
+    };
+  }, [scene, gl, videos, telas]);
 
   return <primitive object={scene} />;
 }
+
+function Mira({ telas, onMirar }) {
+  const { camera } = useThree();
+  const raio = useRef(new THREE.Raycaster(undefined, undefined, 0, 8));
+  const centro = useRef(new THREE.Vector2(0, 0));
+  const atual = useRef(null);
+
+  useFrame(() => {
+    raio.current.setFromCamera(centro.current, camera);
+    const hit = raio.current.intersectObjects(telas.current, false)[0];
+    const id = hit ? hit.object.userData.videoId : null;
+    if (id !== atual.current) {
+      atual.current = id;
+      onMirar(id);
+    }
+  });
+
+  return null;
+}
 useGLTF.preload(`${import.meta.env.BASE_URL}3d/${MODEL_FILE}`);
 
-// ─── Ambiente sem download: "softboxes" desenhados na hora (1 render só) ───
 function Ambiente() {
   return (
     <Environment resolution={128} frames={1}>
@@ -91,7 +189,6 @@ function Ambiente() {
   );
 }
 
-// ─── Luz de galeria: spots nativos (baratos). Só 2 projetam sombra, e estática ───
 function LuzDeGaleria() {
   const spots = [
     { pos: [-3, 3.4, -1.5], sombra: true },
@@ -121,7 +218,7 @@ function LuzDeGaleria() {
   );
 }
 
-// ─── Caminhada: WASD/setas + Shift + joystick, com aceleração suave e deslize nas paredes ───
+// awsd
 function Caminhada({ input }) {
   const { camera } = useThree();
   const teclas = useRef({});
@@ -149,11 +246,9 @@ function Caminhada({ input }) {
     const k = teclas.current;
     const joy = input.current.joy;
 
-    // entrada combinada (teclado + joystick)
     let f = (k.KeyW || k.ArrowUp ? 1 : 0) - (k.KeyS || k.ArrowDown ? 1 : 0) - joy.y;
     let r = (k.KeyD || k.ArrowRight ? 1 : 0) - (k.KeyA || k.ArrowLeft ? 1 : 0) + joy.x;
 
-    // diagonal não pode ser mais rápida
     const len = Math.hypot(f, r);
     if (len > 1) { f /= len; r /= len; }
 
@@ -168,7 +263,6 @@ function Caminhada({ input }) {
     const alvoX = (frente.current.x * f + direita.current.x * r) * alvo;
     const alvoZ = (frente.current.z * f + direita.current.z * r) * alvo;
 
-    // aceleração/frenagem suave (independente do FPS)
     const a = 1 - Math.exp(-ACEL * dt);
     vel.current.x += (alvoX - vel.current.x) * a;
     vel.current.z += (alvoZ - vel.current.z) * a;
@@ -179,7 +273,6 @@ function Caminhada({ input }) {
       vel.current.z = 0;
     }
 
-    // movimento por eixo = desliza na parede/banco em vez de "grudar"
     const px = camera.position.x;
     const pz = camera.position.z;
 
@@ -191,7 +284,6 @@ function Caminhada({ input }) {
     if (batendoEmObstaculo(camera.position.x, nz)) vel.current.z = 0;
     else camera.position.z = nz;
 
-    // balanço da cabeça, proporcional à velocidade
     const ritmo = velocidadeAtual / VELOCIDADE;
     bob.current += dt * BOB_FREQ * Math.min(ritmo, MULT_CORRIDA);
     camera.position.y = ALTURA_OLHOS + Math.sin(bob.current) * BOB_ALTURA * Math.min(ritmo, 1);
@@ -200,26 +292,34 @@ function Caminhada({ input }) {
   return null;
 }
 
-// ─── Olhar com o dedo (celular): arrastar na tela gira a câmera ───
-function OlharToque() {
+function OlharToque({ telas, onTocarTela }) {
   const { camera, gl } = useThree();
 
   useEffect(() => {
     const el = gl.domElement;
     const euler = new THREE.Euler(0, 0, 0, "YXZ");
+    const raio = new THREE.Raycaster(undefined, undefined, 0, 8);
+    const ndc = new THREE.Vector2();
     let id = null;
     let lx = 0;
     let ly = 0;
+    let x0 = 0;
+    let y0 = 0;
+    let t0 = 0;
+    let moveu = false;
 
     const down = (e) => {
       if (id !== null) return;
       id = e.pointerId;
-      lx = e.clientX;
-      ly = e.clientY;
+      lx = x0 = e.clientX;
+      ly = y0 = e.clientY;
+      t0 = performance.now();
+      moveu = false;
       el.setPointerCapture(id);
     };
     const move = (e) => {
       if (e.pointerId !== id) return;
+      if (Math.hypot(e.clientX - x0, e.clientY - y0) > 10) moveu = true;
       euler.setFromQuaternion(camera.quaternion);
       euler.y -= (e.clientX - lx) * 0.005;
       euler.x -= (e.clientY - ly) * 0.005;
@@ -228,27 +328,180 @@ function OlharToque() {
       lx = e.clientX;
       ly = e.clientY;
     };
-    const up = (e) => { if (e.pointerId === id) id = null; };
+    const up = (e) => {
+      if (e.pointerId !== id) return;
+      id = null;
+  
+      if (!moveu && performance.now() - t0 < 350 && e.type === "pointerup") {
+        const r = el.getBoundingClientRect();
+        ndc.set(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
+        raio.setFromCamera(ndc, camera);
+        const hit = raio.intersectObjects(telas.current, false)[0];
+        if (hit) onTocarTela(hit.object.userData.videoId);
+      }
+    };
+    const cancel = (e) => { if (e.pointerId === id) id = null; };
 
     el.addEventListener("pointerdown", down);
     el.addEventListener("pointermove", move);
     el.addEventListener("pointerup", up);
-    el.addEventListener("pointercancel", up);
+    el.addEventListener("pointercancel", cancel);
     return () => {
       el.removeEventListener("pointerdown", down);
       el.removeEventListener("pointermove", move);
       el.removeEventListener("pointerup", up);
-      el.removeEventListener("pointercancel", up);
+      el.removeEventListener("pointercancel", cancel);
     };
-  }, [camera, gl]);
+  }, [camera, gl, telas, onTocarTela]);
 
   return null;
+}
+
+function useVideoInfo(el) {
+  const [info, setInfo] = useState({ tocando: false, tempo: 0, dur: 0, vol: 1, mudo: false });
+  useEffect(() => {
+    if (!el) return;
+    const ler = () =>
+      setInfo({
+        tocando: !el.paused && !el.ended,
+        tempo: el.currentTime,
+        dur: isFinite(el.duration) ? el.duration : 0,
+        vol: el.volume,
+        mudo: el.muted,
+      });
+    const eventos = ["play", "pause", "ended", "timeupdate", "loadedmetadata", "durationchange", "volumechange", "seeked"];
+    eventos.forEach((e) => el.addEventListener(e, ler));
+    ler();
+    return () => eventos.forEach((e) => el.removeEventListener(e, ler));
+  }, [el]);
+  return info;
+}
+
+function Hud({ videos, ativo, mirando, mostrarMira, isTouch, onSelecionar }) {
+  const el = videos ? videos[ativo] : null;
+  const info = useVideoInfo(el);
+  const meta = VIDEOS.find((v) => v.id === ativo);
+  const pct = info.dur ? (info.tempo / info.dur) * 100 : 0;
+  const volumeAtual = info.mudo ? 0 : info.vol;
+  const solta = (e) => e.currentTarget.blur(); // evita a barra de espaço "clicar" no botão focado
+
+  return (
+    <>
+      <div className={`museum-mira${mostrarMira ? " is-visible" : ""}${mirando ? " museum-mira--alvo" : ""}`}>
+        <span className="museum-mira-ponto" />
+        {mirando && (
+          <span className="museum-mira-rotulo">
+            {isTouch ? meta.titulo : `${meta.titulo} · clique para ${info.tocando ? "pausar" : "reproduzir"}`}
+          </span>
+        )}
+      </div>
+
+      {isTouch && mirando && (
+        <button
+          type="button"
+          className="museum-acao"
+          onClick={() => { if (el) alternar(el); }}
+        >
+          {info.tocando ? (
+            <svg viewBox="0 0 24 24" width="26" height="26" fill="currentColor"><rect x="6" y="5" width="4" height="14" rx="1" /><rect x="14" y="5" width="4" height="14" rx="1" /></svg>
+          ) : (
+            <svg viewBox="0 0 24 24" width="26" height="26" fill="currentColor"><path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.5-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5z" /></svg>
+          )}
+        </button>
+      )}
+
+      <div className="museum-player">
+        <div className="museum-player-abas">
+          {VIDEOS.map((v) => (
+            <button
+              key={v.id}
+              type="button"
+              className={`museum-player-aba${v.id === ativo ? " is-ativa" : ""}`}
+              onClick={(e) => { onSelecionar(v.id); solta(e); }}
+            >
+              {v.titulo}
+            </button>
+          ))}
+        </div>
+
+        <div className="museum-player-linha">
+          <button
+            type="button"
+            className="museum-player-btn"
+            aria-label={info.tocando ? "Pausar" : "Reproduzir"}
+            onClick={(e) => { if (el) alternar(el); solta(e); }}
+          >
+            {info.tocando ? (
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><rect x="6" y="5" width="4" height="14" rx="1" /><rect x="14" y="5" width="4" height="14" rx="1" /></svg>
+            ) : (
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.5-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5z" /></svg>
+            )}
+          </button>
+
+          <span className="museum-player-tempo">{fmt(info.tempo)}</span>
+          <input
+            className="museum-player-barra"
+            type="range"
+            min="0"
+            max={info.dur || 1}
+            step="0.1"
+            value={info.tempo}
+            style={{ "--p": `${pct}%` }}
+            aria-label="Progresso"
+            onChange={(e) => { if (el) el.currentTime = Number(e.target.value); }}
+          />
+          <span className="museum-player-tempo">{fmt(info.dur)}</span>
+
+          <button
+            type="button"
+            className="museum-player-btn"
+            aria-label={info.mudo ? "Ativar som" : "Silenciar"}
+            onClick={(e) => { if (el) el.muted = !el.muted; solta(e); }}
+          >
+            {volumeAtual === 0 ? (
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 5 6 9H2v6h4l5 4V5z" fill="currentColor" /><line x1="23" y1="9" x2="17" y2="15" /><line x1="17" y1="9" x2="23" y2="15" /></svg>
+            ) : (
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 5 6 9H2v6h4l5 4V5z" fill="currentColor" /><path d="M15.5 8.5a5 5 0 0 1 0 7" /><path d="M19 5a10 10 0 0 1 0 14" /></svg>
+            )}
+          </button>
+          <input
+            className="museum-player-barra museum-player-volume"
+            type="range"
+            min="0"
+            max="1"
+            step="0.05"
+            value={volumeAtual}
+            style={{ "--p": `${volumeAtual * 100}%` }}
+            aria-label="Volume"
+            onChange={(e) => {
+              if (!el) return;
+              const v = Number(e.target.value);
+              el.volume = v;
+              el.muted = v === 0;
+            }}
+          />
+        </div>
+
+        {!isTouch && (
+          <p className="museum-player-dica">
+            Clique ou Espaço: play/pause · M: mudo · , e . : ±5s
+          </p>
+        )}
+      </div>
+    </>
+  );
 }
 
 export default function Museum() {
   const [visible, setVisible] = useState(false);
   const [travado, setTravado] = useState(false);
   const navigate = useNavigate();
+  const [videos, setVideos] = useState(null); // { id: <video> }
+  const [ativo, setAtivo] = useState(VIDEOS[0].id); // vídeo controlado pelo player
+  const [mirando, setMirando] = useState(null); // vídeo sob a mira (ou null)
+  const telas = useRef([]);
+  const ativoRef = useRef(VIDEOS[0].id);
+  const mirandoRef = useRef(null);
   const exitRef = useRef(null);
   const joyRef = useRef(null);
   const knobRef = useRef(null);
@@ -261,7 +514,73 @@ export default function Museum() {
     return () => clearTimeout(t);
   }, []);
 
-  // ─── Joystick virtual ───
+  useEffect(() => {
+    const base = `${import.meta.env.BASE_URL}3d/`;
+    const els = {};
+    VIDEOS.forEach((v) => {
+      const el = document.createElement("video");
+      el.src = base + v.arquivo;
+      el.crossOrigin = "anonymous";
+      el.playsInline = true;
+      el.setAttribute("playsinline", "");
+      el.preload = "auto";
+      els[v.id] = el;
+    });
+    setVideos(els);
+    return () => {
+      Object.values(els).forEach((el) => {
+        el.pause();
+        el.removeAttribute("src");
+        el.load();
+      });
+    };
+  }, []);
+
+  const onMirar = useCallback((id) => {
+    mirandoRef.current = id;
+    setMirando(id);
+    if (id) { ativoRef.current = id; setAtivo(id); }
+  }, []);
+
+  const selecionar = useCallback((id) => {
+    ativoRef.current = id;
+    setAtivo(id);
+  }, []);
+
+
+  const tocarTela = useCallback((id) => {
+    if (!videos || !videos[id]) return;
+    ativoRef.current = id;
+    setAtivo(id);
+    alternar(videos[id]);
+  }, [videos]);
+
+  useEffect(() => {
+    if (!videos) return;
+    const alvo = () => videos[mirandoRef.current || ativoRef.current];
+    const tecla = (e) => {
+      if (e.repeat) return;
+      const el = alvo();
+      if (!el) return;
+      if (e.code === "Space") { e.preventDefault(); alternar(el); }
+      else if (e.code === "KeyM") el.muted = !el.muted;
+      else if (e.code === "Comma") el.currentTime = Math.max(0, el.currentTime - 5);
+      else if (e.code === "Period") el.currentTime = Math.min(el.duration || 0, el.currentTime + 5);
+    };
+    const clique = (e) => {
+      if (e.button === 0 && document.pointerLockElement && mirandoRef.current) {
+        alternar(videos[mirandoRef.current]);
+      }
+    };
+    window.addEventListener("keydown", tecla);
+    window.addEventListener("mousedown", clique);
+    return () => {
+      window.removeEventListener("keydown", tecla);
+      window.removeEventListener("mousedown", clique);
+    };
+  }, [videos]);
+
+
   const RAIO_JOY = 46;
   const moverJoy = useCallback((e) => {
     const box = joyRef.current.getBoundingClientRect();
@@ -338,12 +657,13 @@ export default function Museum() {
           <LuzDeGaleria />
 
           <Suspense fallback={null}>
-            <Sala />
+            {videos && <Sala videos={videos} telas={telas} />}
           </Suspense>
+          <Mira telas={telas} onMirar={onMirar} />
 
           {isTouch ? (
             <>
-              <OlharToque />
+              <OlharToque telas={telas} onTocarTela={tocarTela} />
               <Caminhada input={input} />
             </>
           ) : (
@@ -358,6 +678,15 @@ export default function Museum() {
             </>
           )}
         </Canvas>
+
+        <Hud
+          videos={videos}
+          ativo={ativo}
+          mirando={mirando}
+          mostrarMira={isTouch || travado}
+          isTouch={isTouch}
+          onSelecionar={selecionar}
+        />
 
         {!isTouch && (
           <button
@@ -385,7 +714,7 @@ export default function Museum() {
               <div ref={knobRef} className="museum-joystick-knob" />
             </div>
             <p className={`museum-dica-touch${visible ? " is-visible" : ""}`}>
-              Joystick para andar · arraste para olhar
+              Joystick para andar · arraste para olhar · toque no vídeo para play/pause
             </p>
           </>
         )}
