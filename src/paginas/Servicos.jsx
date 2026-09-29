@@ -49,7 +49,7 @@ const ITEMS = [
     route: "/sistemas",
   },
   {
-    title: "MUSEUM",
+    title: "MUSEU",
     num: "04",
     hasGallery: false,
     hasSplit: true,
