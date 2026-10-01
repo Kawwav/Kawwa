@@ -50,6 +50,14 @@ const PROJECTS = [
     image: "sistemas/barbearia.png",
     link: "https://kawwav.github.io/sistemabarbearia/",
   },
+
+   {
+    label: "Site para Bar",
+    desc: "Modelo de site para o que seria o meu próprio bar.",
+    type: "Landing Page",
+    image: "desenvolvimento/bar.png",
+    link: "https://kawwav.github.io/bar/",
+  },
 ];
 
 function IconLista() {
