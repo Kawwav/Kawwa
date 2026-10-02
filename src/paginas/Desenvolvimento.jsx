@@ -58,6 +58,14 @@ const PROJECTS = [
     image: "desenvolvimento/bar.png",
     link: "https://kawwav.github.io/bar/",
   },
+
+  {
+    label: "Site para fotógrafo",
+    desc: "Modelo de site para o que seria o meu estúdio de fotografia automobilisticas.",
+    type: "Landing Page",
+    image: "desenvolvimento/foto.png",
+    link: "https://kawwav.github.io/videocar/",
+  },
 ];
 
 function IconLista() {
