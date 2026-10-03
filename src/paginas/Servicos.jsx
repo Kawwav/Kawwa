@@ -57,9 +57,6 @@ const ITEMS = [
   },
 ];
 
-
-
-
 function CursorGallery({ mousePos, visible, images }) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [prevIndex, setPrevIndex] = useState(null);
