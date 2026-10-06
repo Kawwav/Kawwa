@@ -1,0 +1,19 @@
+.tela-pouso {
+  position: fixed;
+  inset: 0;
+  background: #fff;
+  z-index: 99999;
+  overflow: hidden;
+  cursor: none;
+}
+
+.tela-pouso__img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: var(--pouso-img-width, 160px);
+  height: auto;
+  will-change: transform;
+  user-select: none;
+  pointer-events: none;
+}

@@ -13,6 +13,7 @@ import Sistemas from "./paginas/Sistemas";
 import Museum from "./paginas/museum";
 import "./App.css";
 import Footer from "./componentes/Footer";
+import TelaPouso from "./componentes/telapouso";
 
 /*npm run build 
 npm run deploy*/
@@ -62,6 +63,7 @@ function App() {
   return (
     <BrowserRouter basename={base}>
       <SmoothScroll />
+      <TelaPouso />
       <Routes>
         <Route
           path="/"
