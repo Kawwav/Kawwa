@@ -5,13 +5,14 @@
   z-index: 99999;
   overflow: hidden;
   cursor: none;
+  touch-action: none;
 }
 
 .tela-pouso__img {
   position: absolute;
   top: 0;
   left: 0;
-  width: var(--pouso-img-width, 160px);
+  width: min(var(--pouso-img-width, 160px), 60vw);
   height: auto;
   will-change: transform;
   user-select: none;
