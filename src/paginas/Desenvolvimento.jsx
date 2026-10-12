@@ -66,6 +66,15 @@ const PROJECTS = [
     image: "desenvolvimento/foto.png",
     link: "https://kawwav.github.io/videocar/",
   },
+
+  {
+    label: "Site para o cantor Alee",
+  
+    desc: "Modelo de landing page para o cantor de rap Brasileiro Alee.",
+    type: "Landing Page",
+    image: "desenvolvimento/alee.png",
+    link: "https://kawwav.github.io/alee/#/",
+  },
 ];
 
 function IconLista() {

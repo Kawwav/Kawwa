@@ -22,6 +22,8 @@ const VIDEOS = [
   { id: "viviart", titulo: "Viviart", arquivo: "viviart.mp4" },
   { id: "bar", titulo: "Bar", arquivo: "bar.mp4" },
   { id: "redbull", titulo: "Red Bull", arquivo: "redbull.mp4" },
+  { id: "vinicius", titulo: "Vinícius", arquivo: "vinicius.mp4" },
+  { id: "alee", titulo: "Alee", arquivo: "alee (1).mp4" },
 ];
 
 const TELA_L = 0.9;
