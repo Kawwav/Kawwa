@@ -1,4 +1,4 @@
-import { Suspense, useEffect, useRef, useState, useCallback } from "react";
+import { Suspense, useEffect, useMemo, useRef, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import {
@@ -6,6 +6,7 @@ import {
   PointerLockControls,
   Environment,
   Lightformer,
+  useTexture,
 } from "@react-three/drei";
 import * as THREE from "three";
 import "./museum.css";
@@ -28,9 +29,9 @@ const VIDEOS = [
 
 const TELA_L = 0.9;
 const TELA_A = 1.6;
-const TELA_ESPACO = 1.2; // distância entre os centros
-const TELA_Y = 2.4; // altura do centro
-const TELA_Z = -3.0; // face da parede do fundo
+const TELA_ESPACO = 1.2;
+const TELA_Y = 2.4;
+const TELA_Z = -3.0;
 const ORIGINAIS_MIN = 101;
 const ORIGINAIS_MAX = 118;
 
@@ -45,15 +46,26 @@ const fmt = (t) => {
   return `${m}:${String(seg).padStart(2, "0")}`;
 };
 
+const DIPLOMA_ARQUIVO = "diploma.png";
+const DIPLOMA_X = 3.0;
+const DIPLOMA_Z = 2.2;
+const DIPLOMA_Y = 2.0;
+const DIPLOMA_L = 1.1;
+const FOCO_DIST = 6;
+const FOCO_COS_ENTRA = 0.955;
+const FOCO_COS_SAI = 0.9;
+const ESCURECER = 0.93;
+const TETO_Y = 3.95;
+
 const OBSTACULOS = [
   { xMin: -0.9, xMax: 0.9, zMin: -2.65, zMax: -2.15 },
+  { xMin: 2.6, xMax: 3.4, zMin: 1.8, zMax: 2.6 },
 ];
 
-// caminhada
-const VELOCIDADE = 2.6; // andando
-const MULT_CORRIDA = 1.8; // segurando Shift
-const ACEL = 9; // quanto maior, mais rápido acelera/para
-const BOB_ALTURA = 0.02; // balanço vertical sutil ao andar
+const VELOCIDADE = 2.6;
+const MULT_CORRIDA = 1.8;
+const ACEL = 9;
+const BOB_ALTURA = 0.02;
 const BOB_FREQ = 8;
 
 const batendoEmObstaculo = (x, z) =>
@@ -91,7 +103,6 @@ function Sala({ videos, telas }) {
       });
     });
 
-
     const escondidos = [];
     scene.traverse((obj) => {
       const m = /^(?:part|geom)_(\d+)$/.exec(obj.name);
@@ -102,7 +113,6 @@ function Sala({ videos, telas }) {
         escondidos.push(obj);
       }
     });
-
 
     const grupo = new THREE.Group();
     const geoMoldura = new THREE.BoxGeometry(TELA_L + 0.08, TELA_A + 0.08, 0.04);
@@ -191,22 +201,38 @@ function Ambiente() {
   );
 }
 
-function LuzDeGaleria() {
-  const spots = [
-    { pos: [-3, 3.4, -1.5], sombra: true },
-    { pos: [3, 3.4, -1.5], sombra: true },
-    { pos: [-3, 3.4, 1.5], sombra: false },
-    { pos: [3, 3.4, 1.5], sombra: false },
-  ];
+const SPOTS = [
+  { pos: [-3, 3.4, -1.5], sombra: true },
+  { pos: [3, 3.4, -1.5], sombra: true },
+  { pos: [-3, 3.4, 1.5], sombra: false },
+  { pos: [3, 3.4, 1.5], sombra: false },
+];
+const SPOT_BASE = 35;
+
+function LuzDeGaleria({ foco }) {
+  const { scene } = useThree();
+  const spots = useRef([]);
+  const hemi = useRef();
+  const amb = useRef();
+
+  useFrame(() => {
+    const k = 1 - ESCURECER * foco.current;
+    spots.current.forEach((l) => { if (l) l.intensity = SPOT_BASE * k; });
+    if (hemi.current) hemi.current.intensity = 0.5 * k;
+    if (amb.current) amb.current.intensity = 0.3 * k;
+    if (scene.environmentIntensity !== undefined) scene.environmentIntensity = k;
+  });
+
   return (
     <>
-      {spots.map((s, i) => (
+      {SPOTS.map((s, i) => (
         <spotLight
           key={i}
+          ref={(el) => { spots.current[i] = el; }}
           position={s.pos}
           angle={0.7}
           penumbra={0.7}
-          intensity={35}
+          intensity={SPOT_BASE}
           distance={10}
           color="#fff2df"
           castShadow={s.sombra}
@@ -214,13 +240,311 @@ function LuzDeGaleria() {
           shadow-bias={-0.0005}
         />
       ))}
-      <hemisphereLight args={["#dfe8ff", "#3a3a3a", 0.5]} />
-      <ambientLight intensity={0.3} />
+      <hemisphereLight ref={hemi} args={["#dfe8ff", "#3a3a3a", 0.5]} />
+      <ambientLight ref={amb} intensity={0.3} />
     </>
   );
 }
 
-// awsd
+function useTexturaRadial() {
+  return useMemo(() => {
+    const c = document.createElement("canvas");
+    c.width = c.height = 128;
+    const g = c.getContext("2d");
+    const grad = g.createRadialGradient(64, 64, 0, 64, 64, 64);
+    grad.addColorStop(0, "rgba(255,236,200,1)");
+    grad.addColorStop(0.45, "rgba(255,226,170,0.45)");
+    grad.addColorStop(1, "rgba(255,220,160,0)");
+    g.fillStyle = grad;
+    g.fillRect(0, 0, 128, 128);
+    const t = new THREE.CanvasTexture(c);
+    t.colorSpace = THREE.SRGBColorSpace;
+    return t;
+  }, []);
+}
+
+function useTexturaPlaca() {
+  return useMemo(() => {
+    const c = document.createElement("canvas");
+    c.width = 512;
+    c.height = 176;
+    const g = c.getContext("2d");
+    g.fillStyle = "#14110c";
+    g.fillRect(0, 0, 512, 176);
+    g.strokeStyle = "#c9a24a";
+    g.lineWidth = 4;
+    g.strokeRect(10, 10, 492, 156);
+    g.fillStyle = "#e6c66f";
+    g.textAlign = "center";
+    g.font = "700 26px 'DM Sans', sans-serif";
+    g.fillText("D I P L O M A", 256, 62);
+    g.fillStyle = "#f3ead2";
+    g.font = "400 28px 'DM Sans', sans-serif";
+    g.fillText("Engenharia de Software", 256, 108);
+    g.fillStyle = "#c9a24a";
+    g.font = "300 22px 'DM Sans', sans-serif";
+    g.fillText("Unicesumar · 2026", 256, 142);
+    const t = new THREE.CanvasTexture(c);
+    t.colorSpace = THREE.SRGBColorSpace;
+    t.anisotropy = 8;
+    return t;
+  }, []);
+}
+
+function FocoDiploma({ foco, vinhetaRef }) {
+  const { camera } = useThree();
+  const alvo = useRef(new THREE.Vector3(DIPLOMA_X, DIPLOMA_Y, DIPLOMA_Z));
+  const dir = useRef(new THREE.Vector3());
+  const para = useRef(new THREE.Vector3());
+  const olhando = useRef(false);
+
+  useFrame((_, delta) => {
+    const dt = Math.min(delta, 0.05);
+    camera.getWorldDirection(dir.current);
+    para.current.subVectors(alvo.current, camera.position);
+    const dist = para.current.length();
+    para.current.divideScalar(dist || 1);
+    const cos = dir.current.dot(para.current);
+
+    if (!olhando.current && dist < FOCO_DIST && cos > FOCO_COS_ENTRA) olhando.current = true;
+    else if (olhando.current && (dist > FOCO_DIST + 0.8 || cos < FOCO_COS_SAI)) olhando.current = false;
+
+    const meta = olhando.current ? 1 : 0;
+    const taxa = meta ? 1.7 : 2.6;
+    foco.current += (meta - foco.current) * (1 - Math.exp(-taxa * dt));
+    if (Math.abs(meta - foco.current) < 0.002) foco.current = meta;
+
+    if (vinhetaRef.current) vinhetaRef.current.style.opacity = foco.current.toFixed(3);
+  });
+
+  return null;
+}
+
+const POEIRA_N = 60;
+const raioCone = (y) => 0.1 + 0.8 * ((TETO_Y - y) / (TETO_Y - 0.06));
+
+function Diploma({ foco }) {
+  const url = `${import.meta.env.BASE_URL}3d/${DIPLOMA_ARQUIVO}`;
+  const tex = useTexture(url);
+  const { gl, scene } = useThree();
+  const radial = useTexturaRadial();
+  const placa = useTexturaPlaca();
+
+  const giro = useRef();
+  const luz = useRef();
+  const efeitos = useRef();
+  const pontos = useRef();
+  const anel = useRef();
+  const t = useRef(0);
+
+  useMemo(() => {
+    tex.colorSpace = THREE.SRGBColorSpace;
+    tex.anisotropy = gl.capabilities.getMaxAnisotropy();
+    tex.needsUpdate = true;
+  }, [tex, gl]);
+
+  const asp = tex.image.width / tex.image.height;
+  const L = DIPLOMA_L;
+  const A = L / asp;
+
+  const ux = -DIPLOMA_X;
+  const uz = -DIPLOMA_Z;
+  const norma = Math.hypot(ux, uz);
+  const rotPedestal = Math.atan2(ux, uz);
+  const luzPos = [DIPLOMA_X + (ux / norma) * 1.2, TETO_Y - 0.1, DIPLOMA_Z + (uz / norma) * 1.2];
+
+  const matDiploma = useMemo(
+    () =>
+      new THREE.MeshStandardMaterial({
+        map: tex,
+        emissiveMap: tex,
+        emissive: new THREE.Color("#ffffff"),
+        emissiveIntensity: 0.3,
+        color: new THREE.Color("#d9d9d9"),
+        toneMapped: false,
+        roughness: 0.55,
+        metalness: 0,
+      }),
+    [tex]
+  );
+
+  const matCone = useMemo(
+    () =>
+      new THREE.ShaderMaterial({
+        transparent: true,
+        depthWrite: false,
+        blending: THREE.AdditiveBlending,
+        side: THREE.DoubleSide,
+        uniforms: { uOp: { value: 0 }, uCor: { value: new THREE.Color("#ffe6b8") } },
+        vertexShader: `
+          varying vec3 vN; varying vec3 vV; varying float vY;
+          void main() {
+            vY = uv.y;
+            vec4 mv = modelViewMatrix * vec4(position, 1.0);
+            vN = normalize(normalMatrix * normal);
+            vV = normalize(-mv.xyz);
+            gl_Position = projectionMatrix * mv;
+          }`,
+        fragmentShader: `
+          uniform float uOp; uniform vec3 uCor;
+          varying vec3 vN; varying vec3 vV; varying float vY;
+          void main() {
+            float f = abs(dot(normalize(vN), normalize(vV)));
+            float a = pow(f, 1.6) * pow(vY, 1.3) * uOp;
+            gl_FragColor = vec4(uCor, a);
+          }`,
+      }),
+    []
+  );
+
+  const poeira = useMemo(
+    () => ({
+      base: Array.from({ length: POEIRA_N }, () => ({
+        a: Math.random() * Math.PI * 2,
+        f: Math.sqrt(Math.random()) * 0.9,
+        y: 0.2 + Math.random() * 3.5,
+        v: 0.02 + Math.random() * 0.05,
+        w: (Math.random() - 0.5) * 0.4,
+      })),
+      pos: new Float32Array(POEIRA_N * 3),
+    }),
+    []
+  );
+
+  useEffect(() => {
+    const l = luz.current;
+    if (!l) return;
+    l.target.position.set(DIPLOMA_X, DIPLOMA_Y - 0.1, DIPLOMA_Z);
+    scene.add(l.target);
+    l.target.updateMatrixWorld();
+    return () => { scene.remove(l.target); };
+  }, [scene]);
+
+  useEffect(() => () => {
+    matDiploma.dispose();
+    matCone.dispose();
+  }, [matDiploma, matCone]);
+
+  useFrame((_, delta) => {
+    const dt = Math.min(delta, 0.05);
+    const f = foco.current;
+    t.current += dt;
+
+    if (giro.current) {
+      giro.current.position.y = DIPLOMA_Y + Math.sin(t.current * 1.4) * 0.05;
+    }
+
+    matDiploma.emissiveIntensity = 0.3 + 0.1 * f;
+    matCone.uniforms.uOp.value = 0.1 * f;
+    if (luz.current) luz.current.intensity = 20 * f;
+    if (anel.current) anel.current.material.opacity = 0.35 + 0.65 * f;
+
+    const ligado = f > 0.003;
+    if (efeitos.current) efeitos.current.visible = ligado;
+    if (ligado && pontos.current) {
+      poeira.base.forEach((p, i) => {
+        p.y += p.v * dt;
+        if (p.y > TETO_Y - 0.1) p.y = 0.2;
+        p.a += p.w * dt;
+        const r = raioCone(p.y) * p.f;
+        poeira.pos[i * 3] = Math.cos(p.a) * r;
+        poeira.pos[i * 3 + 1] = p.y;
+        poeira.pos[i * 3 + 2] = Math.sin(p.a) * r;
+      });
+      pontos.current.geometry.attributes.position.needsUpdate = true;
+      pontos.current.material.opacity = 0.5 * f;
+    }
+  });
+
+  const dourado = { color: "#c9a24a", metalness: 0.9, roughness: 0.3 };
+
+  return (
+    <>
+      <spotLight
+        ref={luz}
+        position={luzPos}
+        angle={0.42}
+        penumbra={0.75}
+        intensity={0}
+        decay={2}
+        color="#fff0d2"
+      />
+
+      <group position={[DIPLOMA_X, 0, DIPLOMA_Z]}>
+        <mesh position={[0, 0.04, 0]} receiveShadow>
+          <cylinderGeometry args={[0.75, 0.78, 0.08, 64]} />
+          <meshStandardMaterial color="#141311" roughness={0.35} metalness={0.2} />
+        </mesh>
+        <mesh ref={anel} position={[0, 0.085, 0]} rotation-x={-Math.PI / 2}>
+          <ringGeometry args={[0.62, 0.66, 96]} />
+          <meshBasicMaterial color="#e8c46a" transparent opacity={0.35} toneMapped={false} />
+        </mesh>
+
+        <group rotation-y={rotPedestal}>
+          <mesh position={[0, 0.11, 0]}>
+            <boxGeometry args={[0.6, 0.06, 0.6]} />
+            <meshStandardMaterial {...dourado} />
+          </mesh>
+          <mesh position={[0, 0.51, 0]}>
+            <boxGeometry args={[0.48, 0.85, 0.48]} />
+            <meshStandardMaterial color="#1b1a18" roughness={0.3} metalness={0.15} />
+          </mesh>
+          <mesh position={[0, 0.96, 0]}>
+            <boxGeometry args={[0.58, 0.05, 0.58]} />
+            <meshStandardMaterial {...dourado} />
+          </mesh>
+          <mesh position={[0, 0.5, 0.241]}>
+            <planeGeometry args={[0.34, 0.117]} />
+            <meshStandardMaterial map={placa} roughness={0.4} metalness={0.3} />
+          </mesh>
+        </group>
+
+        <group ref={giro} position={[0, DIPLOMA_Y, 0]} rotation-y={rotPedestal}>
+          <mesh>
+            <boxGeometry args={[L + 0.01, A + 0.01, 0.012]} />
+            <meshStandardMaterial {...dourado} />
+          </mesh>
+          <mesh position={[0, 0, 0.0065]} material={matDiploma}>
+            <planeGeometry args={[L, A]} />
+          </mesh>
+        </group>
+
+        <group ref={efeitos} visible={false}>
+          <mesh position={[0, (TETO_Y + 0.06) / 2, 0]} material={matCone} renderOrder={2}>
+            <cylinderGeometry args={[0.1, 0.9, TETO_Y - 0.06, 48, 1, true]} />
+          </mesh>
+          <mesh position={[0, 0.1, 0]} rotation-x={-Math.PI / 2} renderOrder={2}>
+            <circleGeometry args={[0.95, 48]} />
+            <meshBasicMaterial
+              map={radial}
+              transparent
+              opacity={0.3}
+              depthWrite={false}
+              blending={THREE.AdditiveBlending}
+              toneMapped={false}
+            />
+          </mesh>
+          <points ref={pontos} frustumCulled={false} renderOrder={3}>
+            <bufferGeometry>
+              <bufferAttribute attach="attributes-position" args={[poeira.pos, 3]} />
+            </bufferGeometry>
+            <pointsMaterial
+              map={radial}
+              size={0.03}
+              transparent
+              opacity={0}
+              depthWrite={false}
+              blending={THREE.AdditiveBlending}
+              toneMapped={false}
+            />
+          </points>
+        </group>
+      </group>
+    </>
+  );
+}
+useTexture.preload(`${import.meta.env.BASE_URL}3d/${DIPLOMA_ARQUIVO}`);
+
 function Caminhada({ input }) {
   const { camera } = useThree();
   const teclas = useRef({});
@@ -232,7 +556,7 @@ function Caminhada({ input }) {
   useEffect(() => {
     const down = (e) => { teclas.current[e.code] = true; };
     const up = (e) => { teclas.current[e.code] = false; };
-    const reset = () => { teclas.current = {}; }; // evita "tecla presa" ao trocar de aba
+    const reset = () => { teclas.current = {}; };
     window.addEventListener("keydown", down);
     window.addEventListener("keyup", up);
     window.addEventListener("blur", reset);
@@ -385,7 +709,7 @@ function Hud({ videos, ativo, mirando, mostrarMira, isTouch, onSelecionar }) {
   const meta = VIDEOS.find((v) => v.id === ativo);
   const pct = info.dur ? (info.tempo / info.dur) * 100 : 0;
   const volumeAtual = info.mudo ? 0 : info.vol;
-  const solta = (e) => e.currentTarget.blur(); // evita a barra de espaço "clicar" no botão focado
+  const solta = (e) => e.currentTarget.blur();
 
   return (
     <>
@@ -498,14 +822,16 @@ export default function Museum() {
   const [visible, setVisible] = useState(false);
   const [travado, setTravado] = useState(false);
   const navigate = useNavigate();
-  const [videos, setVideos] = useState(null); // { id: <video> }
-  const [ativo, setAtivo] = useState(VIDEOS[0].id); // vídeo controlado pelo player
-  const [mirando, setMirando] = useState(null); // vídeo sob a mira (ou null)
+  const [videos, setVideos] = useState(null);
+  const [ativo, setAtivo] = useState(VIDEOS[0].id);
+  const [mirando, setMirando] = useState(null);
   const telas = useRef([]);
   const ativoRef = useRef(VIDEOS[0].id);
   const mirandoRef = useRef(null);
   const exitRef = useRef(null);
   const joyRef = useRef(null);
+  const foco = useRef(0);
+  const vinhetaRef = useRef(null);
   const knobRef = useRef(null);
   const input = useRef({ joy: { x: 0, y: 0 } });
   const isTouch =
@@ -549,7 +875,6 @@ export default function Museum() {
     setAtivo(id);
   }, []);
 
-
   const tocarTela = useCallback((id) => {
     if (!videos || !videos[id]) return;
     ativoRef.current = id;
@@ -581,7 +906,6 @@ export default function Museum() {
       window.removeEventListener("mousedown", clique);
     };
   }, [videos]);
-
 
   const RAIO_JOY = 46;
   const moverJoy = useCallback((e) => {
@@ -656,11 +980,15 @@ export default function Museum() {
           <fog attach="fog" args={["#0a0a0a", 9, 22]} />
 
           <Ambiente />
-          <LuzDeGaleria />
+          <LuzDeGaleria foco={foco} />
 
           <Suspense fallback={null}>
             {videos && <Sala videos={videos} telas={telas} />}
           </Suspense>
+          <Suspense fallback={null}>
+            <Diploma foco={foco} />
+          </Suspense>
+          <FocoDiploma foco={foco} vinhetaRef={vinhetaRef} />
           <Mira telas={telas} onMirar={onMirar} />
 
           {isTouch ? (
@@ -680,6 +1008,13 @@ export default function Museum() {
             </>
           )}
         </Canvas>
+
+        <div className="museum-vinheta" ref={vinhetaRef}>
+          <p className="museum-vinheta-legenda">
+            <span>Diploma</span>
+            <strong>Bacharel em Engenharia de Software</strong>
+          </p>
+        </div>
 
         <Hud
           videos={videos}

@@ -48,7 +48,6 @@
   border-color: #ffffff;
 }
 
-
 .museum-entrar {
   position: absolute;
   inset: 0;
@@ -86,7 +85,6 @@
   text-align: center;
 }
 
-
 .museum-dica-touch {
   position: absolute;
   bottom: 60px;
@@ -106,7 +104,6 @@
 .museum-dica-touch.is-visible {
   opacity: 1;
 }
-
 
 .museum-joystick {
   position: absolute;
@@ -140,7 +137,6 @@
   pointer-events: none;
   will-change: transform;
 }
-
 
 .museum-mira {
   position: absolute;
@@ -193,7 +189,6 @@
   padding: 6px 12px;
   border-radius: 999px;
 }
-
 
 .museum-player {
   position: absolute;
@@ -337,7 +332,6 @@
   text-align: center;
 }
 
-
 .museum-acao {
   position: absolute;
   right: 28px;
@@ -383,7 +377,6 @@
   .museum-dica-touch { display: none; }
 }
 
-
 .museum-exit-overlay {
   position: fixed;
   inset: 0;
@@ -406,4 +399,51 @@
     top: 20px;
     left: 24px;
   }
+}
+
+.museum-vinheta {
+  position: absolute;
+  inset: 0;
+  z-index: 8;
+  pointer-events: none;
+  opacity: 0;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(0, 0, 0, 0) 20%,
+    rgba(0, 0, 0, 0.45) 55%,
+    rgba(0, 0, 0, 0.88) 100%
+  );
+}
+
+.museum-vinheta-legenda {
+  position: absolute;
+  top: 34px;
+  left: 50%;
+  transform: translateX(-50%);
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  text-align: center;
+  color: #ffffff;
+  white-space: nowrap;
+}
+
+.museum-vinheta-legenda span {
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: #e6c66f;
+}
+
+.museum-vinheta-legenda strong {
+  font-size: clamp(14px, 1.8vw, 20px);
+  font-weight: 300;
+  letter-spacing: 0.04em;
+}
+
+@media (max-width: 900px) {
+  .museum-vinheta-legenda { top: 78px; }
 }
